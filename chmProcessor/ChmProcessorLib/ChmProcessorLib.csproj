@@ -116,7 +116,7 @@
     </Reference>
     <Reference Include="Tidy, Version=1.0.0.0, Culture=neutral">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Tidy.dll</HintPath>
+      <HintPath>..\libraries\Tidy.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
