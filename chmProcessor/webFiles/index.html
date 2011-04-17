@@ -1,0 +1,37 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252" >
+<title>%TITLE%</title>
+<meta name="GENERATOR" content="chmProcessor">
+<link rel="stylesheet" type="text/css" href="contents.css">
+%WEBDESCRIPTION%
+%KEYWORDS%
+</head>
+<body >
+<table id="maintable" cellspacing="0" cellpadding="0" >
+<tr><td class="bluecell" >
+<table width="100%" >
+<tr><td id="titleCell"><h1 id="mainTitle"><img src="help.gif" alt="Help image" align=middle /> %TITLE%</h1></td>
+    <td id="printCell">%Generated with% <a href="http://chmprocessor.sf.net" target="_blank" >chmProcessor</a> <a href="javascript:printTopic();"><img src="document-print.png" alt="Print topic" title="%Print topic%" ></a></td></tr>
+</table>
+</td></tr> 
+<tr><td id="contentRow" colspan="2">
+<!-- If the browser does not support frames put the first topic content here -->
+<iframe id="mainFrame" name="mainFrame" class="full" src="frameset.html">
+%FIRSTPAGECONTENT%
+<!-- And the content tree: -->
+%TREE%
+</iframe></td></tr>
+</table>
+
+<script type="text/javascript" language="JavaScript">
+function printTopic() {
+	document.getElementById("mainFrame").contentWindow.frames["frameCont"].window.focus();
+	document.getElementById("mainFrame").contentWindow.frames["frameCont"].window.print();
+}
+</script>
+
+</body>
+</html>
+
