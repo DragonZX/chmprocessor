@@ -1,0 +1,30 @@
+Contents
+Contenido
+Topics
+Temas
+Search
+Busqueda
+Search Text
+Texto de Busqueda
+Generated with
+Generado con
+Print topic
+Imprimir tema
+Search Result
+Resultado de la Busqueda
+Search text
+Texto buscado
+Showing results
+Mostrando resultados
+of
+de
+Search time
+Tiempo de busqueda
+miliseconds
+milisegundos
+More results
+Mas resultados
+Previous
+Anterior
+Next
+Siguiente

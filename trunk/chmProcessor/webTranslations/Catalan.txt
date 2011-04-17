@@ -1,0 +1,30 @@
+Contents
+Contingut
+Topics
+Temes
+Search
+Cerca
+Search Text
+Text de Cerca
+Generated with
+Generat amb
+Print topic
+Imprimeix tema
+Search Result
+Resultat de la cerca
+Search text
+Text de cerca
+Showing results
+Mostrant resultats
+of
+de
+Search time
+Temps de cerca
+miliseconds
+milisegons
+More results
+Mes resultats
+Previous
+Anterior
+Next
+Seguent
