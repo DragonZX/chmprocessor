@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
+<meta name="GENERATOR" content="chmProcessor" />
+<title>%TITLE%</title>
+<link rel="stylesheet" type="text/css" href="contents.css" />
+<script type="text/javascript" src="misc.js"></script>
+<script type="text/javascript" src="tree.js"></script>
+<script type="text/javascript" src="tabs.js"></script>
+</head>
+<body>
+<a class="arialfont" id="lnk0" href="index.html">%Contents%</a> <a class="arialfont" id="lnk1" href="index.html">%Topics%</a> <a class="arialfont" id="lnk2" href="index.html">%Search%</a><br/>
+<div id="treeContainer"><p><img src="x-office-address-book.png" alt="Contents image" align=middle /> <b>%Contents%:</b></p>
+%TREE%
+</div>
+
+<div id="topicsPanel">
+    <p><img src="folder-saved-search.png" align=middle alt="Topics image" /> <b>%Topics%:</b><br />
+    <input type="text" id="searchTopic" style="width:80%;" onkeyup="topicChanged();" name="searchTopic"/></p>
+    %TOPICS%
+</div>
+
+<div id="searchPanel">
+%TEXTSEARCH%
+</div>
+
+<script type="text/javascript">
+	function topicOnClick() {
+	    var topicsList = document.getElementById("topicsList");
+	    if( topicsList.selectedIndex >= 0 )
+	        document.getElementById("searchTopic").value = topicsList.options[ topicsList.selectedIndex ].text;
+	}
+
+	function doSearch() {
+	    contentTree.searchByContent( document.getElementById("searchText").value , "searchResult" , "topicsList" );
+	}
+
+    function doFullTextSearch() {
+        // Load the content frame with the search page:
+        window.parent.document.getElementById( "frameCont" ).src = "search.aspx?q=" + document.getElementById("searchText").value
+    }
+    
+	function topicSelected() {
+	    var topicsList = document.getElementById("topicsList");
+	    if( topicsList.selectedIndex >= 0 ) {
+	        var href = topicsList.options[ topicsList.selectedIndex ].value;
+	        contentTree.selectUrl( href );
+	    }
+	}
+	
+	function topicChanged() {
+		var topic = document.getElementById("searchTopic").value.toLowerCase();
+		var topicsList = document.getElementById("topicsList");
+		for( var i=0; i< topicsList.options.length; i++ ) {
+	        	var lower = topicsList.options[i].text.toLowerCase();
+	        	if( lower.length > topic.length )
+				lower = lower.substr( 0 , topic.length );
+			if( lower.indexOf( topic ) == 0 || lower >= topic ) {
+				topicsList.selectedIndex = i;
+				break;
+			}
+		}
+	}
+	
+	// Create tabs:
+	var lnks = [ "lnk0" , "lnk1" , "lnk2" ];
+	var contents = [ "treeContainer" , "topicsPanel" ,  "searchPanel" ];
+	initializeTab( lnks , contents );
+	
+	// Create tree:	
+    contentTree.create( document.getElementById( "contentsTree" ) , window.parent.document.getElementById( "frameCont" ) , window.parent.parent.location.href );
+    
+    //window.parent.parent.parent.document.getElementById("mainTitle").innerHTML = document.title;
+    window.parent.parent.parent.document.title = document.title;
+</script>
+</body>
+</html>
+
+
