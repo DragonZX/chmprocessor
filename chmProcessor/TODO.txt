@@ -1,0 +1,16 @@
+- USE SUBVERSION ON SOURCEFORGE
+- Verify source file contains only one html file or multiple word docs, and not mixed types
+- JAR field is enabled when a new project is created.
+- Changes on execution after generation does not modify the project.
+- Add a dialog for exceptions.
+- Change version number to 1.5
+- Change documentation
+- Add submited patches.
+- Move PDF and compilation to DocumentProcessor
+- Change pdf generation error message to point to the current PDFCreator version.
+- DocumentProcessor.Generate should not return anything.
+- Rename DocumentProcessor.Configuration to DocumentProcessor.Project
+- Store a list of generation exceptions.
+- Change documentation. Think about documentate the chmprocessorlib for external use.
+- Remove temporal file with joined word docs.
+- Store references to files relative to project location.
