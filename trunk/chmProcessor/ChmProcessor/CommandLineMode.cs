@@ -136,11 +136,13 @@ namespace ProcesadorHtml
         {
             try
             {
+                ExceptionMessageBox.UrlBugReport = "http://sourceforge.net/tracker/?group_id=197104&atid=960127";
                 new CommandLineMode(argv);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Unhandled exception: " + ex.Message + "\n" + ex.StackTrace);
+                //MessageBox.Show("Unhandled exception: " + ex.Message + "\n" + ex.StackTrace);
+                new ExceptionMessageBox(ex).ShowDialog();
             }
         }
 

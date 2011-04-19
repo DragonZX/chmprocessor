@@ -4,7 +4,7 @@ namespace ChmProcessorLib
     /// <summary>
     /// Interface to control the process of the CHM generation.
     /// </summary>
-    interface UserInterface
+    public interface UserInterface
     {
         /// <summary>
         /// Notifies to the generation process that the user wants to cancel the generation process.
@@ -15,7 +15,14 @@ namespace ChmProcessorLib
         /// <summary>
         /// Called by the generation process to add a text to the log.
         /// </summary>
-        /// <param name="text"></param>
+        /// <param name="text">Text to log</param>
         void log(string text);
+
+        /// <summary>
+        /// Called by the generation process to add an exception to the log.
+        /// </summary>
+        /// <param name="text">Exception to log</param>
+        void log(Exception exception);
+
     }
 }

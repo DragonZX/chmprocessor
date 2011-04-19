@@ -31,7 +31,7 @@ namespace ProcesadorHtml
 	/// <summary>
 	/// Dialog to show the CHM generation status progress
 	/// </summary>
-	public class GenerationDialog : System.Windows.Forms.Form , DocumentProcessor.UserInterface
+	public class GenerationDialog : System.Windows.Forms.Form , UserInterface
 	{
         private System.Windows.Forms.Button btnAceptar;
 		/// <summary>
@@ -46,28 +46,7 @@ namespace ProcesadorHtml
 
         private DocumentProcessor procesador;
 
-        //private bool compilar;
-        //private string archivoAyuda;
-
-        //private string archivo;
         private System.Windows.Forms.PictureBox pic;
-        private System.Windows.Forms.TextBox txtLog;
-        //private bool abrirProyecto;
-
-        /*
-        // TODO: Remove this member and user AppSettings.CompilerPath instead
-        /// <summary>
-        /// Path to the microsoft help workshop compiler.
-        /// </summary>
-        private string compilerPath;
-        */
-
-        /*
-        /// <summary>
-        /// Command line to execute after generation ends.
-        /// </summary>
-        private string cmdLine;
-        */
 
         bool logToConsole;
         bool exitAfterEnd;
@@ -87,6 +66,12 @@ namespace ProcesadorHtml
         /// If generation process failed, this is the exception generated.
         /// </summary>
         Exception exceptionFail;
+        private TabControl tabControl1;
+        private TabPage tabPage1;
+        private TextBox txtLog;
+        private TabPage tabPage2;
+        private ListBox lstErrors;
+        private Button btnErrorDetails;
 
         bool askConfirmations;
 
@@ -100,75 +85,11 @@ namespace ProcesadorHtml
             {
                 DateTime startTime = DateTime.Now;
 
-                string proyectoAyuda = procesador.Generate();
+                procesador.GenerateHelp();
                 if (CancellRequested())
                 {
                     log("PROCESS CANCELLED");
                     return;
-                }
-                //if (compilar)
-                if ( project.Compile )
-                {
-                    // Due to some strange bug, if we have as current drive a network drive, the generated
-                    // help dont show the images... So, change it to the system drive:
-                    string cwd = Directory.GetCurrentDirectory();
-                    //string tempDirectory = Path.GetDirectoryName(procesador.PartsDirectory);
-                    string tempDirectory = Path.GetDirectoryName(procesador.Configuration.HelpProjectDirectory);
-                    Directory.SetCurrentDirectory(tempDirectory);
-                    procesador.Compile(project.ArchivoAyuda, AppSettings.CompilerPath);
-                    Directory.SetCurrentDirectory(cwd);
-                }
-                else if (project.AbrirProyecto)
-                {
-                    try
-                    {
-                        // Abrir el proyecto de la ayuda
-                        Process proceso = new Process();
-                        proceso.StartInfo.FileName = proyectoAyuda;
-                        proceso.Start();
-                    }
-                    catch
-                    {
-                        log("The project " + proyectoAyuda + " cannot be opened" +
-                            ". Have you installed the Microsoft Help Workshop ?");
-                    }
-                }
-                if (CancellRequested())
-                {
-                    log("PROCESS CANCELLED");
-                    return;
-                }
-                if ( procesador.Configuration.GeneratePdf )
-                    BuildPdf();
-
-                if (procesador.Configuration.GenerateXps)
-                    BuildXps();
-
-                if (CancellRequested())
-                {
-                    log("PROCESS CANCELLED");
-                    return;
-                }
-
-                //if (cmdLine != null && !cmdLine.Trim().Equals(""))
-                if (project.CommandLine != null && !project.CommandLine.Trim().Equals(""))
-                {
-                    // Execute the command line:
-                    log("Executing '" + project.CommandLine.Trim() + "'");
-                    string strCmdLine = "/C " + project.CommandLine.Trim();
-                    ProcessStartInfo si = new System.Diagnostics.ProcessStartInfo("CMD.exe", strCmdLine);
-                    si.CreateNoWindow = false;
-                    si.UseShellExecute = false;
-                    si.RedirectStandardOutput = true;
-                    si.RedirectStandardError = true;
-                    Process p = new Process();
-                    p.StartInfo = si;
-                    p.Start();
-                    string output = p.StandardOutput.ReadToEnd();
-                    string error = p.StandardError.ReadToEnd();
-                    p.WaitForExit();
-                    log(output);
-                    log(error);
                 }
 
                 log("DONE!");
@@ -184,57 +105,6 @@ namespace ProcesadorHtml
             }
         }
 
-        /// <summary>
-        /// Generate a XPS file for the document.
-        /// </summary>
-        private void BuildXps()
-        {
-            log("Generating XPS file");
-            try
-            {
-                MSWord word = new MSWord();
-                //word.SaveWordToXps(archivo, procesador.Configuration.XpsPath);
-                word.SaveWordToXps(project.ArchivoOrigen, procesador.Configuration.XpsPath);
-            }
-            catch (Exception ex)
-            {
-                log(ex.Message);
-                log("Something wrong happened with the XPS generation. Remember you must to have Microsoft Office 2007 and the" +
-                        "pdf/xps generation add-in (http://www.microsoft.com/downloads/details.aspx?FamilyID=4D951911-3E7E-4AE6-B059-A2E79ED87041&displaylang=en)");
-            }
-        }
-
-        private void BuildPdf()
-        {
-            try
-            {
-                log("Generating PDF file");
-                if (procesador.Configuration.PdfGeneration == ChmProject.PdfGenerationWay.OfficeAddin)
-                {
-                    MSWord word = new MSWord();
-                    //word.SaveWordToPdf(archivo, procesador.Configuration.PdfPath);
-                    word.SaveWordToPdf(project.ArchivoOrigen, procesador.Configuration.PdfPath);
-                }
-                else
-                {
-                    PdfPrinter pdfPrinter = new PdfPrinter();
-                    //pdfPrinter.ConvertToPdf(archivo, procesador.Configuration.PdfPath);
-                    pdfPrinter.ConvertToPdf(project.ArchivoOrigen, procesador.Configuration.PdfPath);
-                }
-              }
-            catch (Exception ex)
-            {
-                log(ex.Message);
-                if (procesador.Configuration.PdfGeneration == ChmProject.PdfGenerationWay.OfficeAddin)
-                    log("Something wrong happened with the PDF generation. Remember you must to have Microsoft Office 2007 and the" +
-                        "pdf/xps generation add-in (http://www.microsoft.com/downloads/details.aspx?FamilyID=4D951911-3E7E-4AE6-B059-A2E79ED87041&displaylang=en)");
-                else
-                    log("Something wrong happened with the PDF generation. Remember you must to have PdfCreator (version 0.9.3 tested only) installed into your computer to " +
-                        "generate a PDF file. You can download it from http://www.pdfforge.org/products/pdfcreator/download");
-                throw ex;
-            }
-        }
-
         //public GenerationDialog(DocumentProcessor procesador, string archivo, bool compilar, string archivoAyuda, bool abrirProyecto, string commandLine, bool logToConsole, bool exitAfterEnd, bool askConfirmations )
         public GenerationDialog( ChmProject project ,  bool logToConsole, bool exitAfterEnd, bool askConfirmations)
 		{
@@ -245,22 +115,13 @@ namespace ProcesadorHtml
 
             this.project = project;
 
-            //this.procesador = procesador;
             this.procesador = new DocumentProcessor(project);
 
-            //this.archivo = archivo;
-            //this.compilar = compilar;
-            //this.archivoAyuda = archivoAyuda;
-            //this.abrirProyecto = abrirProyecto;
-            //this.compilerPath = AppSettings.CompilerPath;
-            //this.cmdLine = commandLine;
             this.exitAfterEnd = exitAfterEnd;
             this.logToConsole = logToConsole;
             this.askConfirmations = askConfirmations;
 
             procesador.ui = this;
-            //t = new Thread(new ThreadStart(ThreadProc));
-            //t.Start();
             bgWorker.RunWorkerAsync();
 		}
 
@@ -289,16 +150,24 @@ namespace ProcesadorHtml
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(GenerationDialog));
             this.btnAceptar = new System.Windows.Forms.Button();
             this.pic = new System.Windows.Forms.PictureBox();
-            this.txtLog = new System.Windows.Forms.TextBox();
             this.bgWorker = new System.ComponentModel.BackgroundWorker();
+            this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.txtLog = new System.Windows.Forms.TextBox();
+            this.lstErrors = new System.Windows.Forms.ListBox();
+            this.btnErrorDetails = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pic)).BeginInit();
+            this.tabControl1.SuspendLayout();
+            this.tabPage1.SuspendLayout();
+            this.tabPage2.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnAceptar
             // 
             this.btnAceptar.Image = ((System.Drawing.Image)(resources.GetObject("btnAceptar.Image")));
             this.btnAceptar.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.btnAceptar.Location = new System.Drawing.Point(178, 324);
+            this.btnAceptar.Location = new System.Drawing.Point(206, 381);
             this.btnAceptar.Name = "btnAceptar";
             this.btnAceptar.Size = new System.Drawing.Size(173, 40);
             this.btnAceptar.TabIndex = 0;
@@ -308,22 +177,11 @@ namespace ProcesadorHtml
             // 
             // pic
             // 
-            this.pic.Location = new System.Drawing.Point(96, 324);
+            this.pic.Location = new System.Drawing.Point(144, 381);
             this.pic.Name = "pic";
             this.pic.Size = new System.Drawing.Size(56, 40);
             this.pic.TabIndex = 3;
             this.pic.TabStop = false;
-            // 
-            // txtLog
-            // 
-            this.txtLog.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtLog.Location = new System.Drawing.Point(12, 12);
-            this.txtLog.Multiline = true;
-            this.txtLog.Name = "txtLog";
-            this.txtLog.ReadOnly = true;
-            this.txtLog.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.txtLog.Size = new System.Drawing.Size(504, 296);
-            this.txtLog.TabIndex = 4;
             // 
             // bgWorker
             // 
@@ -333,12 +191,73 @@ namespace ProcesadorHtml
             this.bgWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgWorker_RunWorkerCompleted);
             this.bgWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bgWorker_ProgressChanged);
             // 
+            // tabControl1
+            // 
+            this.tabControl1.Controls.Add(this.tabPage1);
+            this.tabControl1.Controls.Add(this.tabPage2);
+            this.tabControl1.Location = new System.Drawing.Point(12, 12);
+            this.tabControl1.Name = "tabControl1";
+            this.tabControl1.SelectedIndex = 0;
+            this.tabControl1.Size = new System.Drawing.Size(561, 363);
+            this.tabControl1.TabIndex = 4;
+            // 
+            // tabPage1
+            // 
+            this.tabPage1.Controls.Add(this.txtLog);
+            this.tabPage1.Location = new System.Drawing.Point(4, 22);
+            this.tabPage1.Name = "tabPage1";
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage1.Size = new System.Drawing.Size(553, 337);
+            this.tabPage1.TabIndex = 0;
+            this.tabPage1.Text = "Log";
+            this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // tabPage2
+            // 
+            this.tabPage2.Controls.Add(this.btnErrorDetails);
+            this.tabPage2.Controls.Add(this.lstErrors);
+            this.tabPage2.Location = new System.Drawing.Point(4, 22);
+            this.tabPage2.Name = "tabPage2";
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage2.Size = new System.Drawing.Size(553, 337);
+            this.tabPage2.TabIndex = 1;
+            this.tabPage2.Text = "Errors";
+            this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // txtLog
+            // 
+            this.txtLog.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtLog.Location = new System.Drawing.Point(6, 6);
+            this.txtLog.Multiline = true;
+            this.txtLog.Name = "txtLog";
+            this.txtLog.ReadOnly = true;
+            this.txtLog.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.txtLog.Size = new System.Drawing.Size(541, 325);
+            this.txtLog.TabIndex = 5;
+            // 
+            // lstErrors
+            // 
+            this.lstErrors.FormattingEnabled = true;
+            this.lstErrors.Location = new System.Drawing.Point(6, 6);
+            this.lstErrors.Name = "lstErrors";
+            this.lstErrors.Size = new System.Drawing.Size(541, 290);
+            this.lstErrors.TabIndex = 0;
+            // 
+            // btnErrorDetails
+            // 
+            this.btnErrorDetails.Location = new System.Drawing.Point(6, 308);
+            this.btnErrorDetails.Name = "btnErrorDetails";
+            this.btnErrorDetails.Size = new System.Drawing.Size(127, 23);
+            this.btnErrorDetails.TabIndex = 1;
+            this.btnErrorDetails.Text = "Show error details";
+            this.btnErrorDetails.UseVisualStyleBackColor = true;
+            // 
             // GenerationDialog
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
-            this.ClientSize = new System.Drawing.Size(530, 383);
+            this.ClientSize = new System.Drawing.Size(585, 433);
             this.ControlBox = false;
-            this.Controls.Add(this.txtLog);
+            this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.pic);
             this.Controls.Add(this.btnAceptar);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
@@ -347,8 +266,11 @@ namespace ProcesadorHtml
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "chmProcessor  - Generating help...";
             ((System.ComponentModel.ISupportInitialize)(this.pic)).EndInit();
+            this.tabControl1.ResumeLayout(false);
+            this.tabPage1.ResumeLayout(false);
+            this.tabPage1.PerformLayout();
+            this.tabPage2.ResumeLayout(false);
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 		#endregion
@@ -363,6 +285,15 @@ namespace ProcesadorHtml
         public bool CancellRequested()
         {
             return bgWorker.CancellationPending;
+        }
+
+        /// <summary>
+        /// Called by the generation process to add an exception to the log.
+        /// </summary>
+        /// <param name="text">Exception to log</param>
+        public void log(Exception exception)
+        {
+            bgWorker.ReportProgress(0, exception);
         }
 
         #endregion
@@ -398,8 +329,14 @@ namespace ProcesadorHtml
 
         private void bgWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            string text = (string)e.UserState;
-            WriteLog(text);
+            if (e.UserState is string)
+            {
+                string text = (string)e.UserState;
+                WriteLog(text);
+            }
+            else if (e.UserState is Exception)
+            {
+            }
         }
 
         private void bgWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -416,8 +353,8 @@ namespace ProcesadorHtml
                 if (exceptionFail != null)
                 {
                     WriteLog("ERROR: " + exceptionFail.Message);
-                    if( askConfirmations ) 
-                        MessageBox.Show(exceptionFail.Message + "\n" + exceptionFail.StackTrace);
+                    if (askConfirmations)
+                        new ExceptionMessageBox(exceptionFail).ShowDialog(this);
                 }
                 else
                     WriteLog("Failed");

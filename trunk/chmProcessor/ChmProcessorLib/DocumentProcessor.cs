@@ -104,33 +104,32 @@ namespace ChmProcessorLib
         /// <summary>
         /// HTML content of the body of the first chapter into the document.
         /// </summary>
-        public string FirstChapterContent;
+        private string FirstChapterContent;
 
         /// <summary>
         /// HTML code loaded for the web site headers.
         /// </summary>
-        public string HtmlHeaderCode;
+        private string HtmlHeaderCode;
 
         /// <summary>
         /// HTML code loaded for the web site footers.
         /// </summary>
-        public string HtmlFooterCode;
+        private string HtmlFooterCode;
 
         /// <summary>
-        /// Configuration to generate the help. 
+        /// Project to generate the help. 
         /// </summary>
-        public ChmProject Configuration;
+        public ChmProject Project;
+
+        /// <summary>
+        /// List of exceptions catched on the generation process.
+        /// </summary>
+        public ArrayList generationExceptions = new ArrayList();
 
         /// <summary>
         /// Timer to avoid html loading hang ups
         /// </summary>
-        System.Windows.Forms.Timer timerTimeout;
-
-        public interface UserInterface 
-        {
-            void log( string text );
-            bool CancellRequested();
-        }
+        private System.Windows.Forms.Timer timerTimeout;
 
         /// <summary>
         /// Handler of the user interface of the generation process. Can be null.
@@ -141,6 +140,17 @@ namespace ChmProcessorLib
         {
             if (ui != null)
                 ui.log(texto);
+        }
+
+        /// <summary>
+        /// Stores an exception into the log.
+        /// </summary>
+        /// <param name="exception"></param>
+        private void log(Exception exception)
+        {
+            generationExceptions.Add(exception);
+            if (ui != null)
+                ui.log(exception);
         }
 
         private bool CancellRequested()
@@ -192,19 +202,22 @@ namespace ChmProcessorLib
         {
 
             // Check any source file is open:
-            foreach (string sourceFile in Configuration.SourceFiles)
+            foreach (string sourceFile in Project.SourceFiles)
             {
                 if (msWord.IsOpen(sourceFile))
                     throw new Exception("The file " + sourceFile + " is already open. You must to close it before generate the help.");
             }
 
-            if (Configuration.SourceFiles.Count == 1)
-                return (string) Configuration.SourceFiles[0];
+            if (Project.SourceFiles.Count == 1)
+                return (string) Project.SourceFiles[0];
 
             // Join multiple documents to a temporal file:
             string joinedDocument = Path.GetTempFileName();
+            // Add DOC extension:
+            joinedDocument += ".doc";
+
             log("Joining documents to a single temporal file : " + joinedDocument);
-            msWord.JoinDocuments(Configuration.SourceFiles, joinedDocument);
+            msWord.JoinDocuments(Project.SourceFiles, joinedDocument);
             return joinedDocument;
         }
 
@@ -217,16 +230,18 @@ namespace ChmProcessorLib
         private string ConvertWordSourceFiles(MSWord msWord)
         {
 
-            string singleWordFile = CheckAndJoinWordSourceFiles(msWord);
+            MainSourceFile = CheckAndJoinWordSourceFiles(msWord);
 
-            log("Convert file " + singleWordFile + " to HTML");
-            string nombreArchivo = Path.GetFileNameWithoutExtension(singleWordFile);
+            log("Convert file " + MainSourceFile + " to HTML");
+            string nombreArchivo = Path.GetFileNameWithoutExtension(MainSourceFile);
             dirHtml = Path.GetTempPath() + Path.DirectorySeparatorChar + nombreArchivo;
             if (Directory.Exists(dirHtml))
                 Directory.Delete(dirHtml, true);
+            else if (File.Exists(dirHtml))
+                File.Delete(dirHtml);
             Directory.CreateDirectory(dirHtml);
             string finalFile = dirHtml + Path.DirectorySeparatorChar + nombreArchivo + ".htm";
-            msWord.SaveWordToHtml(singleWordFile, finalFile);
+            msWord.SaveWordToHtml(MainSourceFile, finalFile);
             return finalFile;
         }
 
@@ -240,10 +255,9 @@ namespace ChmProcessorLib
 
             try
             {
-                //esWord = MSWord.ItIsWordDocument( Configuration.ArchivoOrigen );
-                esWord = MSWord.ItIsWordDocument((string)Configuration.SourceFiles[0]);
+                string archivoFinal = (string)Project.SourceFiles[0];
+                esWord = MSWord.ItIsWordDocument(archivoFinal);
                 dirHtml = null;
-                string archivoFinal = Configuration.ArchivoOrigen;
                 // Si es un documento word, convertirlo a HTML filtrado
                 if (esWord)
                 {
@@ -254,6 +268,9 @@ namespace ChmProcessorLib
                     msWord.Dispose();
                     msWord = null;
                 }
+                else
+                    // There is a single source HTML file.
+                    MainSourceFile = (string)Project.SourceFiles[0];
 
                 if (AppSettings.UseTidyOverInput)
                     new TidyParser(ui).Parse(archivoFinal);
@@ -329,7 +346,7 @@ namespace ChmProcessorLib
 
         public DocumentProcessor( ChmProject configuration)
         {
-            this.Configuration = configuration;
+            this.Project = configuration;
             this.ArchivosAdicionales = new ArrayList(configuration.ArchivosAdicionales);
         }
 
@@ -727,7 +744,7 @@ namespace ChmProcessorLib
                 // Remove comments
                 string cssText = style.innerHTML.Replace("<!--", "").Replace("-->", "");
                 // Create the CSS file:
-                cssFile = Configuration.HelpProjectDirectory + Path.DirectorySeparatorChar + "embeddedstyles.css";
+                cssFile = Project.HelpProjectDirectory + Path.DirectorySeparatorChar + "embeddedstyles.css";
                 StreamWriter writer = new StreamWriter(cssFile);
                 writer.Write(cssText);
                 writer.Close();
@@ -748,48 +765,61 @@ namespace ChmProcessorLib
             try
             {
                 MSWord word = new MSWord();
-                word.SaveWordToXps(Configuration.ArchivoOrigen, Configuration.XpsPath);
+                word.SaveWordToXps(MainSourceFile, Project.XpsPath);
             }
             catch (Exception ex)
             {
-                log(ex.Message);
                 log("Something wrong happened with the XPS generation. Remember you must to have Microsoft Office 2007 and the" +
                         "pdf/xps generation add-in (http://www.microsoft.com/downloads/details.aspx?FamilyID=4D951911-3E7E-4AE6-B059-A2E79ED87041&displaylang=en)");
+                log(ex);
             }
         }
 
         private void ExecuteProjectCommandLine()
         {
-            log("Executing '" + Configuration.CommandLine.Trim() + "'");
-            string strCmdLine = "/C " + Configuration.CommandLine.Trim();
-            ProcessStartInfo si = new System.Diagnostics.ProcessStartInfo("CMD.exe", strCmdLine);
-            si.CreateNoWindow = false;
-            si.UseShellExecute = false;
-            si.RedirectStandardOutput = true;
-            si.RedirectStandardError = true;
-            Process p = new Process();
-            p.StartInfo = si;
-            p.Start();
-            string output = p.StandardOutput.ReadToEnd();
-            string error = p.StandardError.ReadToEnd();
-            p.WaitForExit();
-            log(output);
-            log(error);
+            try
+            {
+                log("Executing '" + Project.CommandLine.Trim() + "'");
+                string strCmdLine = "/C " + Project.CommandLine.Trim();
+                ProcessStartInfo si = new System.Diagnostics.ProcessStartInfo("CMD.exe", strCmdLine);
+                si.CreateNoWindow = false;
+                si.UseShellExecute = false;
+                si.RedirectStandardOutput = true;
+                si.RedirectStandardError = true;
+                Process p = new Process();
+                p.StartInfo = si;
+                p.Start();
+                string output = p.StandardOutput.ReadToEnd();
+                string error = p.StandardError.ReadToEnd();
+                p.WaitForExit();
+                log(output);
+                log(error);
+            }
+            catch (Exception ex)
+            {
+                log("Error executing command line ");
+                log(ex);
+            }
         }
 
+        /// <summary>
+        /// Handle the generated help project.
+        /// It can be compiled or openened through Windows sell.
+        /// </summary>
+        /// <param name="helpProjectFile">Path to help file project generated</param>
         private void ProcessHelpProject(string helpProjectFile)
         {
-            if (Configuration.Compile)
+            if (Project.Compile)
             {
                 // Due to some strange bug, if we have as current drive a network drive, the generated
                 // help dont show the images... So, change it to the system drive:
                 string cwd = Directory.GetCurrentDirectory();
-                string tempDirectory = Path.GetDirectoryName(Configuration.HelpProjectDirectory);
+                string tempDirectory = Path.GetDirectoryName(Project.HelpProjectDirectory);
                 Directory.SetCurrentDirectory(tempDirectory);
-                Compile(Configuration.ArchivoAyuda, AppSettings.CompilerPath);
+                Compile(Project.HelpFile, AppSettings.CompilerPath);
                 Directory.SetCurrentDirectory(cwd);
             }
-            else if (Configuration.AbrirProyecto)
+            else if (Project.OpenProject)
             {
                 try
                 {
@@ -798,10 +828,11 @@ namespace ChmProcessorLib
                     proceso.StartInfo.FileName = helpProjectFile;
                     proceso.Start();
                 }
-                catch
+                catch( Exception ex ) 
                 {
                     log("The project " + helpProjectFile + " cannot be opened" +
                         ". Have you installed the Microsoft Help Workshop ?");
+                    log(ex);
                 }
             }
         }
@@ -814,27 +845,67 @@ namespace ChmProcessorLib
             try
             {
                 log("Generating PDF file");
-                if (Configuration.PdfGeneration == ChmProject.PdfGenerationWay.OfficeAddin)
+                if (Project.PdfGeneration == ChmProject.PdfGenerationWay.OfficeAddin)
                 {
                     MSWord word = new MSWord();
-                    word.SaveWordToPdf(Configuration.ArchivoOrigen, Configuration.PdfPath);
+                    word.SaveWordToPdf(MainSourceFile, Project.PdfPath);
                 }
                 else
                 {
                     PdfPrinter pdfPrinter = new PdfPrinter();
-                    pdfPrinter.ConvertToPdf(Configuration.ArchivoOrigen, Configuration.PdfPath);
+                    pdfPrinter.ConvertToPdf(MainSourceFile, Project.PdfPath);
                 }
             }
             catch (Exception ex)
             {
-                log(ex.Message);
-                if (Configuration.PdfGeneration == ChmProject.PdfGenerationWay.OfficeAddin)
+                if (Project.PdfGeneration == ChmProject.PdfGenerationWay.OfficeAddin)
                     log("Something wrong happened with the PDF generation. Remember you must to have Microsoft Office 2007 and the" +
                         "pdf/xps generation add-in (http://www.microsoft.com/downloads/details.aspx?FamilyID=4D951911-3E7E-4AE6-B059-A2E79ED87041&displaylang=en)");
                 else
                     log("Something wrong happened with the PDF generation. Remember you must to have PdfCreator (version 0.9.3 tested only) installed into your computer to " +
                         "generate a PDF file. You can download it from http://www.pdfforge.org/products/pdfcreator/download");
-                //throw ex;
+                log(ex);
+            }
+        }
+
+        public void GenerateHelp()
+        {
+            try
+            {
+                // Generate help project and java help:
+                string helpProjectFile = Generate();
+
+                if (CancellRequested())
+                    return;
+
+                // Open or compile the help project
+                ProcessHelpProject(helpProjectFile);
+
+                if (CancellRequested())
+                    return;
+
+                // PDF:
+                if (Project.GeneratePdf)
+                    BuildPdf();
+
+                if (CancellRequested())
+                    return;
+
+                // XPS:
+                if (Project.GenerateXps)
+                    BuildXps();
+
+                if (CancellRequested())
+                    return;
+
+                // Execute command line:
+                if (Project.CommandLine != null && !Project.CommandLine.Trim().Equals(""))
+                    ExecuteProjectCommandLine();
+            }
+            catch (Exception ex)
+            {
+                log(ex);
+                throw;
             }
         }
 
@@ -864,11 +935,11 @@ namespace ChmProcessorLib
                 return null;
 
             //if( !ArchivoCabecera.Equals("") ) 
-            if (!Configuration.ChmHeaderFile.Equals("")) 
+            if (!Project.ChmHeaderFile.Equals("")) 
             {
-                log("Reading header: " + Configuration.ChmHeaderFile);
+                log("Reading header: " + Project.ChmHeaderFile);
                 // Cargar el html del archivo de cabecera:
-                StreamReader reader = new StreamReader(Configuration.ChmHeaderFile);
+                StreamReader reader = new StreamReader(Project.ChmHeaderFile);
                 HtmlCabecera = reader.ReadToEnd();
                 reader.Close();
             }
@@ -877,11 +948,11 @@ namespace ChmProcessorLib
                 return null;
 
             //if( !ArchivoPie.Equals("") ) 
-            if (!Configuration.ChmFooterFile.Equals("")) 
+            if (!Project.ChmFooterFile.Equals("")) 
             {
-                log("Reading footer: " + Configuration.ChmFooterFile);
+                log("Reading footer: " + Project.ChmFooterFile);
                 // Cargar el html del archivo de cabecera:
-                StreamReader reader = new StreamReader(Configuration.ChmFooterFile);
+                StreamReader reader = new StreamReader(Project.ChmFooterFile);
                 HtmlPie = reader.ReadToEnd();
                 reader.Close();
             }
@@ -890,11 +961,11 @@ namespace ChmProcessorLib
                 return null;
 
             //if (!HtmlHeaderFile.Equals(""))
-            if (!Configuration.WebHeaderFile.Equals(""))
+            if (!Project.WebHeaderFile.Equals(""))
             {
-                log("Reading header: " + Configuration.WebHeaderFile);
+                log("Reading header: " + Project.WebHeaderFile);
                 // Cargar el html del archivo de cabecera:
-                StreamReader reader = new StreamReader(Configuration.WebHeaderFile);
+                StreamReader reader = new StreamReader(Project.WebHeaderFile);
                 HtmlHeaderCode = reader.ReadToEnd();
                 reader.Close();
             }
@@ -903,18 +974,18 @@ namespace ChmProcessorLib
                 return null;
 
             //if (!HtmlFooterFile.Equals(""))
-            if (!Configuration.WebFooterFile.Equals(""))
+            if (!Project.WebFooterFile.Equals(""))
             {
-                log("Reading footer: " + Configuration.WebFooterFile);
+                log("Reading footer: " + Project.WebFooterFile);
                 // Cargar el html del archivo de cabecera:
-                StreamReader reader = new StreamReader(Configuration.WebFooterFile);
+                StreamReader reader = new StreamReader(Project.WebFooterFile);
                 HtmlFooterCode = reader.ReadToEnd();
                 reader.Close();
             }
 
             // Preparar el directorio de destino.
-            log("Creating project directory: " + Configuration.HelpProjectDirectory);
-            ArrayList listaFinalArchivos = GenerarDirDestino(Configuration.HelpProjectDirectory);
+            log("Creating project directory: " + Project.HelpProjectDirectory);
+            ArrayList listaFinalArchivos = GenerarDirDestino(Project.HelpProjectDirectory);
 
             // Check if there is a <STYLE> tag into the header. If there is, take it out to a CSS file.
             log("Extracting STYLE tags to a CSS file");
@@ -929,7 +1000,7 @@ namespace ChmProcessorLib
             log( "Searching sections");
             arbol = new ArbolCapitulos();
             //arbol.AnalizarDocumento( this.nivelCorte , iDoc.body );
-            arbol.AnalizarDocumento( Configuration.CutLevel, iDoc.body);
+            arbol.AnalizarDocumento( Project.CutLevel, iDoc.body);
 
             if (CancellRequested())
                 return null;
@@ -942,7 +1013,7 @@ namespace ChmProcessorLib
             foreach( IHTMLElement nodo in col ) 
             {
                 //if( EsHeaderDeCorte( nivelCorte , nodo ) ) 
-                if (EsHeaderDeCorte( Configuration.CutLevel, nodo)) 
+                if (EsHeaderDeCorte( Project.CutLevel, nodo)) 
                 {
                     // Found start of a new part: Store the current body part.
                     GuardarParte(newBody);
@@ -975,14 +1046,14 @@ namespace ChmProcessorLib
 
             // Generar los archivos HTML:
             log( "Storing splitted files");
-            ArrayList archivosGenerados = GuardarDocumentos(Configuration.HelpProjectDirectory, HtmlCabecera, HtmlPie, null);
+            ArrayList archivosGenerados = GuardarDocumentos(Project.HelpProjectDirectory, HtmlCabecera, HtmlPie, null);
 
             if (CancellRequested())
                 return null;
 
             // Mirar si al final se ha generado el archivo "1.htm". Si no, borrarlo
             // del arbol de archivos:
-            string archivo1 = Configuration.HelpProjectDirectory + Path.DirectorySeparatorChar + "1.htm";
+            string archivo1 = Project.HelpProjectDirectory + Path.DirectorySeparatorChar + "1.htm";
             if( ! File.Exists( archivo1) ) 
             {
                 arbol.Raiz.Archivo = "";
@@ -999,42 +1070,42 @@ namespace ChmProcessorLib
 
             // Generar archivo con arbol de contenidos:
             log( "Generating table of contents");
-            arbol.GenerarArbolDeContenidos(Configuration.HelpProjectDirectory + Path.DirectorySeparatorChar + "toc-generado.hhc", Configuration.NivelArbolContenidos);
+            arbol.GenerarArbolDeContenidos(Project.HelpProjectDirectory + Path.DirectorySeparatorChar + "toc-generado.hhc", Project.MaxHeaderContentTree);
             
             if (CancellRequested())
                 return null;
 
             // Generar archivo con palabras clave:
             log( "Generating index");
-            Index index = arbol.GenerarIndice(Configuration.NivelTemasIndice);
-            index.StoreHelpIndex(Configuration.HelpProjectDirectory + Path.DirectorySeparatorChar + "Index-generado.hhk");
+            Index index = arbol.GenerarIndice(Project.MaxHeaderIndex);
+            index.StoreHelpIndex(Project.HelpProjectDirectory + Path.DirectorySeparatorChar + "Index-generado.hhk");
 
             if (CancellRequested())
                 return null;
 
             // Generar el archivo del proyecto de ayuda
             log( "Generating help project");
-            string archivoAyuda = Configuration.HelpProjectDirectory + Path.DirectorySeparatorChar + NOMBREPROYECTO;
+            string archivoAyuda = Project.HelpProjectDirectory + Path.DirectorySeparatorChar + NOMBREPROYECTO;
             GenerarArchivoProyecto( listaFinalArchivos , archivoAyuda , primero );
 
             if (CancellRequested())
                 return null;
 
             //if( GenerarHtml ) 
-            if( Configuration.GenerateWeb )
+            if( Project.GenerateWeb )
             {
                 // Generar la web con la ayuda:
                 log( "Generating web site");
-                ProcesarHtml(Configuration.ArchivoOrigen, archivosGenerados, index, cssFile);
+                GenerateWebSite(archivosGenerados, index, cssFile);
             }
 
             if (CancellRequested())
                 return null;
 
-            if (Configuration.GenerateJavaHelp)
+            if (Project.GenerateJavaHelp)
             {
                 log("Generating Java Help");
-                GenerateJavaHelp(archivosGenerados, index, cssFile, Configuration.ArchivoOrigen);
+                GenerateJavaHelp(archivosGenerados, index, cssFile);
             }
 
             if( esWord )
@@ -1074,7 +1145,7 @@ namespace ChmProcessorLib
             try {
                 string sitemap = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
                                  "<urlset xmlns=\"http://www.google.com/schemas/sitemap/0.84\">\n";
-                string webBase = this.Configuration.WebBase;
+                string webBase = this.Project.WebBase;
                 if( !webBase.EndsWith("/") )
                     webBase += "/";
                 if( !webBase.StartsWith("http://") )
@@ -1090,7 +1161,7 @@ namespace ChmProcessorLib
                         sitemap += "<url>\n<loc>" + webBase + Path.GetFileName(file) + "</loc>\n<lastmod>";
                         DateTime lastmod = File.GetLastWriteTime( file );
                         sitemap += lastmod.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'sszzz") + "</lastmod>\n";
-                        sitemap += "<changefreq>" + this.Configuration.ChangeFrequency + "</changefreq>\n";
+                        sitemap += "<changefreq>" + this.Project.ChangeFrequency + "</changefreq>\n";
                         sitemap += "</url>\n";
                     }
                 }
@@ -1124,7 +1195,7 @@ namespace ChmProcessorLib
                 "PUBLIC \"-//Sun Microsystems Inc.//DTD JavaHelp HelpSet Version 2.0//EN\"\n" + 
                 "\"http://java.sun.com/products/javahelp/helpset_2_0.dtd\">");
             writer.WriteLine("<helpset version=\"2.0\">");
-            writer.WriteLine("<title>" + Configuration.HelpTitle + "</title>");
+            writer.WriteLine("<title>" + Project.HelpTitle + "</title>");
             writer.WriteLine("<maps><homeID>" + index.FirstTopicTarget + "</homeID><mapref location=\"map.jhm\"/></maps>");
             writer.WriteLine("<view><name>TOC</name><label>Table Of Contents</label><type>javax.help.TOCView</type><data>toc.xml</data></view>");
             writer.WriteLine("<view><name>Index</name><label>Index</label><type>javax.help.IndexView</type><data>index.xml</data></view>");
@@ -1140,13 +1211,12 @@ namespace ChmProcessorLib
         /// <param name="generatedFiles">List of chapter html files generated for the help</param>
         /// <param name="index">List of topics of the document.</param>
         /// <param name="cssFile">CSS file of the document, if it was generated.</param>
-        /// <param name="sourceFile">Path of the document converted to CHM</param>
         /// </summary>
-        public void GenerateJavaHelp(ArrayList generatedFiles, Index index, string cssFile, string sourceFile)
+        public void GenerateJavaHelp(ArrayList generatedFiles, Index index, string cssFile)
         {
             
             // Create a temporal directy to generate the javahelp files:
-            String dirJavaHelp = Path.GetTempPath() + Path.DirectorySeparatorChar + Path.GetFileNameWithoutExtension(sourceFile) + "-javahelp";
+            String dirJavaHelp = Path.GetTempPath() + Path.DirectorySeparatorChar + Path.GetFileNameWithoutExtension(MainSourceFile) + "-javahelp";
             log("Copiying files to directory " + dirJavaHelp);
             GenerarDirDestino(dirJavaHelp);
 
@@ -1166,7 +1236,7 @@ namespace ChmProcessorLib
             GenerateJavaHelpSetFile(dirJavaHelp, index);
             index.GenerateJavaHelpIndex(dirJavaHelp + Path.DirectorySeparatorChar + "index.xml");
             index.GenerateJavaHelpMapFile(dirJavaHelp + Path.DirectorySeparatorChar + "map.jhm");
-            arbol.GenerateJavaHelpTOC(dirJavaHelp + Path.DirectorySeparatorChar + "toc.xml", Configuration.NivelArbolContenidos);
+            arbol.GenerateJavaHelpTOC(dirJavaHelp + Path.DirectorySeparatorChar + "toc.xml", Project.MaxHeaderContentTree);
 
             log("Building the search index");
             log(AppSettings.JavaHelpIndexerPath + " .");
@@ -1174,7 +1244,7 @@ namespace ChmProcessorLib
 
             // Build a JAR with the help.
             //java -jar E:\dev\java\javahelp\javahelp2.0\demos\bin\hsviewer.jar -helpset help.jar
-            string commandLine = " cvf \"" + Configuration.JavaHelpPath + "\" .";
+            string commandLine = " cvf \"" + Project.JavaHelpPath + "\" .";
             string jarPath = AppSettings.JarPath;
             log("Building jar:");
             log(jarPath + " " + commandLine);
@@ -1203,16 +1273,22 @@ namespace ChmProcessorLib
             logStream(proceso.StandardOutput);
         }
 
-        private string ProcesarHtml(string sourceFile, ArrayList archivosGenerados, Index index, string cssFile ) 
+        /// <summary>
+        /// Generated the help web site 
+        /// </summary>
+        /// <param name="archivosGenerados">List of all files of the help content.</param>
+        /// <param name="index">Index help information</param>
+        /// <param name="cssFile">File that contains extracted CSS styles</param>
+        /// <returns></returns>
+        private string GenerateWebSite( ArrayList archivosGenerados, Index index, string cssFile ) 
         {
             // Crear el directorio web y copiar archivos adicionales:
             string dirWeb;
             //if( DirectorioWeb.Equals("") )
-            if (Configuration.DirectorioWeb.Equals(""))
-                dirWeb = Configuration.HelpProjectDirectory + Path.DirectorySeparatorChar + "web";
+            if (Project.WebDirectory.Equals(""))
+                dirWeb = Project.HelpProjectDirectory + Path.DirectorySeparatorChar + "web";
             else
-                //dirWeb = DirectorioWeb;
-                dirWeb = Configuration.DirectorioWeb;
+                dirWeb = Project.WebDirectory;
             GenerarDirDestino( dirWeb );
 
             // Copy the css file if was generated:
@@ -1222,7 +1298,7 @@ namespace ChmProcessorLib
             // Check if we can copy the generated files or we must to regenerate with other header 
             // Copy generated chapter files:
             //if (ArchivoCabecera.Equals(HtmlHeaderFile) && ArchivoPie.Equals(HtmlFooterFile) && !Configuration.FullTextSearch )
-            if (Configuration.ChmHeaderFile.Equals(Configuration.WebHeaderFile) && Configuration.ChmFooterFile.Equals(Configuration.WebFooterFile) && !Configuration.FullTextSearch)
+            if (Project.ChmHeaderFile.Equals(Project.WebHeaderFile) && Project.ChmFooterFile.Equals(Project.WebFooterFile) && !Project.FullTextSearch)
             {
                 // Copy files generated for the CHM help
                 foreach (string file in archivosGenerados)
@@ -1237,14 +1313,14 @@ namespace ChmProcessorLib
                 WebIndex indexer = null;
                 try
                 {
-                    if (Configuration.FullTextSearch)
+                    if (Project.FullTextSearch)
                     {
                         indexer = new WebIndex();
                         string dbFile = dirWeb + Path.DirectorySeparatorChar + "fullsearchdb.db3";
                         string dirTextFiles = dirWeb + Path.DirectorySeparatorChar + "textFiles";
                         indexer.Connect(dbFile);
                         indexer.CreateDatabase(System.Windows.Forms.Application.StartupPath + Path.DirectorySeparatorChar + "searchdb.sql", dirTextFiles);
-                        indexer.StoreConfiguration(Configuration.WebLanguage);
+                        indexer.StoreConfiguration(Project.WebLanguage);
                     }
 
                     // Create new files for the web help:
@@ -1260,20 +1336,20 @@ namespace ChmProcessorLib
             // Copy base files for web help:
             string keywordsMeta = "", descriptionMeta = "";
             //if( !WebKeywords.Trim().Equals( "" ) ) 
-            if (!Configuration.WebKeywords.Trim().Equals("")) 
+            if (!Project.WebKeywords.Trim().Equals("")) 
                 //keywordsMeta = "<meta name=\"keywords\" content=\"" + WebKeywords + "\" >";
-                keywordsMeta = "<meta name=\"keywords\" content=\"" + Configuration.WebKeywords + "\" >";
+                keywordsMeta = "<meta name=\"keywords\" content=\"" + Project.WebKeywords + "\" >";
             //if( !WebDescription.Trim().Equals( "" ) ) 
-            if (!Configuration.WebDescription.Trim().Equals("")) 
+            if (!Project.WebDescription.Trim().Equals("")) 
                 //descriptionMeta = "<meta name=\"description\" content=\"" + WebDescription + "\" >";
-                descriptionMeta = "<meta name=\"description\" content=\"" + Configuration.WebDescription + "\" >";
+                descriptionMeta = "<meta name=\"description\" content=\"" + Project.WebDescription + "\" >";
 
             // Convert title to windows-1252 enconding:
-            string title = HtmlEncode(Configuration.HelpTitle);
+            string title = HtmlEncode(Project.HelpTitle);
 
             // Generate search form HTML code:
             string textSearch = "";
-            if (Configuration.FullTextSearch)
+            if (Project.FullTextSearch)
             {
                 textSearch = "<form name=\"searchform\" method=\"post\" action=\"search.aspx\" id=\"searchform\" onsubmit=\"doFullTextSearch();return false;\" >\n";
                 textSearch += "<p><img src=\"system-search.png\" align=middle alt=\"Search image\" /> <b>%Search Text%:</b><br /><input type=\"text\" id=\"searchText\" style=\"width:80%;\" name=\"searchText\"/>\n";
@@ -1293,7 +1369,7 @@ namespace ChmProcessorLib
             string[] variables = { "%TEXTSEARCH%" , "%TITLE%", "%TREE%", "%TOPICS%", "%FIRSTPAGECONTENT%", 
                 "%WEBDESCRIPTION%", "%KEYWORDS%" , "%HEADER%" , "%FOOTER%" };
             //string[] newValues = { textSearch , title, arbol.GenerarArbolHtml(NivelMaximoTOC, "contentsTree", 
-            string[] newValues = { textSearch , title, arbol.GenerarArbolHtml(Configuration.NivelArbolContenidos, "contentsTree", 
+            string[] newValues = { textSearch , title, arbol.GenerarArbolHtml(Project.MaxHeaderContentTree, "contentsTree", 
                 "contentTree"), index.GenerateWebIndex(), FirstChapterContent, descriptionMeta, 
                 keywordsMeta , HtmlHeaderCode , HtmlFooterCode };
             string baseDir = System.Windows.Forms.Application.StartupPath + Path.DirectorySeparatorChar + "webFiles";
@@ -1301,7 +1377,7 @@ namespace ChmProcessorLib
             Replacements replacements = new Replacements(variables, newValues);
             string translationFile = System.Windows.Forms.Application.StartupPath + 
                 Path.DirectorySeparatorChar + "webTranslations" + Path.DirectorySeparatorChar + 
-                Configuration.WebLanguage + ".txt";
+                Project.WebLanguage + ".txt";
             try
             {
                 replacements.AddReplacementsFromFile(translationFile);
@@ -1312,7 +1388,7 @@ namespace ChmProcessorLib
             }
 
             replacements.CopyDirectoryReplaced(baseDir, dirWeb, extensions , AppSettings.UseTidyOverOutput , ui );
-            if (Configuration.FullTextSearch)
+            if (Project.FullTextSearch)
             {
                 // Copy full text serch files:
                 string[] aspxExtensions = { ".aspx" };
@@ -1320,7 +1396,7 @@ namespace ChmProcessorLib
                 replacements.CopyDirectoryReplaced(dirSearchFiles, dirWeb, aspxExtensions, false, ui);
             }
 
-            if (Configuration.GenerateSitemap)
+            if (Project.GenerateSitemap)
                 // Generate site map for web indexers (google).
                 GeneateSitemap(dirWeb);
 
@@ -1375,7 +1451,7 @@ namespace ChmProcessorLib
             writer.WriteLine( "Index file=Index-generado.hhk" );
             //writer.WriteLine( "Language=0xc0a Español (alfabetización internacional)" );
             writer.WriteLine( "Language=0x0409 English (UNITED STATES)" );
-            writer.WriteLine( "Title=" + Configuration.HelpTitle );
+            writer.WriteLine( "Title=" + Project.HelpTitle );
             writer.WriteLine( "\r\n[FILES]" );
             foreach( string archivoAdi in archivosAdicinales )
                 writer.WriteLine( archivoAdi );
@@ -1394,7 +1470,7 @@ namespace ChmProcessorLib
         /// <returns>The first split tag node. null if none was found.</returns>
         private IHTMLElement SearchFirstCutNode( IHTMLElement root ) 
         {
-            if (EsHeaderDeCorte(Configuration.CutLevel, root))
+            if (EsHeaderDeCorte(Project.CutLevel, root))
                 return root;
             else 
             {
@@ -1510,7 +1586,7 @@ namespace ChmProcessorLib
                 foreach( IHTMLElement e in col ) 
                 {
 
-                    if (EsHeaderDeCorte(Configuration.CutLevel, e))
+                    if (EsHeaderDeCorte(Project.CutLevel, e))
                     {
                         //RegistrarParte( e );
                         // Se encontro un header. Cortar aqui.
@@ -1564,7 +1640,7 @@ namespace ChmProcessorLib
                 throw new Exception("Compiler not found at " + compilerPath + ". Help not generated");
             else 
             {
-                string proyecto = "\"" + Configuration.HelpProjectDirectory + Path.DirectorySeparatorChar + NOMBREPROYECTO + "\"";
+                string proyecto = "\"" + Project.HelpProjectDirectory + Path.DirectorySeparatorChar + NOMBREPROYECTO + "\"";
                 ProcessStartInfo info = new ProcessStartInfo( compilerPath , proyecto );
                 info.UseShellExecute = false;
                 info.RedirectStandardOutput = true;
@@ -1574,7 +1650,7 @@ namespace ChmProcessorLib
                     logStream( proceso.StandardOutput );
                 logStream( proceso.StandardOutput );
 
-                string archivoAyudaOrigen = Configuration.HelpProjectDirectory + Path.DirectorySeparatorChar + NOMBREARCHIVOAYUDA;
+                string archivoAyudaOrigen = Project.HelpProjectDirectory + Path.DirectorySeparatorChar + NOMBREARCHIVOAYUDA;
                 if( File.Exists( archivoAyudaOrigen ) ) 
                     // Copy the file frrom the temporally directory to the gift by the user
                     File.Copy( archivoAyudaOrigen , helpFile , true );
