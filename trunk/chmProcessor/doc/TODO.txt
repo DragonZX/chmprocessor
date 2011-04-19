@@ -1,8 +1,5 @@
-- USE SUBVERSION ON SOURCEFORGE
-- Verify source file contains only one html file or multiple word docs, and not mixed types
-- JAR field is enabled when a new project is created.
-- Changes on execution after generation does not modify the project.
-- Add a dialog for exceptions.
+- List errors on generation dialog
+- Check tab controls order
 - Change version number to 1.5
 - Change documentation
 - Add submited patches.
@@ -14,3 +11,4 @@
 - Change documentation. Think about documentate the chmprocessorlib for external use.
 - Remove temporal file with joined word docs.
 - Store references to files relative to project location.
+- Use relative paths instead of absolute paths.
