@@ -28,16 +28,16 @@ namespace ChmProcessorLib
     /// </summary>
     public class TidyParser
     {
-        private DocumentProcessor.UserInterface ui;
+        private UserInterface ui;
         private bool XmlOutput;
 
-        public TidyParser(DocumentProcessor.UserInterface ui)
+        public TidyParser(UserInterface ui)
         {
             this.ui = ui;
             this.XmlOutput = false;
         }
 
-        public TidyParser(DocumentProcessor.UserInterface ui, bool xmlOutput)
+        public TidyParser(UserInterface ui, bool xmlOutput)
         {
             this.ui = ui;
             this.XmlOutput = xmlOutput;

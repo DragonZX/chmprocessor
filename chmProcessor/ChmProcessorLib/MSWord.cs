@@ -36,6 +36,11 @@ namespace ChmProcessorLib
         /// </summary>
         public static string[] WORDEXTENSIONS = { "doc", "docx" };
 
+        /// <summary>
+        /// File extensions for HTML files.
+        /// </summary>
+        public static string[] HTMLEXTENSIONS = { "htm", "html" };
+
         private Application wordApp = null;
         private bool isNewApp = false;
 
@@ -50,6 +55,20 @@ namespace ChmProcessorLib
         {
             string extension = Path.GetExtension(file).ToLower();
             foreach (string ext in WORDEXTENSIONS)
+                if (extension.Equals("." + ext))
+                    return true;
+            return false;
+        }
+
+        /// <summary>
+        /// Check if the files is a HTML document.
+        /// </summary>
+        /// <param name="file">Path of file to check</param>
+        /// <returns>True if the file its a HTML document</returns>
+        static public Boolean IsHtmlDocument(string file)
+        {
+            string extension = Path.GetExtension(file).ToLower();
+            foreach (string ext in HTMLEXTENSIONS)
                 if (extension.Equals("." + ext))
                     return true;
             return false;

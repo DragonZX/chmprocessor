@@ -41,11 +41,16 @@ namespace ChmProcessorLib
         public enum PdfGenerationWay { PdfCreator, OfficeAddin }
 
         /// <summary>
+        /// Frequency of change of the help web site.
+        /// </summary>
+        public enum FrequencyOfChange { always, hourly, daily, weekly, monthly, yearly, never };
+
+        /// <summary>
         /// DEPRECATED. Source file name for the help content.
         /// This is deprecated until 1.5 version. Now we can use a list of source files.
         /// Use SourceFiles member instead.
         /// </summary>
-        public string ArchivoOrigen;
+        private string ArchivoOrigen = null;
 
         /// <summary>
         /// List of source files (MS Word and HTML) to generate the help.
@@ -103,26 +108,127 @@ namespace ChmProcessorLib
         [XmlElement(ElementName = "GenerarWeb")] // To keep compatibility with 1.4 version.
         public bool GenerateWeb;
 
-        public ArrayList ArchivosAdicionales;
-        public bool AbrirProyecto;
-        public string DirectorioWeb;
-        public int NivelArbolContenidos;
-        public int NivelTemasIndice;
-        public string ArchivoAyuda;
-        public string CommandLine;
-        public bool GeneratePdf;
-        public string PdfPath;
-        public string WebKeywords;
-        public string WebDescription;
-        public string WebHeaderFile;
-        public string WebFooterFile;
-        public bool GenerateSitemap;
-        public string WebBase;
-        public enum FrequencyOfChange { always, hourly, daily, weekly, monthly, yearly, never };
-        public FrequencyOfChange ChangeFrequency;
-        public string WebLanguage;
-        public double ConfigurationVersion;
+        /// <summary>
+        /// Path list to additional files and directories that must to be included on the help file.
+        /// </summary>
+        public ArrayList ArchivosAdicionales = new ArrayList();
 
+        /// <summary>
+        /// Only applies if Compile = true.
+        /// If OpenProject is true, after the generation, the help project will be 
+        /// opened through Windows shell.
+        /// </summary>
+        [XmlElement(ElementName = "AbrirProyecto")] // To keep compatibility with 1.4 version.
+        public bool OpenProject;
+
+        /// <summary>
+        /// Only applies if GenerateWeb = true.
+        /// The directory where the web site will be generated.
+        /// </summary>
+        [XmlElement(ElementName = "DirectorioWeb")] // To keep compatibility with 1.4 version.
+        public string WebDirectory = "";
+
+        /// <summary>
+        /// Maximum header level that will be included on the content tree of the help.
+        /// =0 means all headers will be included.
+        /// </summary>
+        [XmlElement(ElementName = "NivelArbolContenidos")] // To keep compatibility with 1.4 version.
+        public int MaxHeaderContentTree;
+
+        /// <summary>
+        /// Maximum header level that will be included on the index of the help.
+        /// =0 means all headers will be included.
+        /// </summary>
+        [XmlElement(ElementName = "NivelTemasIndice")] // To keep compatibility with 1.4 version.
+        public int MaxHeaderIndex;
+
+        /// <summary>
+        /// Only applies if Compile = true.
+        /// Path to the CHM help file that will be generated.
+        /// </summary>
+        [XmlElement(ElementName = "ArchivoAyuda")] // To keep compatibility with 1.4 version.
+        public string HelpFile;
+
+        /// <summary>
+        /// Command line that will be executed after the help generation.
+        /// If is null or empty anything will be executed.
+        /// </summary>
+        public string CommandLine = "";
+
+        /// <summary>
+        /// If true, a PDF file will be generated with the help content.
+        /// </summary>
+        public bool GeneratePdf;
+
+        /// <summary>
+        /// Only applies if GeneratePdf = true.
+        /// Path where will be generated the PDF file.
+        /// </summary>
+        public string PdfPath = "";
+
+        /// <summary>
+        /// Only applies if GenerateWeb = true.
+        /// Meta tag "keywords" value to put on generated web pages.
+        /// </summary>
+        public string WebKeywords = "";
+
+        /// <summary>
+        /// Only applies if GenerateWeb = true.
+        /// Meta tag "description" value to put on generated web pages.
+        /// </summary>
+        public string WebDescription = "";
+
+        /// <summary>
+        /// Only applies if GenerateWeb = true.
+        /// Path to HTML file with the content to put on header of each generated
+        /// web page of the help.
+        /// If its equals to "", no header will be put.
+        /// </summary>
+        public string WebHeaderFile = "";
+
+        /// <summary>
+        /// Only applies if GenerateWeb = true.
+        /// Path to HTML file with the content to put on footer of each generated
+        /// web page of the help.
+        /// If its equals to "", no footer will be put.
+        /// </summary>
+        public string WebFooterFile = "";
+
+        /// <summary>
+        /// Only applies if GenerateWeb = true.
+        /// If true a sitemap for google will be generated.
+        /// </summary>
+        public bool GenerateSitemap;
+
+        /// <summary>
+        /// Only applies if GenerateWeb = true and GenerateSitemap = true.
+        /// URL base for the help web site.
+        /// </summary>
+        public string WebBase;
+
+        /// <summary>
+        /// Only applies if GenerateWeb = true and GenerateSitemap = true.
+        /// Frequency of change of the help web site.
+        /// </summary>
+        public FrequencyOfChange ChangeFrequency;
+
+        /// <summary>
+        /// Only applies if GenerateWeb = true.
+        /// Name of the language used on the help. Must to be equal to the name
+        /// of a file on the webTranslations directory.
+        /// </summary>
+        public string WebLanguage;
+
+        /// <summary>
+        /// Current version of this help project.
+        /// </summary>
+        private double ConfigurationVersion;
+
+        /// <summary>
+        /// Only applies if GenerateWeb = true.
+        /// If true a ASP.NET application will be generated on the help web site
+        /// to make full text searches.
+        /// </summary>
         public bool FullTextSearch;
 
         /// <summary>
@@ -161,7 +267,7 @@ namespace ChmProcessorLib
                 if (Compile)
                 {
                     // Help project will be generated on a temporal directory.
-                    string nombreArchivo = Path.GetFileNameWithoutExtension(ArchivoAyuda);
+                    string nombreArchivo = Path.GetFileNameWithoutExtension(HelpFile);
                     directory = Path.GetTempPath() + Path.DirectorySeparatorChar + nombreArchivo + "-project";
                 }
                 else
@@ -188,17 +294,39 @@ namespace ChmProcessorLib
         }
 
         /// <summary>
-        /// Return true if the source documents are MS Word files.
-        /// Return false if the source file list is empty.
+        /// Verify if a list of source files can be added to the current source files list.
+        /// Currently we cannot mix HTML and Word documents as source files, and only one
+        /// HTML document can be source file. Multiple Word documents can be defined as 
+        /// source documents.
         /// </summary>
-        public bool WordSourceDocuments
+        /// <param name="currentSourceFiles">Current list of source files</param>
+        /// <param name="newSourceFiles">New files to add to the source files</param>
+        /// <returns>A string with the error message if the new source files cannot be
+        /// added to the source files list. null if the new source files can be added.</returns>
+        static public string CanBeAddedToSourceFiles(ArrayList currentSourceFiles, ArrayList newSourceFiles)
         {
-            get
+            bool currentListEmpty = currentSourceFiles.Count == 0;
+            bool currentListIsHtml = false;
+            if (!currentListEmpty)
+                currentListIsHtml = MSWord.IsHtmlDocument((string)currentSourceFiles[0]);
+            foreach (String file in newSourceFiles)
             {
-                if (SourceFiles.Count == 0)
-                    return false;
-                return MSWord.ItIsWordDocument( (string) SourceFiles[0] );
+                bool fileIsHtml = MSWord.IsHtmlDocument(file);
+
+                if (currentListEmpty)
+                {
+                    currentListEmpty = false;
+                    currentListIsHtml = fileIsHtml;
+                }
+                else
+                {
+                    if ((currentListIsHtml && !fileIsHtml) || (!currentListIsHtml && fileIsHtml))
+                        return "HTML and Word documents cannot be mixed as source documents";
+                    if (fileIsHtml)
+                        return "Only one HTML document can be used as source document";
+                }
             }
+            return null;
         }
 
         static public ChmProject Abrir( string archivo ) 

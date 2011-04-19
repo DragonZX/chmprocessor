@@ -108,7 +108,7 @@ namespace ChmProcessorLib
             writer.Close();
         }
 
-        public void CopyDirectoryReplaced( string srcDirectoryPath , string dstDirectoryPath , string[] extensions , bool runTidy , DocumentProcessor.UserInterface ui ) 
+        public void CopyDirectoryReplaced( string srcDirectoryPath , string dstDirectoryPath , string[] extensions , bool runTidy , UserInterface ui ) 
         {
             string[] files = Directory.GetFiles(srcDirectoryPath);
             foreach (string file in files)

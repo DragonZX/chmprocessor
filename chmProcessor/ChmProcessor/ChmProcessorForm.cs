@@ -274,6 +274,7 @@ namespace ProcesadorHtml
             chkGenWeb_CheckedChanged(null, null);
             chkGenPdf_CheckedChanged(null, null);
             chkGenerateXps_CheckedChanged(null, null);
+            chkJavaHelp_CheckedChanged(null, null);
 
             SetNewFilename("");
 
@@ -1139,7 +1140,7 @@ namespace ProcesadorHtml
             this.txtXps.Name = "txtXps";
             this.txtXps.Size = new System.Drawing.Size(413, 20);
             this.txtXps.TabIndex = 64;
-            this.txtXps.TextChanged += new System.EventHandler(this.txtXps_TextChanged);
+            this.txtXps.TextChanged += new System.EventHandler(this.FieldModified);
             // 
             // btnSelXps
             // 
@@ -1280,6 +1281,7 @@ namespace ProcesadorHtml
             this.txtJavaHelp.Name = "txtJavaHelp";
             this.txtJavaHelp.Size = new System.Drawing.Size(396, 20);
             this.txtJavaHelp.TabIndex = 33;
+            this.txtJavaHelp.TextChanged += new System.EventHandler(this.FieldModified);
             // 
             // chkJavaHelp
             // 
@@ -1309,6 +1311,7 @@ namespace ProcesadorHtml
             this.txtCmdLine.Name = "txtCmdLine";
             this.txtCmdLine.Size = new System.Drawing.Size(452, 20);
             this.txtCmdLine.TabIndex = 59;
+            this.txtCmdLine.TextChanged += new System.EventHandler(this.FieldModified);
             // 
             // label1
             // 
@@ -1580,12 +1583,6 @@ namespace ProcesadorHtml
             try
             {
                 // Verify errors:
-               /* if (!File.Exists(txtArchivo.Text))
-                {
-                    MessageBox.Show(this, "The file " + txtArchivo.Text + " does not exist", "Error");
-                    txtArchivo.Focus();
-                    return;
-                }*/
 
                 foreach (string file in lstSourceFiles.Items)
                 {
@@ -1896,13 +1893,13 @@ namespace ProcesadorHtml
             txtArcPie.Text = cfg.ChmFooterFile;
             txtTitAyu.Text = cfg.HelpTitle;
             chkGenWeb.Checked = cfg.GenerateWeb;
-            txtDirWeb.Text = cfg.DirectorioWeb;
-            numArbolContenidos.Value = cfg.NivelArbolContenidos;
-            numTemasIndice.Value = cfg.NivelTemasIndice;
+            txtDirWeb.Text = cfg.WebDirectory;
+            numArbolContenidos.Value = cfg.MaxHeaderContentTree;
+            numTemasIndice.Value = cfg.MaxHeaderIndex;
             numNivelCorte.Value = cfg.CutLevel;
             radCompilar.Checked = cfg.Compile;
             radGenerarProyecto.Checked = !cfg.Compile;
-            txtArchivoAyuda.Text = cfg.ArchivoAyuda;
+            txtArchivoAyuda.Text = cfg.HelpFile;
             txtCmdLine.Text = cfg.CommandLine;
             chkGenPdf.Checked = cfg.GeneratePdf;
             txtPdf.Text = cfg.PdfPath;
@@ -1931,7 +1928,7 @@ namespace ProcesadorHtml
             lstArcAdicionales.Items.Clear();
             foreach (string arc in cfg.ArchivosAdicionales)
                 lstArcAdicionales.Items.Add(arc);
-            chkAbrirProyecto.Checked = cfg.AbrirProyecto;
+            chkAbrirProyecto.Checked = cfg.OpenProject;
         }
 
         protected void AbrirArchivo( string archivo ) 
@@ -1975,12 +1972,12 @@ namespace ProcesadorHtml
             cfg.ChmFooterFile = txtArcPie.Text;
             cfg.HelpTitle = txtTitAyu.Text;
             cfg.GenerateWeb = chkGenWeb.Checked;
-            cfg.DirectorioWeb = txtDirWeb.Text;
-            cfg.NivelArbolContenidos = (int)numArbolContenidos.Value;
-            cfg.NivelTemasIndice = (int)numTemasIndice.Value;
+            cfg.WebDirectory = txtDirWeb.Text;
+            cfg.MaxHeaderContentTree = (int)numArbolContenidos.Value;
+            cfg.MaxHeaderIndex = (int)numTemasIndice.Value;
             cfg.CutLevel = (int)numNivelCorte.Value;
             cfg.Compile = radCompilar.Checked;
-            cfg.ArchivoAyuda = txtArchivoAyuda.Text;
+            cfg.HelpFile = txtArchivoAyuda.Text;
             cfg.CommandLine = txtCmdLine.Text;
             cfg.GeneratePdf = chkGenPdf.Checked;
             cfg.PdfPath = txtPdf.Text;
@@ -2010,7 +2007,7 @@ namespace ProcesadorHtml
             foreach (string arc in lstArcAdicionales.Items)
                 cfg.ArchivosAdicionales.Add(arc);
 
-            cfg.AbrirProyecto = chkAbrirProyecto.Checked;
+            cfg.OpenProject = chkAbrirProyecto.Checked;
 
             return cfg;
         }
@@ -2324,11 +2321,6 @@ namespace ProcesadorHtml
                 txtXps.Text = dialogo.FileName;
         }
 
-        private void txtXps_TextChanged(object sender, EventArgs e)
-        {
-            Modified = true;
-        }
-
         private void chkJavaHelp_CheckedChanged(object sender, EventArgs e)
         {
             txtJavaHelp.Enabled = chkJavaHelp.Checked;
@@ -2370,12 +2362,18 @@ namespace ProcesadorHtml
             openDialog.Multiselect = true;
             if (openDialog.ShowDialog() == DialogResult.OK)
             {
-                // Only one HTML document can be added.
-                // Multiple word documents can be joined.
-                // Html and word documents cannot be mixed.
-                lstSourceFiles.Items.AddRange(openDialog.FileNames);
-                proposeHelpFile();
-                Modified = true;
+                // Check if source files are valid:
+                ArrayList currentFiles = new ArrayList(lstSourceFiles.Items);
+                ArrayList newFiles = new ArrayList(openDialog.FileNames);
+                string errorMessage = ChmProject.CanBeAddedToSourceFiles(currentFiles , newFiles );
+                if (errorMessage == null)
+                {
+                    lstSourceFiles.Items.AddRange(openDialog.FileNames);
+                    proposeHelpFile();
+                    Modified = true;
+                }
+                else
+                    MessageBox.Show(this, errorMessage , "Error");
             }
         }
 

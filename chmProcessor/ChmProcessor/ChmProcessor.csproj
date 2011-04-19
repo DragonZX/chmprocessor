@@ -132,6 +132,12 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="CommandLineMode.cs" />
+    <Compile Include="ExceptionMessageBox.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ExceptionMessageBox.Designer.cs">
+      <DependentUpon>ExceptionMessageBox.cs</DependentUpon>
+    </Compile>
     <Compile Include="GenerationDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -151,6 +157,10 @@
     </Compile>
     <EmbeddedResource Include="About.resx">
       <DependentUpon>About.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ExceptionMessageBox.resx">
+      <DependentUpon>ExceptionMessageBox.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="GenerationDialog.resx">
