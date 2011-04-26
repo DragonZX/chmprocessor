@@ -9,7 +9,7 @@
     <ApplicationIcon>chmhelpicon.ico</ApplicationIcon>
     <AssemblyKeyContainerName>
     </AssemblyKeyContainerName>
-    <AssemblyName>ProcesadorHtml</AssemblyName>
+    <AssemblyName>ChmProcessor</AssemblyName>
     <AssemblyOriginatorKeyFile>
     </AssemblyOriginatorKeyFile>
     <DefaultClientScript>JScript</DefaultClientScript>
@@ -17,7 +17,7 @@
     <DefaultTargetSchema>IE50</DefaultTargetSchema>
     <DelaySign>false</DelaySign>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>ProcesadorHtml</RootNamespace>
+    <RootNamespace>ChmProcessor</RootNamespace>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
     <StartupObject>
     </StartupObject>
@@ -144,6 +144,7 @@
     <Compile Include="ChmProcessorForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="GenerationDialogUserInterface.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

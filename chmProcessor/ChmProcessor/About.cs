@@ -24,7 +24,7 @@ using System.Windows.Forms;
 using System.IO;
 using System.Diagnostics;
 
-namespace ProcesadorHtml
+namespace ChmProcessor
 {
 	/// <summary>
 	/// Stupid About dialog.
@@ -119,7 +119,7 @@ namespace ProcesadorHtml
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(377, 16);
             this.label1.TabIndex = 1;
-            this.label1.Text = "chmProcessor - A Html / Word converter to Compiled HTML Help v1.4";
+            this.label1.Text = "chmProcessor - A Html / Word converter to Compiled HTML Help v1.5";
             // 
             // label2
             // 
@@ -127,7 +127,7 @@ namespace ProcesadorHtml
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(285, 16);
             this.label2.TabIndex = 2;
-            this.label2.Text = "(C) 2008 Toni Bennasar Obrador";
+            this.label2.Text = "(C) 2008 Toni Bennasar Obrador, Mike Hudgell";
             // 
             // labLicencia
             // 

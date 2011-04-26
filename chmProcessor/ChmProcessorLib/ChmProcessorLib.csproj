@@ -127,6 +127,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ChmProject.cs" />
+    <Compile Include="ConsoleUserInterface.cs" />
     <Compile Include="FileSystem.cs" />
     <Compile Include="DocumentProcessor.cs">
       <SubType>Code</SubType>

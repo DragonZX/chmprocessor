@@ -28,7 +28,7 @@ using Microsoft.Win32;
 using System.Diagnostics;
 using ChmProcessorLib;
 
-namespace ProcesadorHtml
+namespace ChmProcessor
 {
     /// <summary>
     /// Window with the application settings.

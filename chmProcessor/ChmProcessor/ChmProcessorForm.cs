@@ -27,10 +27,10 @@ using System.IO;
 using System.Diagnostics;
 using ChmProcessorLib;
 
-namespace ProcesadorHtml
+namespace ChmProcessor
 {
 	/// <summary>
-	/// Descripción breve de Form1.
+	/// Main window.
 	/// </summary>
 	public class ChmProcessorForm : System.Windows.Forms.Form
 	{
@@ -66,11 +66,6 @@ namespace ProcesadorHtml
         #region Form controls
 
         private System.Windows.Forms.Button btnProcesar;
-        private System.Windows.Forms.ListBox lstArcAdicionales;
-        private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.Button btnNueArcAdi;
-        private System.Windows.Forms.Button btnNueDirAdi;
-        private System.Windows.Forms.Button btnBorAdi;
         private System.Windows.Forms.MainMenu mnuPrincipal;
         private System.Windows.Forms.MenuItem menuItem1;
         private System.Windows.Forms.MenuItem miSalir;
@@ -171,6 +166,11 @@ namespace ProcesadorHtml
         private Button btnMoveSrcFileUp;
         private Button btnRemoveSrcFile;
         private Button btnOpenSrcFiles;
+        private TabPage tabPage3;
+        private Button btnBorAdi;
+        private Button btnNueDirAdi;
+        private Button btnNueArcAdi;
+        private ListBox lstArcAdicionales;
         private ToolStripStatusLabel labStatus;
         #endregion
 
@@ -237,7 +237,7 @@ namespace ProcesadorHtml
                 }
                 catch( Exception ex ) 
                 {
-                    MessageBox.Show( "File " + archivo + " cannot be opened.\n" + ex.Message + "\n" + ex.StackTrace );
+                    new ExceptionMessageBox("File " + archivo + " cannot be opened", ex).ShowDialog(this);
                 }
             }
             else {
@@ -350,7 +350,7 @@ namespace ProcesadorHtml
                 }
                 catch( Exception ex ) 
                 {
-                    MessageBox.Show( "File " + miUltimoArchivo.Text + " cannot be opened.\n" + ex.Message + "\n" + ex.StackTrace );
+                    new ExceptionMessageBox("File " + miUltimoArchivo.Text + " cannot be opened.", ex).ShowDialog(this);
                 }
             }
         }
@@ -380,11 +380,6 @@ namespace ProcesadorHtml
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ChmProcessorForm));
             this.btnProcesar = new System.Windows.Forms.Button();
-            this.lstArcAdicionales = new System.Windows.Forms.ListBox();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.btnBorAdi = new System.Windows.Forms.Button();
-            this.btnNueDirAdi = new System.Windows.Forms.Button();
-            this.btnNueArcAdi = new System.Windows.Forms.Button();
             this.mnuPrincipal = new System.Windows.Forms.MainMenu(this.components);
             this.menuItem1 = new System.Windows.Forms.MenuItem();
             this.miNew = new System.Windows.Forms.MenuItem();
@@ -485,7 +480,11 @@ namespace ProcesadorHtml
             this.label5 = new System.Windows.Forms.Label();
             this.numNivelCorte = new System.Windows.Forms.NumericUpDown();
             this.label3 = new System.Windows.Forms.Label();
-            this.groupBox1.SuspendLayout();
+            this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.btnBorAdi = new System.Windows.Forms.Button();
+            this.btnNueDirAdi = new System.Windows.Forms.Button();
+            this.btnNueArcAdi = new System.Windows.Forms.Button();
+            this.lstArcAdicionales = new System.Windows.Forms.ListBox();
             this.stsStatus.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabChm.SuspendLayout();
@@ -499,13 +498,14 @@ namespace ProcesadorHtml
             ((System.ComponentModel.ISupportInitialize)(this.numTemasIndice)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numArbolContenidos)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numNivelCorte)).BeginInit();
+            this.tabPage3.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnProcesar
             // 
             this.btnProcesar.Image = ((System.Drawing.Image)(resources.GetObject("btnProcesar.Image")));
             this.btnProcesar.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.btnProcesar.Location = new System.Drawing.Point(253, 563);
+            this.btnProcesar.Location = new System.Drawing.Point(264, 435);
             this.btnProcesar.Name = "btnProcesar";
             this.btnProcesar.Size = new System.Drawing.Size(206, 36);
             this.btnProcesar.TabIndex = 21;
@@ -513,55 +513,6 @@ namespace ProcesadorHtml
             this.btnProcesar.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnProcesar.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.btnProcesar.Click += new System.EventHandler(this.btnProcesar_Click);
-            // 
-            // lstArcAdicionales
-            // 
-            this.lstArcAdicionales.Location = new System.Drawing.Point(16, 24);
-            this.lstArcAdicionales.Name = "lstArcAdicionales";
-            this.lstArcAdicionales.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.lstArcAdicionales.Size = new System.Drawing.Size(515, 82);
-            this.lstArcAdicionales.Sorted = true;
-            this.lstArcAdicionales.TabIndex = 15;
-            // 
-            // groupBox1
-            // 
-            this.groupBox1.Controls.Add(this.btnBorAdi);
-            this.groupBox1.Controls.Add(this.btnNueDirAdi);
-            this.groupBox1.Controls.Add(this.btnNueArcAdi);
-            this.groupBox1.Controls.Add(this.lstArcAdicionales);
-            this.groupBox1.Location = new System.Drawing.Point(12, 210);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(687, 114);
-            this.groupBox1.TabIndex = 15;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Additional Files";
-            // 
-            // btnBorAdi
-            // 
-            this.btnBorAdi.Location = new System.Drawing.Point(537, 77);
-            this.btnBorAdi.Name = "btnBorAdi";
-            this.btnBorAdi.Size = new System.Drawing.Size(112, 23);
-            this.btnBorAdi.TabIndex = 18;
-            this.btnBorAdi.Text = "Delete selected";
-            this.btnBorAdi.Click += new System.EventHandler(this.btnBorAdi_Click);
-            // 
-            // btnNueDirAdi
-            // 
-            this.btnNueDirAdi.Location = new System.Drawing.Point(537, 48);
-            this.btnNueDirAdi.Name = "btnNueDirAdi";
-            this.btnNueDirAdi.Size = new System.Drawing.Size(112, 23);
-            this.btnNueDirAdi.TabIndex = 17;
-            this.btnNueDirAdi.Text = "Add &directory...";
-            this.btnNueDirAdi.Click += new System.EventHandler(this.btnNueDirAdi_Click);
-            // 
-            // btnNueArcAdi
-            // 
-            this.btnNueArcAdi.Location = new System.Drawing.Point(537, 19);
-            this.btnNueArcAdi.Name = "btnNueArcAdi";
-            this.btnNueArcAdi.Size = new System.Drawing.Size(112, 23);
-            this.btnNueArcAdi.TabIndex = 16;
-            this.btnNueArcAdi.Text = "Add &file...";
-            this.btnNueArcAdi.Click += new System.EventHandler(this.btnNueArcAdi_Click);
             // 
             // mnuPrincipal
             // 
@@ -685,9 +636,9 @@ namespace ProcesadorHtml
             this.stsStatus.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.labModified,
             this.labStatus});
-            this.stsStatus.Location = new System.Drawing.Point(0, 610);
+            this.stsStatus.Location = new System.Drawing.Point(0, 488);
             this.stsStatus.Name = "stsStatus";
-            this.stsStatus.Size = new System.Drawing.Size(718, 22);
+            this.stsStatus.Size = new System.Drawing.Size(735, 22);
             this.stsStatus.SizingGrip = false;
             this.stsStatus.TabIndex = 48;
             this.stsStatus.Text = "statusStrip1";
@@ -711,7 +662,7 @@ namespace ProcesadorHtml
             this.tabControl1.Controls.Add(this.tabPdf);
             this.tabControl1.Controls.Add(this.tabJavaHelp);
             this.tabControl1.Controls.Add(this.tabOther);
-            this.tabControl1.Location = new System.Drawing.Point(12, 330);
+            this.tabControl1.Location = new System.Drawing.Point(12, 202);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(691, 227);
@@ -1324,8 +1275,9 @@ namespace ProcesadorHtml
             // 
             // tabControl2
             // 
-            this.tabControl2.Controls.Add(this.tabPage1);
             this.tabControl2.Controls.Add(this.tabPage2);
+            this.tabControl2.Controls.Add(this.tabPage1);
+            this.tabControl2.Controls.Add(this.tabPage3);
             this.tabControl2.Location = new System.Drawing.Point(12, 12);
             this.tabControl2.Name = "tabControl2";
             this.tabControl2.SelectedIndex = 0;
@@ -1443,6 +1395,7 @@ namespace ProcesadorHtml
             this.txtTitAyu.Name = "txtTitAyu";
             this.txtTitAyu.Size = new System.Drawing.Size(554, 20);
             this.txtTitAyu.TabIndex = 50;
+            this.txtTitAyu.TextChanged += new System.EventHandler(this.FieldModified);
             // 
             // label11
             // 
@@ -1471,6 +1424,7 @@ namespace ProcesadorHtml
             this.numTemasIndice.Name = "numTemasIndice";
             this.numTemasIndice.Size = new System.Drawing.Size(56, 20);
             this.numTemasIndice.TabIndex = 54;
+            this.numTemasIndice.ValueChanged += new System.EventHandler(this.FieldModified);
             // 
             // numArbolContenidos
             // 
@@ -1483,6 +1437,7 @@ namespace ProcesadorHtml
             this.numArbolContenidos.Name = "numArbolContenidos";
             this.numArbolContenidos.Size = new System.Drawing.Size(56, 20);
             this.numArbolContenidos.TabIndex = 53;
+            this.numArbolContenidos.ValueChanged += new System.EventHandler(this.FieldModified);
             // 
             // label9
             // 
@@ -1524,6 +1479,7 @@ namespace ProcesadorHtml
             0,
             0,
             0});
+            this.numNivelCorte.ValueChanged += new System.EventHandler(this.FieldModified);
             // 
             // label3
             // 
@@ -1533,15 +1489,61 @@ namespace ProcesadorHtml
             this.label3.TabIndex = 51;
             this.label3.Text = "Cut header level";
             // 
+            // tabPage3
+            // 
+            this.tabPage3.Controls.Add(this.btnBorAdi);
+            this.tabPage3.Controls.Add(this.btnNueDirAdi);
+            this.tabPage3.Controls.Add(this.btnNueArcAdi);
+            this.tabPage3.Controls.Add(this.lstArcAdicionales);
+            this.tabPage3.Location = new System.Drawing.Point(4, 22);
+            this.tabPage3.Name = "tabPage3";
+            this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage3.Size = new System.Drawing.Size(679, 158);
+            this.tabPage3.TabIndex = 2;
+            this.tabPage3.Text = "Additional Files";
+            this.tabPage3.UseVisualStyleBackColor = true;
+            // 
+            // btnBorAdi
+            // 
+            this.btnBorAdi.Location = new System.Drawing.Point(561, 64);
+            this.btnBorAdi.Name = "btnBorAdi";
+            this.btnBorAdi.Size = new System.Drawing.Size(112, 23);
+            this.btnBorAdi.TabIndex = 22;
+            this.btnBorAdi.Text = "Delete selected";
+            // 
+            // btnNueDirAdi
+            // 
+            this.btnNueDirAdi.Location = new System.Drawing.Point(561, 35);
+            this.btnNueDirAdi.Name = "btnNueDirAdi";
+            this.btnNueDirAdi.Size = new System.Drawing.Size(112, 23);
+            this.btnNueDirAdi.TabIndex = 21;
+            this.btnNueDirAdi.Text = "Add &directory...";
+            // 
+            // btnNueArcAdi
+            // 
+            this.btnNueArcAdi.Location = new System.Drawing.Point(561, 6);
+            this.btnNueArcAdi.Name = "btnNueArcAdi";
+            this.btnNueArcAdi.Size = new System.Drawing.Size(112, 23);
+            this.btnNueArcAdi.TabIndex = 20;
+            this.btnNueArcAdi.Text = "Add &file...";
+            // 
+            // lstArcAdicionales
+            // 
+            this.lstArcAdicionales.Location = new System.Drawing.Point(6, 6);
+            this.lstArcAdicionales.Name = "lstArcAdicionales";
+            this.lstArcAdicionales.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
+            this.lstArcAdicionales.Size = new System.Drawing.Size(549, 147);
+            this.lstArcAdicionales.Sorted = true;
+            this.lstArcAdicionales.TabIndex = 19;
+            // 
             // ChmProcessorForm
             // 
             this.AcceptButton = this.btnProcesar;
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
-            this.ClientSize = new System.Drawing.Size(718, 632);
+            this.ClientSize = new System.Drawing.Size(735, 510);
             this.Controls.Add(this.tabControl2);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.stsStatus);
-            this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.btnProcesar);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -1551,7 +1553,6 @@ namespace ProcesadorHtml
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "chmProcessor";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FrmProcesar_FormClosing);
-            this.groupBox1.ResumeLayout(false);
             this.stsStatus.ResumeLayout(false);
             this.stsStatus.PerformLayout();
             this.tabControl1.ResumeLayout(false);
@@ -1572,13 +1573,19 @@ namespace ProcesadorHtml
             ((System.ComponentModel.ISupportInitialize)(this.numTemasIndice)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numArbolContenidos)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numNivelCorte)).EndInit();
+            this.tabPage3.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
         }
 		#endregion
 
-        public void ProcessProject(bool askConfirmations , bool logToConsole, bool exitAfterEnd )
+        public void ProcessProject(bool askConfirmations , bool exitAfterEnd)
+        {
+            ProcessProject(askConfirmations, exitAfterEnd, 3);
+        }
+
+        public void ProcessProject(bool askConfirmations , bool exitAfterEnd, int LogLevel)
         {
             try
             {
@@ -1713,23 +1720,17 @@ namespace ProcesadorHtml
                     }
                 }
 
-                ArrayList listaArchivos = new ArrayList();
-                foreach (string arc in lstArcAdicionales.Items)
-                    listaArchivos.Add(arc);
-
                 this.Cursor = Cursors.WaitCursor;
                 ChmProject project = GetCurrentProject();
 
-                //DocumentProcessor procesador = new DocumentProcessor( project );
-                GenerationDialog dlg = new GenerationDialog(project, logToConsole, exitAfterEnd, askConfirmations);
-
+                GenerationDialog dlg = new GenerationDialog(project, exitAfterEnd, askConfirmations, LogLevel);
                 dlg.ShowDialog();
                 dlg.Dispose();
-                //procesador = null;
+
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.ToString());
+                new ExceptionMessageBox(ex).ShowDialog();
             }
             this.Cursor = Cursors.Default;
             // Para evitar que quede mucha memoria colgada:
@@ -1738,7 +1739,7 @@ namespace ProcesadorHtml
 
         private void btnProcesar_Click(object sender, System.EventArgs e)
         {
-            ProcessProject(true , false , false );
+            ProcessProject(true , false );
         }
 
         /// <summary>
@@ -1933,7 +1934,7 @@ namespace ProcesadorHtml
 
         protected void AbrirArchivo( string archivo ) 
         {
-            ChmProject cfg = ChmProject.Abrir( archivo );
+            ChmProject cfg = ChmProject.Open( archivo );
             mapProjectToUserInterface(cfg);
             Modified = false;
             SetNewFilename(archivo);
@@ -1957,7 +1958,7 @@ namespace ProcesadorHtml
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show("Eror opening the file: " + ex.Message);
+                        new ExceptionMessageBox("Eror opening the file", ex).ShowDialog(this);
                     }
                 }
             }
@@ -2032,7 +2033,7 @@ namespace ProcesadorHtml
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error saving the file: " + ex.Message);
+                new ExceptionMessageBox("Eror saving the file", ex).ShowDialog(this);
                 return false;
             }
         }
@@ -2160,7 +2161,7 @@ namespace ProcesadorHtml
             }
             catch( Exception ex )
             {
-                MessageBox.Show("The file '" + file + "' cannot be opened: " + ex.Message );
+                new ExceptionMessageBox("The file '" + file + "' cannot be opened", ex).ShowDialog();
             }
         }
 

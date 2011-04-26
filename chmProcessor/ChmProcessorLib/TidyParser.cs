@@ -66,7 +66,7 @@ namespace ChmProcessorLib
 
         public void Parse( string file ) {
 
-            log("Parsing file " + file + "...");
+            log("Parsing file " + file + "...", 2);
 
             Document tdoc = CommonParse();
 
@@ -83,7 +83,7 @@ namespace ChmProcessorLib
 
         public string ParseString(string htmlText)
         {
-            log("Parsing html...");
+            log("Parsing html..." , 2);
 
             Document tdoc = CommonParse();
 
@@ -105,10 +105,10 @@ namespace ChmProcessorLib
                 throw new Exception("Error runing Tidy.NET: " + status);
         }
 
-        private void log(string text)
+        private void log(string text, int level)
         {
             if (ui != null)
-                ui.log("Tidy: " + text);
+                ui.log("Tidy: " + text, level);
         }
     }
 }

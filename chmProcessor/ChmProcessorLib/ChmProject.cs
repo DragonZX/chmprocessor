@@ -329,7 +329,7 @@ namespace ChmProcessorLib
             return null;
         }
 
-        static public ChmProject Abrir( string archivo ) 
+        static public ChmProject Open( string archivo ) 
         {
             StreamReader reader = null;
             try 
