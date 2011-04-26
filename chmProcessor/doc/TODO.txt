@@ -1,13 +1,12 @@
-- List errors on generation dialog
-- Check tab controls order
-- Change version number to 1.5
+- List errors on generation dialog (DONE)
+- Change version number to 1.5 (DONE)
+- Add submited patches:
+-> Quiet mode [/q] prevents a window being shown when run with the /g command line and logs messages to stdout/stderr
+-> Log Level [/l1, /l2, /l3] lets you choose how much information is output, where /l1 is minimal and /l3 is all the information.
+
+- Microsoft PIA will not be longer distributed. Check if they are installed.
 - Change documentation
-- Add submited patches.
-- Move PDF and compilation to DocumentProcessor
 - Change pdf generation error message to point to the current PDFCreator version.
-- DocumentProcessor.Generate should not return anything.
-- Rename DocumentProcessor.Configuration to DocumentProcessor.Project
-- Store a list of generation exceptions.
 - Change documentation. Think about documentate the chmprocessorlib for external use.
 - Remove temporal file with joined word docs.
 - Store references to files relative to project location.
