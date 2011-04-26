@@ -1,4 +1,4 @@
-﻿namespace ProcesadorHtml
+﻿namespace ChmProcessor
 {
     partial class Settings
     {

@@ -178,6 +178,7 @@ namespace ChmProcessorLib
 
         /// <summary>
         /// Save a word document as a XPS file.
+        /// Requires Microsoft Office 2007 Add-in
         /// </summary>
         /// <param name="wordFileSrc">Absolute path of the source word document</param>
         /// <param name="htmlFileDst">Absolute path to the xps destination document</param>
@@ -189,6 +190,7 @@ namespace ChmProcessorLib
 
         /// <summary>
         /// Save a word document as a PDF file.
+        /// Requires Microsoft Office 2007 Add-in
         /// </summary>
         /// <param name="wordFileSrc">Absolute path of the source word document</param>
         /// <param name="htmlFileDst">Absolute path to the pdf destination document</param>

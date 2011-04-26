@@ -22,8 +22,9 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.IO;
 using System.Windows.Forms;
+using ChmProcessorLib;
 
-namespace ProcesadorHtml
+namespace ChmProcessor
 {
 
     /// <summary>
@@ -32,52 +33,78 @@ namespace ProcesadorHtml
     class CommandLineMode
     {
 
+        
         [DllImport("kernel32.dll")]
         public static extern bool AttachConsole(int dwProcessId);
-
         const int ATTACH_PARENT_PROCESS = -1;
+        
+        private string projectFile = null;
 
-        string projectFile = null;
+        private enum ConsoleOperation { Run, Generate , ShowHelp };
 
-        enum ConsoleOperation { Run , Generate };
+        private ConsoleOperation op = ConsoleOperation.Run;
+        private bool askConfirmations = true;
+        private bool exitAfterGenerate = false;
+        private bool outputQuiet = false;
+        private int logLevel = 3;
 
+        /// <summary>
+        /// Shows a message to the user.
+        /// If we are on quiet mode, we show it on the console. Otherwise a dialog will be showed.
+        /// </summary>
+        /// <param name="text">Message to show</param>
+        private void Message(string text)
+        {
+            if (outputQuiet)
+                Console.WriteLine(text);
+            else
+                MessageBox.Show(text);
+        }
+
+        /// <summary>
+        /// Shows an error message to the user.
+        /// If we are on quiet mode, we show it on the console. Otherwise a dialog will be showed.
+        /// </summary>
+        /// <param name="text">Error message</param>
+        /// <param name="exception">The exception</param>
+        private void Message(string text, Exception exception)
+        {
+            if (outputQuiet)
+            {
+                Console.WriteLine(text);
+                Console.WriteLine(exception.ToString());
+            }
+            else
+                new ExceptionMessageBox(text, exception).Show();
+        }
+
+        /// <summary>
+        /// Writes a help message for the user.
+        /// </summary>
         private void PrintUsage() {
-            Console.WriteLine("Use chmProcessor.exe [<projectfile.WHC>] [/g] [/e] [/y] [/?]");
-            Console.WriteLine("Options:");
-            Console.WriteLine("/g\tGenerate help sets (chm, javahelp, pdfs,…) specified by the project");
-            Console.WriteLine("/e\tExit after generate");
-            Console.WriteLine("/y\tDont ask for confirmations");
-            Console.WriteLine("/?\tPrint this help and exit");
+            
+            String txt =
+                "Use " + Path.GetFileName(Application.ExecutablePath) + 
+                " [<projectfile.WHC>] [/g] [/e] [/y] [/?] [/q] [/l1] [/l2] [/l3]\n" +
+                "Options:\n" +
+                "/g\tGenerate help sets (chm, javahelp, pdfs,…) specified by the project\n" +
+                "/e\tExit after generate\n" +
+                "/y\tDont ask for confirmations\n" +
+                "/?\tPrint this help and exit\n" +
+                "/q\tPrevents a window being shown when run with the /g command line and logs messages to stdout/stderr\n" +
+                "/l1 /l2 /l3\tLets you choose how much information is output, where /l1 is minimal and /l3 is all the information";
+            Message(txt);
         }
 
-        private void GenerateConsole(string file)
+        /// <summary>
+        /// Process the command line parameters
+        /// </summary>
+        /// <param name="argv">The command line parameters</param>
+        public void ReadCommandLine(string[] argv)
         {
-            if (!File.Exists(file))
-            {
-                Console.WriteLine("File " + file + " does not exist");
-                return;
-            }
-
-        }
-
-        // Constructor.
-        public CommandLineMode(string[] argv)
-        {
-            ConsoleOperation op = ConsoleOperation.Run;
-            bool askConfirmations = true;
-            bool exitAfterGenerate = false;
-
-            try
-            {
-                AttachConsole(ATTACH_PARENT_PROCESS);
-            }
-            catch
-            {
-                // AttachConsole is not defined at windows 2000 lower than SP 2.
-            }
-
             int i = 0;
-            while( i < argv.Length ) {
+            while (i < argv.Length)
+            {
                 if (argv[i].StartsWith("/"))
                 {
                     // Option:
@@ -91,39 +118,113 @@ namespace ProcesadorHtml
                     else if (argv[i].Equals("/e"))
                         exitAfterGenerate = true;
                     else if (argv[i].Equals("/?"))
+                        op = ConsoleOperation.ShowHelp;
+                    else if (argv[i].Equals("/q"))
                     {
-                        PrintUsage();
-                        return;
+                        outputQuiet = true;
+                    }
+                    else if (argv[i].Equals("/l1"))
+                    {
+                        logLevel = 1;
+                    }
+                    else if (argv[1].Equals("/l2"))
+                    {
+                        logLevel = 2;
+                    }
+                    else if (argv[1].Equals("/l3"))
+                    {
+                        logLevel = 3;
                     }
                     else
                     {
-                        Console.WriteLine("Unknown option " + argv[i]);
-                        PrintUsage();
-                        return;
+                        Message("Unknown option " + argv[i]);
+                        op = ConsoleOperation.ShowHelp;
                     }
                 }
                 else
                     projectFile = argv[i];
                 i++;
             }
+        }
 
-            if( op == ConsoleOperation.Generate ) {
-                if( projectFile == null ) {
-                    Console.WriteLine("Not project file specified");
-                    return;
-                }
+        /// <summary>
+        /// Executes the generation of a help project on the console.
+        /// </summary>
+        private void GenerateOnConsole()
+        {
+            // User interface that will log to the console:
+            ConsoleUserInterface ui = new ConsoleUserInterface();
+            ui.LogLevel = logLevel;
 
-                ChmProcessorForm frm = new ChmProcessorForm(projectFile);
-                frm.ProcessProject(askConfirmations, true, exitAfterGenerate);
-                if (!exitAfterGenerate)
-                    Application.Run(frm);
-            }
-            else if ( op == ConsoleOperation.Run )
+            try
             {
-                if( projectFile == null )
-                    Application.Run(new ChmProcessorForm());
-                else
-                    Application.Run(new ChmProcessorForm(projectFile));
+                ChmProject project = ChmProject.Open(projectFile);
+                DocumentProcessor processor = new DocumentProcessor(project);
+                processor.UI = ui;
+                processor.GenerateHelp();
+                ui.log("DONE!", 1);
+            }
+            catch (Exception ex)
+            {
+                ui.log(ex);
+                ui.log("Failed", 1);
+            }
+        }
+
+        /// <summary>
+        /// Run the application.
+        /// </summary>
+        public void Run()
+        {
+            switch (op)
+            {
+                case ConsoleOperation.ShowHelp:
+                    PrintUsage();
+                    break;
+
+                case ConsoleOperation.Generate:
+                    // Generate right now a help project
+                    if (projectFile == null)
+                    {
+                        Message("Not project file specified");
+                        return;
+                    }
+
+                    if (outputQuiet)
+                        GenerateOnConsole();
+                    else
+                    {
+                        ChmProcessorForm frm = new ChmProcessorForm(projectFile);
+                        frm.ProcessProject(askConfirmations, exitAfterGenerate, logLevel);
+                        if (!exitAfterGenerate)
+                            Application.Run(frm);
+                    }
+                    break;
+
+                case ConsoleOperation.Run:
+                    // Run the user interface
+                    if (projectFile == null)
+                        Application.Run(new ChmProcessorForm());
+                    else
+                        Application.Run(new ChmProcessorForm(projectFile));
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public CommandLineMode()
+        {
+            try
+            {
+                // Write output on console:
+                AttachConsole(ATTACH_PARENT_PROCESS);
+                //FunnyMicrosoftConsole.AttachConsoleToProcess();
+            }
+            catch
+            {
+                // AttachConsole is not defined at windows 2000 lower than SP 2.
             }
         }
 
@@ -131,18 +232,19 @@ namespace ProcesadorHtml
         /// Application entry point.
         /// </summary>
         [STAThread]
-        /*[MTAThread]*/
+        //[MTAThread]
         static void Main(string[] argv)
         {
+            CommandLineMode commandLineMode = new CommandLineMode();
             try
             {
                 ExceptionMessageBox.UrlBugReport = "http://sourceforge.net/tracker/?group_id=197104&atid=960127";
-                new CommandLineMode(argv);
+                commandLineMode.ReadCommandLine(argv);
+                commandLineMode.Run();
             }
             catch (Exception ex)
             {
-                //MessageBox.Show("Unhandled exception: " + ex.Message + "\n" + ex.StackTrace);
-                new ExceptionMessageBox(ex).ShowDialog();
+                commandLineMode.Message("Unhandled exception", ex);
             }
         }
 

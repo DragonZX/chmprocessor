@@ -8,7 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Diagnostics;
 
-namespace ProcesadorHtml
+namespace ChmProcessor
 {
     /// <summary>
     /// Dialog to show to the user details about an exception.
@@ -28,10 +28,11 @@ namespace ProcesadorHtml
         private Exception exception;
 
         /// <summary>
-        /// Constructor.
+        /// Called from constructors.
         /// </summary>
+        /// <param name="message">General information for the user.</param>
         /// <param name="exception">Exception about we show details</param>
-        public ExceptionMessageBox(Exception exception)
+        private void Initialize(string message, Exception exception)
         {
             InitializeComponent();
 
@@ -42,7 +43,10 @@ namespace ProcesadorHtml
             else
                 lnkReportBug.Visible = false;
 
-            txtMessage.Text = exception.Message;
+            if (message == null)
+                txtMessage.Text = exception.Message;
+            else
+                txtMessage.Text = message + "\r\n" + exception.Message;
 
             try
             {
@@ -62,6 +66,25 @@ namespace ProcesadorHtml
                 lnkInner.Visible = false;
                 txtInner.Visible = false;
             }
+        }
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="exception">Exception about we show details</param>
+        public ExceptionMessageBox(Exception exception)
+        {
+            Initialize(null, exception);
+        }
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="message">General information for the user.</param>
+        /// <param name="exception">Exception about we show details</param>
+        public ExceptionMessageBox(string message, Exception exception)
+        {
+            Initialize(message, exception);
         }
 
         private void appendDetailText(string title, object data)

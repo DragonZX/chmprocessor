@@ -1,17 +1,18 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Resources;
 
 //
 // La información general de un ensamblado se controla mediante el siguiente 
 // conjunto de atributos. Cambie estos atributos para modificar la información
 // asociada con un ensamblado.
 //
-[assembly: AssemblyTitle("")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("ChmProcessor")]
+[assembly: AssemblyDescription("Word/HTML to CHM help converter")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("")]
-[assembly: AssemblyCopyright("")]
+[assembly: AssemblyCompany("ToniBSoft")]
+[assembly: AssemblyProduct("ChmProcessor")]
+[assembly: AssemblyCopyright("(c) 2008 TonibSoft")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]		
 
@@ -26,7 +27,7 @@ using System.Runtime.CompilerServices;
 // Puede especificar todos los valores o usar los valores predeterminados (número de versión de compilación y de revisión) 
 // usando el símbolo '*' como se muestra a continuación:
 
-[assembly: AssemblyVersion("1.0.*")]
+[assembly: AssemblyVersion("1.5.*")]
 
 //
 // Si desea firmar el ensamblado, debe especificar una clave para su uso. Consulte la documentación de 
@@ -56,3 +57,5 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyDelaySign(false)]
 [assembly: AssemblyKeyFile("")]
 [assembly: AssemblyKeyName("")]
+[assembly: AssemblyFileVersionAttribute("1.5")]
+[assembly: NeutralResourcesLanguageAttribute("en")]

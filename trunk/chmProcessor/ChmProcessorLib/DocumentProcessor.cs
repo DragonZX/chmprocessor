@@ -124,7 +124,7 @@ namespace ChmProcessorLib
         /// <summary>
         /// List of exceptions catched on the generation process.
         /// </summary>
-        public ArrayList generationExceptions = new ArrayList();
+        public ArrayList GenerationExceptions = new ArrayList();
 
         /// <summary>
         /// Timer to avoid html loading hang ups
@@ -134,12 +134,12 @@ namespace ChmProcessorLib
         /// <summary>
         /// Handler of the user interface of the generation process. Can be null.
         /// </summary>
-        public UserInterface ui;
+        public UserInterface UI;
 
-        private void log( string texto ) 
+        private void log(string texto, int logLevel) 
         {
-            if (ui != null)
-                ui.log(texto);
+            if (UI != null)
+                UI.log(texto, logLevel);
         }
 
         /// <summary>
@@ -148,15 +148,15 @@ namespace ChmProcessorLib
         /// <param name="exception"></param>
         private void log(Exception exception)
         {
-            generationExceptions.Add(exception);
-            if (ui != null)
-                ui.log(exception);
+            GenerationExceptions.Add(exception);
+            if (UI != null)
+                UI.log(exception);
         }
 
         private bool CancellRequested()
         {
-            if (ui != null)
-                return ui.CancellRequested();
+            if (UI != null)
+                return UI.CancellRequested();
             else
                 return false;
         }
@@ -216,7 +216,7 @@ namespace ChmProcessorLib
             // Add DOC extension:
             joinedDocument += ".doc";
 
-            log("Joining documents to a single temporal file : " + joinedDocument);
+            log("Joining documents to a single temporal file : " + joinedDocument, 2);
             msWord.JoinDocuments(Project.SourceFiles, joinedDocument);
             return joinedDocument;
         }
@@ -232,7 +232,7 @@ namespace ChmProcessorLib
 
             MainSourceFile = CheckAndJoinWordSourceFiles(msWord);
 
-            log("Convert file " + MainSourceFile + " to HTML");
+            log("Convert file " + MainSourceFile + " to HTML", 2);
             string nombreArchivo = Path.GetFileNameWithoutExtension(MainSourceFile);
             dirHtml = Path.GetTempPath() + Path.DirectorySeparatorChar + nombreArchivo;
             if (Directory.Exists(dirHtml))
@@ -263,6 +263,7 @@ namespace ChmProcessorLib
                 {
                     msWord = new MSWord();
                     archivoFinal = ConvertWordSourceFiles(msWord);
+
                     // Be sure we have closed word, to avoid overlapping between the html read
                     // and the reading from chmprocessor:
                     msWord.Dispose();
@@ -273,7 +274,7 @@ namespace ChmProcessorLib
                     MainSourceFile = (string)Project.SourceFiles[0];
 
                 if (AppSettings.UseTidyOverInput)
-                    new TidyParser(ui).Parse(archivoFinal);
+                    new TidyParser(UI).Parse(archivoFinal);
 
                 // Prepare loading:
                 HTMLDocumentClass docClass = new HTMLDocumentClass();
@@ -292,7 +293,7 @@ namespace ChmProcessorLib
                 System.Threading.Thread.Sleep(1000);
 
                 String currentStatus = docLoader.readyState;
-                log("Reading file " + archivoFinal + ". Status: " + currentStatus );
+                log("Reading file " + archivoFinal + ". Status: " + currentStatus , 2 );
                 while (currentStatus != "complete" && timerTimeout.Enabled)
                 {
                     System.Windows.Forms.Application.DoEvents();
@@ -300,23 +301,23 @@ namespace ChmProcessorLib
                     String newStatus = docLoader.readyState;
                     if (newStatus != currentStatus)
                     {
-                        log("Status: " + newStatus);
+                        log("Status: " + newStatus, 2);
                         if (currentStatus == "interactive" && newStatus == "uninitialized")
                         {
                             // fucking shit bug. Try to reload the file:
-                            log("Warning. Something wrong happens loading the file. Trying to reopen " + archivoFinal );
+                            log("Warning. Something wrong happens loading the file. Trying to reopen " + archivoFinal , 2);
                             docClass = new HTMLDocumentClass();
                             ips = (IPersistStreamInit)docClass;
                             ips.InitNew();
                             docLoader = (mshtml.IHTMLDocument2)docClass.createDocumentFromUrl(archivoFinal, null);
                             newStatus = docLoader.readyState;
-                            log("Status: " + newStatus);
+                            log("Status: " + newStatus, 2);
                         }
                         currentStatus = newStatus;
                     }
                 }
                 if (!timerTimeout.Enabled)
-                    log("Warning: time to load file expired.");
+                    log("Warning: time to load file expired.", 1);
                 timerTimeout.Enabled = false;
 
                 // Get a copy of the document:
@@ -331,7 +332,8 @@ namespace ChmProcessorLib
                 }
                 catch (Exception ex)
                 {
-                    log("Warning: Cannot set the charset \"" + docLoader.charset + "\" to the html document. Reason:" + ex.Message);
+                    log("Warning: Cannot set the charset \"" + docLoader.charset + "\" to the html document. Reason:" + ex.Message, 1);
+                    log(ex);
                 }
             }
             finally
@@ -423,7 +425,7 @@ namespace ChmProcessorLib
                         else
                         {
                             // Broken link.
-                            log("WARNING: Broken link with text: '" + nodo.innerText + "'" );
+                            log("WARNING: Broken link with text: '" + nodo.innerText + "'" , 1 );
                             if (parent != null)
                             {
                                 String inText = parent.innerText;
@@ -431,7 +433,7 @@ namespace ChmProcessorLib
                                 {
                                     if (inText.Length > 200)
                                         inText = inText.Substring(0, 200) + "...";
-                                    log(" near of text: '" + inText + "'" );
+                                    log(" near of text: '" + inText + "'" , 1 );
                                 }
                             }
                         }
@@ -481,7 +483,7 @@ namespace ChmProcessorLib
             // Use tidy over the chapter, if it's needed:
             string goodText = "";
             if (AppSettings.UseTidyOverOutput)
-                goodText = new TidyParser(ui, outputXhtml).ParseString(htmlDocument);
+                goodText = new TidyParser(UI, outputXhtml).ParseString(htmlDocument);
             else
                 goodText = htmlDocument;
 
@@ -581,7 +583,7 @@ namespace ChmProcessorLib
         private void TidyOutputFile(string filePath)
         {
             if( AppSettings.UseTidyOverOutput )
-                new TidyParser(ui).Parse(filePath);
+                new TidyParser(UI).Parse(filePath);
         }
 
         private void UnificarNodos( NodoArbol nodo ) 
@@ -761,7 +763,7 @@ namespace ChmProcessorLib
         /// </summary>
         private void BuildXps()
         {
-            log("Generating XPS file");
+            log("Generating XPS file", 2);
             try
             {
                 MSWord word = new MSWord();
@@ -770,7 +772,7 @@ namespace ChmProcessorLib
             catch (Exception ex)
             {
                 log("Something wrong happened with the XPS generation. Remember you must to have Microsoft Office 2007 and the" +
-                        "pdf/xps generation add-in (http://www.microsoft.com/downloads/details.aspx?FamilyID=4D951911-3E7E-4AE6-B059-A2E79ED87041&displaylang=en)");
+                        "pdf/xps generation add-in (http://www.microsoft.com/downloads/details.aspx?FamilyID=4D951911-3E7E-4AE6-B059-A2E79ED87041&displaylang=en)", 1);
                 log(ex);
             }
         }
@@ -779,7 +781,7 @@ namespace ChmProcessorLib
         {
             try
             {
-                log("Executing '" + Project.CommandLine.Trim() + "'");
+                log("Executing '" + Project.CommandLine.Trim() + "'", 2);
                 string strCmdLine = "/C " + Project.CommandLine.Trim();
                 ProcessStartInfo si = new System.Diagnostics.ProcessStartInfo("CMD.exe", strCmdLine);
                 si.CreateNoWindow = false;
@@ -792,12 +794,12 @@ namespace ChmProcessorLib
                 string output = p.StandardOutput.ReadToEnd();
                 string error = p.StandardError.ReadToEnd();
                 p.WaitForExit();
-                log(output);
-                log(error);
+                log(output, 2);
+                log(error, 1);
             }
             catch (Exception ex)
             {
-                log("Error executing command line ");
+                log("Error executing command line ", 1);
                 log(ex);
             }
         }
@@ -831,7 +833,7 @@ namespace ChmProcessorLib
                 catch( Exception ex ) 
                 {
                     log("The project " + helpProjectFile + " cannot be opened" +
-                        ". Have you installed the Microsoft Help Workshop ?");
+                        ". Have you installed the Microsoft Help Workshop ?", 1);
                     log(ex);
                 }
             }
@@ -844,7 +846,7 @@ namespace ChmProcessorLib
         {
             try
             {
-                log("Generating PDF file");
+                log("Generating PDF file", 2);
                 if (Project.PdfGeneration == ChmProject.PdfGenerationWay.OfficeAddin)
                 {
                     MSWord word = new MSWord();
@@ -860,10 +862,10 @@ namespace ChmProcessorLib
             {
                 if (Project.PdfGeneration == ChmProject.PdfGenerationWay.OfficeAddin)
                     log("Something wrong happened with the PDF generation. Remember you must to have Microsoft Office 2007 and the" +
-                        "pdf/xps generation add-in (http://www.microsoft.com/downloads/details.aspx?FamilyID=4D951911-3E7E-4AE6-B059-A2E79ED87041&displaylang=en)");
+                        "pdf/xps generation add-in (http://www.microsoft.com/downloads/details.aspx?FamilyID=4D951911-3E7E-4AE6-B059-A2E79ED87041&displaylang=en)", 1);
                 else
                     log("Something wrong happened with the PDF generation. Remember you must to have PdfCreator (version 0.9.3 tested only) installed into your computer to " +
-                        "generate a PDF file. You can download it from http://www.pdfforge.org/products/pdfcreator/download");
+                        "generate a PDF file. You can download it from http://www.pdfforge.org/products/pdfcreator/download", 1);
                 log(ex);
             }
         }
@@ -904,6 +906,7 @@ namespace ChmProcessorLib
             }
             catch (Exception ex)
             {
+                log("Error: " + ex.Message, 1);
                 log(ex);
                 throw;
             }
@@ -913,7 +916,7 @@ namespace ChmProcessorLib
         /// Generates help products.
         /// </summary>
         /// <returns>Path to help project generated.</returns>
-        public string Generate() 
+        private string Generate() 
         {
 
             // Open and process source files
@@ -937,7 +940,7 @@ namespace ChmProcessorLib
             //if( !ArchivoCabecera.Equals("") ) 
             if (!Project.ChmHeaderFile.Equals("")) 
             {
-                log("Reading header: " + Project.ChmHeaderFile);
+                log("Reading header: " + Project.ChmHeaderFile , 2);
                 // Cargar el html del archivo de cabecera:
                 StreamReader reader = new StreamReader(Project.ChmHeaderFile);
                 HtmlCabecera = reader.ReadToEnd();
@@ -950,7 +953,7 @@ namespace ChmProcessorLib
             //if( !ArchivoPie.Equals("") ) 
             if (!Project.ChmFooterFile.Equals("")) 
             {
-                log("Reading footer: " + Project.ChmFooterFile);
+                log("Reading footer: " + Project.ChmFooterFile , 2);
                 // Cargar el html del archivo de cabecera:
                 StreamReader reader = new StreamReader(Project.ChmFooterFile);
                 HtmlPie = reader.ReadToEnd();
@@ -963,7 +966,7 @@ namespace ChmProcessorLib
             //if (!HtmlHeaderFile.Equals(""))
             if (!Project.WebHeaderFile.Equals(""))
             {
-                log("Reading header: " + Project.WebHeaderFile);
+                log("Reading header: " + Project.WebHeaderFile , 2);
                 // Cargar el html del archivo de cabecera:
                 StreamReader reader = new StreamReader(Project.WebHeaderFile);
                 HtmlHeaderCode = reader.ReadToEnd();
@@ -976,7 +979,7 @@ namespace ChmProcessorLib
             //if (!HtmlFooterFile.Equals(""))
             if (!Project.WebFooterFile.Equals(""))
             {
-                log("Reading footer: " + Project.WebFooterFile);
+                log("Reading footer: " + Project.WebFooterFile , 2);
                 // Cargar el html del archivo de cabecera:
                 StreamReader reader = new StreamReader(Project.WebFooterFile);
                 HtmlFooterCode = reader.ReadToEnd();
@@ -984,11 +987,11 @@ namespace ChmProcessorLib
             }
 
             // Preparar el directorio de destino.
-            log("Creating project directory: " + Project.HelpProjectDirectory);
+            log("Creating project directory: " + Project.HelpProjectDirectory , 2);
             ArrayList listaFinalArchivos = GenerarDirDestino(Project.HelpProjectDirectory);
 
             // Check if there is a <STYLE> tag into the header. If there is, take it out to a CSS file.
-            log("Extracting STYLE tags to a CSS file");
+            log("Extracting STYLE tags to a CSS file" , 2);
             string cssFile = CheckForStyleTags();
             if (cssFile != null)
                 listaFinalArchivos.Add(cssFile);
@@ -997,7 +1000,7 @@ namespace ChmProcessorLib
                 return null;
 
             // Build the tree structure of chapters.
-            log( "Searching sections");
+            log( "Searching sections" , 2);
             arbol = new ArbolCapitulos();
             //arbol.AnalizarDocumento( this.nivelCorte , iDoc.body );
             arbol.AnalizarDocumento( Project.CutLevel, iDoc.body);
@@ -1005,7 +1008,7 @@ namespace ChmProcessorLib
             if (CancellRequested())
                 return null;
 
-            log( "Splitting file");
+            log( "Splitting file" , 2);
             // newBody is the <body> tag of the current splitted part 
             IHTMLElement newBody = Clone( iDoc.body );
             IHTMLElementCollection col = (IHTMLElementCollection)iDoc.body.children;
@@ -1045,7 +1048,7 @@ namespace ChmProcessorLib
                 return null;
 
             // Generar los archivos HTML:
-            log( "Storing splitted files");
+            log( "Storing splitted files" , 2);
             ArrayList archivosGenerados = GuardarDocumentos(Project.HelpProjectDirectory, HtmlCabecera, HtmlPie, null);
 
             if (CancellRequested())
@@ -1069,14 +1072,14 @@ namespace ChmProcessorLib
                 return null;
 
             // Generar archivo con arbol de contenidos:
-            log( "Generating table of contents");
+            log( "Generating table of contents" , 2 );
             arbol.GenerarArbolDeContenidos(Project.HelpProjectDirectory + Path.DirectorySeparatorChar + "toc-generado.hhc", Project.MaxHeaderContentTree);
             
             if (CancellRequested())
                 return null;
 
             // Generar archivo con palabras clave:
-            log( "Generating index");
+            log( "Generating index" , 2 );
             Index index = arbol.GenerarIndice(Project.MaxHeaderIndex);
             index.StoreHelpIndex(Project.HelpProjectDirectory + Path.DirectorySeparatorChar + "Index-generado.hhk");
 
@@ -1084,7 +1087,7 @@ namespace ChmProcessorLib
                 return null;
 
             // Generar el archivo del proyecto de ayuda
-            log( "Generating help project");
+            log( "Generating help project" , 2 );
             string archivoAyuda = Project.HelpProjectDirectory + Path.DirectorySeparatorChar + NOMBREPROYECTO;
             GenerarArchivoProyecto( listaFinalArchivos , archivoAyuda , primero );
 
@@ -1095,7 +1098,7 @@ namespace ChmProcessorLib
             if( Project.GenerateWeb )
             {
                 // Generar la web con la ayuda:
-                log( "Generating web site");
+                log( "Generating web site" , 2 );
                 GenerateWebSite(archivosGenerados, index, cssFile);
             }
 
@@ -1104,7 +1107,7 @@ namespace ChmProcessorLib
 
             if (Project.GenerateJavaHelp)
             {
-                log("Generating Java Help");
+                log("Generating Java Help" , 2 );
                 GenerateJavaHelp(archivosGenerados, index, cssFile);
             }
 
@@ -1113,7 +1116,7 @@ namespace ChmProcessorLib
                 // Borrar este directorio:
                 Directory.Delete( dirHtml , true );
 
-            log( "Project generated");
+            log( "Project generated" , 1 );
 
             return archivoAyuda;
         }
@@ -1140,7 +1143,7 @@ namespace ChmProcessorLib
             return result.ToString();
         }
 
-        public void GeneateSitemap(string webDirectory)
+        private void GeneateSitemap(string webDirectory)
         {
             try {
                 string sitemap = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
@@ -1177,7 +1180,8 @@ namespace ChmProcessorLib
                 File.Delete(sitemapFile);
             }
             catch( Exception ex ) {
-                log( "Error generating the sitemap: " + ex.Message );
+                log( "Error generating the sitemap: " + ex.Message , 1 );
+                log(ex);
             }
         }
 
@@ -1212,12 +1216,12 @@ namespace ChmProcessorLib
         /// <param name="index">List of topics of the document.</param>
         /// <param name="cssFile">CSS file of the document, if it was generated.</param>
         /// </summary>
-        public void GenerateJavaHelp(ArrayList generatedFiles, Index index, string cssFile)
+        private void GenerateJavaHelp(ArrayList generatedFiles, Index index, string cssFile)
         {
             
             // Create a temporal directy to generate the javahelp files:
             String dirJavaHelp = Path.GetTempPath() + Path.DirectorySeparatorChar + Path.GetFileNameWithoutExtension(MainSourceFile) + "-javahelp";
-            log("Copiying files to directory " + dirJavaHelp);
+            log("Copiying files to directory " + dirJavaHelp , 2 );
             GenerarDirDestino(dirJavaHelp);
 
             // Copy the css file if was generated:
@@ -1231,24 +1235,24 @@ namespace ChmProcessorLib
                 File.Copy(file, dstFile);
             }
 
-            log("Generating java help xml files");
+            log("Generating java help xml files" , 2 );
             // Generate the java help xml files:
             GenerateJavaHelpSetFile(dirJavaHelp, index);
             index.GenerateJavaHelpIndex(dirJavaHelp + Path.DirectorySeparatorChar + "index.xml");
             index.GenerateJavaHelpMapFile(dirJavaHelp + Path.DirectorySeparatorChar + "map.jhm");
             arbol.GenerateJavaHelpTOC(dirJavaHelp + Path.DirectorySeparatorChar + "toc.xml", Project.MaxHeaderContentTree);
 
-            log("Building the search index");
-            log(AppSettings.JavaHelpIndexerPath + " .");
-            executeCommandLine(AppSettings.JavaHelpIndexerPath, ".", dirJavaHelp);
+            log("Building the search index" , 2 );
+            log(AppSettings.JavaHelpIndexerPath + " .", 2 );
+            ExecuteCommandLine(AppSettings.JavaHelpIndexerPath, ".", dirJavaHelp);
 
             // Build a JAR with the help.
             //java -jar E:\dev\java\javahelp\javahelp2.0\demos\bin\hsviewer.jar -helpset help.jar
             string commandLine = " cvf \"" + Project.JavaHelpPath + "\" .";
             string jarPath = AppSettings.JarPath;
-            log("Building jar:");
-            log(jarPath + " " + commandLine);
-            executeCommandLine(jarPath, commandLine, dirJavaHelp);
+            log("Building jar:", 2 );
+            log(jarPath + " " + commandLine, 2 );
+            ExecuteCommandLine(jarPath, commandLine, dirJavaHelp);
 
             Directory.Delete(dirJavaHelp, true);
         }
@@ -1259,7 +1263,7 @@ namespace ChmProcessorLib
         /// <param name="exeFile">Path of the executable file to run</param>
         /// <param name="parameters">Parameters of the command line</param>
         /// <param name="workingDirectory">Directory where to run the command line</param>
-        public void executeCommandLine(string exeFile, string parameters, string workingDirectory)
+        private void ExecuteCommandLine(string exeFile, string parameters, string workingDirectory)
         {
             ProcessStartInfo info = new ProcessStartInfo(exeFile, parameters);
             info.UseShellExecute = false;
@@ -1384,16 +1388,17 @@ namespace ChmProcessorLib
             }
             catch (Exception ex)
             {
-                log("Error opening web translations file" + translationFile + ": " + ex.Message);
+                log("Error opening web translations file" + translationFile + ": " + ex.Message , 1 );
+                log(ex);
             }
 
-            replacements.CopyDirectoryReplaced(baseDir, dirWeb, extensions , AppSettings.UseTidyOverOutput , ui );
+            replacements.CopyDirectoryReplaced(baseDir, dirWeb, extensions , AppSettings.UseTidyOverOutput , UI );
             if (Project.FullTextSearch)
             {
                 // Copy full text serch files:
                 string[] aspxExtensions = { ".aspx" };
                 string dirSearchFiles = System.Windows.Forms.Application.StartupPath + Path.DirectorySeparatorChar + "searchFiles";
-                replacements.CopyDirectoryReplaced(dirSearchFiles, dirWeb, aspxExtensions, false, ui);
+                replacements.CopyDirectoryReplaced(dirSearchFiles, dirWeb, aspxExtensions, false, UI);
             }
 
             if (Project.GenerateSitemap)
@@ -1570,7 +1575,8 @@ namespace ChmProcessorLib
             }
             catch( Exception ex ) {
                 log("Warning: error adding a child (" + origen.tagName + ") to his parent (" +
-                     destino.tagName + "): " + ex.Message);
+                     destino.tagName + "): " + ex.Message, 1 );
+                log(ex);
             }
         }
 
@@ -1623,7 +1629,7 @@ namespace ChmProcessorLib
             string linea = reader.ReadLine();
             while( linea != null ) 
             {
-                log( linea );
+                log( linea , 2 );
                 linea = reader.ReadLine();
             }
         }
@@ -1633,9 +1639,9 @@ namespace ChmProcessorLib
         /// </summary>
         /// <param name="helpFile">Project help project full path.</param>
         /// <param name="compilerPath">Compiler exe (hhc.exe) full path.</param>
-        public void Compile( string helpFile , string compilerPath ) 
+        private void Compile( string helpFile , string compilerPath ) 
         {
-            log( "Compiling");
+            log( "Compiling", 2 );
             if( ! File.Exists( compilerPath ) )
                 throw new Exception("Compiler not found at " + compilerPath + ". Help not generated");
             else 
