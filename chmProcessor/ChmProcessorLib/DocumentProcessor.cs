@@ -71,7 +71,7 @@ namespace ChmProcessorLib
         /// <summary>
         /// HTML title nodes (H1,H2,etc) tree.
         /// </summary>
-        private ArbolCapitulos arbol;
+        private ArbolCapitulos tree;
 
         /// <summary>
         /// Html code for the CHM headers
@@ -419,7 +419,7 @@ namespace ChmProcessorLib
                     {
                         // Cambiar el enlace interno para que vaya al archivo correspondiente:
                         string safeRef = NodoArbol.ProcesarNombreArchivo(href.Substring(1));
-                        NodoArbol nodoArbol = arbol.Raiz.BuscarEnlace( safeRef );
+                        NodoArbol nodoArbol = tree.Raiz.BuscarEnlace( safeRef );
                         if (nodoArbol != null)
                             link.href = nodoArbol.Archivo + "#" + safeRef;
                         else
@@ -615,12 +615,12 @@ namespace ChmProcessorLib
         private ArrayList GuardarDocumentos(string directory, string header, string footer, WebIndex indexer ) 
         {
             // Intentar unificar nodos que quedarian vacios, con solo el titulo de la seccion:
-            foreach( NodoArbol nodo in arbol.Raiz.Hijos ) 
+            foreach( NodoArbol nodo in tree.Raiz.Hijos ) 
                 UnificarNodos( nodo );
 
             // Recorrer el arbol en busca de nodos con cuerpo
             ArrayList archivosGenerados = new ArrayList();
-            foreach (NodoArbol nodo in arbol.Raiz.Hijos)
+            foreach (NodoArbol nodo in tree.Raiz.Hijos)
                 GuardarDocumentos(directory , header , footer , nodo, archivosGenerados , indexer );
 
             return archivosGenerados;
@@ -628,33 +628,34 @@ namespace ChmProcessorLib
 
         private void GuardarParte( IHTMLElement nuevoBody ) 
         {
-            IHTMLElement seccion = SearchFirstCutNode( nuevoBody );
-            NodoArbol nodoAGuardar;
-            if( seccion == null )
-                // Si es sin seccion, es la primera seccion de todas:
-                nodoAGuardar = (NodoArbol) arbol.Raiz.Hijos[0];
+            IHTMLElement sectionHeader = SearchFirstCutNode( nuevoBody );
+            NodoArbol nodeToStore;
+            if( sectionHeader == null )
+                // If no section was found, its the first section of the document:
+                nodeToStore = (NodoArbol) tree.Raiz.Hijos[0];
             else 
             {
                 string aName = "";
-                IHTMLAnchorElement a = BuscarNodoA( seccion );
+                IHTMLAnchorElement a = BuscarNodoA( sectionHeader );
                 if( a != null && a.name != null )
                     aName = NodoArbol.ProcesarNombreArchivo( a.name );
-                nodoAGuardar = arbol.Raiz.BuscarNodo( seccion , aName );
+                nodeToStore = tree.Raiz.BuscarNodo( sectionHeader , aName );
             }
 
-            if (nodoAGuardar == null)
+            if (nodeToStore == null)
             {
-                string msgError = "Error al buscar el nodo ";
-                if (seccion != null)
-                    msgError += seccion.innerText;
+                string errorMessage = "Error searching node ";
+                if (sectionHeader != null)
+                    errorMessage += sectionHeader.innerText;
                 else
-                    msgError += "<vacio>";
-                //Errores.Add(msgError);
+                    errorMessage += "<empty>";
+                Exception error = new Exception(errorMessage);
+                log(error);
             }
             else
             {
-                nodoAGuardar.body = nuevoBody;
-                nodoAGuardar.BuildListOfContainedANames();  // Store the A name's tags of the body.
+                nodeToStore.body = nuevoBody;
+                nodeToStore.BuildListOfContainedANames();  // Store the A name's tags of the body.
             }
         }
 
@@ -1001,9 +1002,9 @@ namespace ChmProcessorLib
 
             // Build the tree structure of chapters.
             log( "Searching sections" , 2);
-            arbol = new ArbolCapitulos();
+            tree = new ArbolCapitulos();
             //arbol.AnalizarDocumento( this.nivelCorte , iDoc.body );
-            arbol.AnalizarDocumento( Project.CutLevel, iDoc.body);
+            tree.AnalizarDocumento( Project.CutLevel, iDoc.body);
 
             if (CancellRequested())
                 return null;
@@ -1016,7 +1017,7 @@ namespace ChmProcessorLib
             foreach( IHTMLElement nodo in col ) 
             {
                 //if( EsHeaderDeCorte( nivelCorte , nodo ) ) 
-                if (EsHeaderDeCorte( Project.CutLevel, nodo)) 
+                if (IsCutHeader(nodo)) 
                 {
                     // Found start of a new part: Store the current body part.
                     GuardarParte(newBody);
@@ -1025,7 +1026,7 @@ namespace ChmProcessorLib
                 }
                 else 
                 {
-                    ArrayList lista = Procesar( nodo );
+                    ArrayList lista = ProcessNode( nodo );
                     foreach( IHTMLElement hijo in lista ) 
                     {
                         InsertAfter(newBody, hijo);
@@ -1059,28 +1060,28 @@ namespace ChmProcessorLib
             string archivo1 = Project.HelpProjectDirectory + Path.DirectorySeparatorChar + "1.htm";
             if( ! File.Exists( archivo1) ) 
             {
-                arbol.Raiz.Archivo = "";
-                arbol.Raiz.Hijos.RemoveAt(0);
+                tree.Raiz.Archivo = "";
+                tree.Raiz.Hijos.RemoveAt(0);
             }
 
             // Obtener el nombre del primer archivo generado:
             string primero = "";
-            if( arbol.Raiz.Hijos.Count > 0 )
-                primero = ((NodoArbol) arbol.Raiz.Hijos[0]).Archivo;
+            if( tree.Raiz.Hijos.Count > 0 )
+                primero = ((NodoArbol) tree.Raiz.Hijos[0]).Archivo;
 
             if (CancellRequested())
                 return null;
 
             // Generar archivo con arbol de contenidos:
             log( "Generating table of contents" , 2 );
-            arbol.GenerarArbolDeContenidos(Project.HelpProjectDirectory + Path.DirectorySeparatorChar + "toc-generado.hhc", Project.MaxHeaderContentTree);
+            tree.GenerarArbolDeContenidos(Project.HelpProjectDirectory + Path.DirectorySeparatorChar + "toc-generado.hhc", Project.MaxHeaderContentTree);
             
             if (CancellRequested())
                 return null;
 
             // Generar archivo con palabras clave:
             log( "Generating index" , 2 );
-            Index index = arbol.GenerarIndice(Project.MaxHeaderIndex);
+            Index index = tree.GenerarIndice(Project.MaxHeaderIndex);
             index.StoreHelpIndex(Project.HelpProjectDirectory + Path.DirectorySeparatorChar + "Index-generado.hhk");
 
             if (CancellRequested())
@@ -1240,7 +1241,7 @@ namespace ChmProcessorLib
             GenerateJavaHelpSetFile(dirJavaHelp, index);
             index.GenerateJavaHelpIndex(dirJavaHelp + Path.DirectorySeparatorChar + "index.xml");
             index.GenerateJavaHelpMapFile(dirJavaHelp + Path.DirectorySeparatorChar + "map.jhm");
-            arbol.GenerateJavaHelpTOC(dirJavaHelp + Path.DirectorySeparatorChar + "toc.xml", Project.MaxHeaderContentTree);
+            tree.GenerateJavaHelpTOC(dirJavaHelp + Path.DirectorySeparatorChar + "toc.xml", Project.MaxHeaderContentTree);
 
             log("Building the search index" , 2 );
             log(AppSettings.JavaHelpIndexerPath + " .", 2 );
@@ -1373,7 +1374,7 @@ namespace ChmProcessorLib
             string[] variables = { "%TEXTSEARCH%" , "%TITLE%", "%TREE%", "%TOPICS%", "%FIRSTPAGECONTENT%", 
                 "%WEBDESCRIPTION%", "%KEYWORDS%" , "%HEADER%" , "%FOOTER%" };
             //string[] newValues = { textSearch , title, arbol.GenerarArbolHtml(NivelMaximoTOC, "contentsTree", 
-            string[] newValues = { textSearch , title, arbol.GenerarArbolHtml(Project.MaxHeaderContentTree, "contentsTree", 
+            string[] newValues = { textSearch , title, tree.GenerarArbolHtml(Project.MaxHeaderContentTree, "contentsTree", 
                 "contentTree"), index.GenerateWebIndex(), FirstChapterContent, descriptionMeta, 
                 keywordsMeta , HtmlHeaderCode , HtmlFooterCode };
             string baseDir = System.Windows.Forms.Application.StartupPath + Path.DirectorySeparatorChar + "webFiles";
@@ -1460,7 +1461,7 @@ namespace ChmProcessorLib
             writer.WriteLine( "\r\n[FILES]" );
             foreach( string archivoAdi in archivosAdicinales )
                 writer.WriteLine( archivoAdi );
-            ArrayList lista = arbol.ListaArchivosGenerados();
+            ArrayList lista = tree.ListaArchivosGenerados();
             foreach( string arc in lista )
                 writer.WriteLine( arc );
             writer.WriteLine( "\r\n[INFOTYPES]\r\n" );
@@ -1475,7 +1476,7 @@ namespace ChmProcessorLib
         /// <returns>The first split tag node. null if none was found.</returns>
         private IHTMLElement SearchFirstCutNode( IHTMLElement root ) 
         {
-            if (EsHeaderDeCorte(Project.CutLevel, root))
+            if (IsCutHeader(root))
                 return root;
             else 
             {
@@ -1513,7 +1514,7 @@ namespace ChmProcessorLib
         /// </summary>
         /// <param name="nodo">Raiz del arbol en que buscar</param>
         /// <returns>True si el arbol contiene un corte de seccion.</returns>
-        private bool SeRompera( IHTMLElement nodo ) 
+        private bool WillBeBroken( IHTMLElement nodo ) 
         {
             return SearchFirstCutNode( nodo ) != null;
         }
@@ -1537,19 +1538,30 @@ namespace ChmProcessorLib
         }
 
         /// <summary>
-        /// Comprueba si un nodo es un tag de cabecera de HTML (H1, H2, etc) hasta un nivel.
-        /// Tambien comprueba que contenga algun tipo de texto.
+        /// Checks if a node is a HTML header tag (H1, H2, etc) upper or equal to the cut level for the
+        /// project (Project.CutLevel).
+        /// Also checks if it contains some text.
         /// </summary>
-        /// <param name="NivelMaximo">Nivel maximo del nodo a considerar: 1, 2, etc.</param>
-        /// <param name="nodo">Nodo a verificar</param>
-        /// <returns>true si el nodo cumple las condiciones</returns>
-        static public bool EsHeaderDeCorte( int NivelMaximo , IHTMLElement nodo ) 
+        /// <param name="node">HTML node to check</param>
+        /// <returns>true if the node is a cut header</returns>
+        public bool IsCutHeader( IHTMLElement node ) {
+            return IsCutHeader(Project.CutLevel, node);
+        }
+
+        /// <summary>
+        /// Checks if a node is a HTML header tag (H1, H2, etc) upper or equal to the cut level.
+        /// Also checks if it contains some text.
+        /// </summary>
+        /// <param name="MaximumLevel">Maximum level the level is accepted as cut level.</param>
+        /// <param name="node">HTML node to check</param>
+        /// <returns>true if the node is a cut header</returns>
+        static public bool IsCutHeader( int MaximumLevel , IHTMLElement node ) 
         {
-            // Si es un nodo Hx y x <= NivelMaximo y contiene texto, es un nodo de corte:
-            if( EsHeader(nodo) ) 
+            // If its a Hx node and x <= MaximumLevel, and it contains text, its a cut node:
+            if( EsHeader(node) ) 
             {
-                string tagName = nodo.tagName.ToUpper();
-                for( int i=1;i<=NivelMaximo; i++ ) 
+                string tagName = node.tagName.ToUpper();
+                for( int i=1;i<=MaximumLevel; i++ ) 
                 {
                     string nombreTag = "H" + i;
                     if( nombreTag.Equals( tagName ) )
@@ -1558,70 +1570,77 @@ namespace ChmProcessorLib
             }
             return false;
         }
-        
-        private void InsertAfter( IHTMLElement destino , IHTMLElement origen ) 
+
+        /// <summary>
+        /// Adds a HTML node as child of other.
+        /// The child node is added at the end of the list of parent children.
+        /// </summary>
+        /// <param name="parent">Parent witch to add the new node</param>
+        /// <param name="child">The child node to add</param>
+        private void InsertAfter( IHTMLElement parent , IHTMLElement child ) 
         {
             try 
             {
-                /*if (destino is IHTMLTable && origen.tagName.ToUpper().Equals("TBODY") )
-                {
-                    IHTMLElementCollection col = (IHTMLElementCollection)origen.children;
-                    foreach (IHTMLElement e in col)
-                        destino.insertAdjacentHTML("beforeEnd", e.outerHTML);
-                }
-                else*/
-                //destino.insertAdjacentHTML( "beforeEnd" , origen.outerHTML );
-                ((IHTMLDOMNode)destino).appendChild((IHTMLDOMNode)origen);
+                ((IHTMLDOMNode)parent).appendChild((IHTMLDOMNode)child);
             }
             catch( Exception ex ) {
-                log("Warning: error adding a child (" + origen.tagName + ") to his parent (" +
-                     destino.tagName + "): " + ex.Message, 1 );
+                log("Warning: error adding a child (" + child.tagName + ") to his parent (" +
+                     parent.tagName + "): " + ex.Message, 1 );
                 log(ex);
             }
         }
 
-        private ArrayList Procesar( IHTMLElement nodo ) 
+        /// <summary>
+        /// Process a HTML node of the document
+        /// </summary>
+        /// <param name="node">Node to process</param>
+        /// <returns>
+        /// A list of subtrees of the HTML original tree broken by the cut level headers.
+        /// If the node and their descendands have not cut level headers, the node will be returned as is.
+        /// </returns>
+        private ArrayList ProcessNode( IHTMLElement node ) 
         {
-            ArrayList lista = new ArrayList();
+            ArrayList subtreesList = new ArrayList();
 
-            // Mirar si el nodo se va a romper en varios trozos:
-            if( SeRompera( nodo ) ) 
+            // Check if the node will be broken on more than one piece because it contains a cut level
+            // header:
+            if( WillBeBroken( node ) ) 
             {
-                IHTMLElementCollection col = (IHTMLElementCollection)nodo.children;
-                IHTMLElement nuevoNodo = Clone( nodo );
-                foreach( IHTMLElement e in col ) 
+                // It contains a cut level.
+                IHTMLElementCollection children = (IHTMLElementCollection)node.children;
+                IHTMLElement newNode = Clone( node );
+                foreach( IHTMLElement e in children ) 
                 {
-
-                    if (EsHeaderDeCorte(Project.CutLevel, e))
+                    if (IsCutHeader(e))
                     {
-                        //RegistrarParte( e );
-                        // Se encontro un header. Cortar aqui.
-                        lista.Add( nuevoNodo );
-                        nuevoNodo = Clone( nodo );
-                        //nuevoNodo.insertAdjacentHTML( "beforeEnd" , e.outerHTML );
-                        InsertAfter( nuevoNodo , e );
+                        // A cut header was found. Cut here.
+                        subtreesList.Add( newNode );
+                        newNode = Clone( node );
+                        InsertAfter( newNode , e );
                     }
                     else 
                     {
-                        ArrayList listaHijos = Procesar( e );
+                        ArrayList listaHijos = ProcessNode( e );
                         foreach( IHTMLElement hijo in listaHijos ) 
                         {
-                            InsertAfter( nuevoNodo , hijo );
+                            InsertAfter( newNode , hijo );
                             if( listaHijos[ listaHijos.Count - 1 ] != hijo ) 
                             {
                                 // Si no es el ultimo, cerrar esta parte y abrir otra.
-                                lista.Add( nuevoNodo );
-                                nuevoNodo = Clone( nodo );
+                                subtreesList.Add( newNode );
+                                newNode = Clone( node );
                             }
                         }
                     }
                 }
-                lista.Add( nuevoNodo );
+                subtreesList.Add( newNode );
             }
             else 
-                lista.Add( nodo );
+                // The node and their children will not broken because it does not contains any
+                // cut level (or upper) header title. So, add the node and their children as they are:
+                subtreesList.Add( node );
 
-            return lista;
+            return subtreesList;
         }
 
         private void logStream( StreamReader reader ) 
