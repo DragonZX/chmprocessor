@@ -212,7 +212,7 @@ namespace ChmProcessorLib
 
         private void AsignarNombreArchivos( NodoArbol nodo , ref int Cnt , int nivelCorte ) 
         {
-            if( nodo.Nodo != null && DocumentProcessor.EsHeaderDeCorte( nivelCorte , nodo.Nodo ) ) 
+            if( nodo.Nodo != null && DocumentProcessor.IsCutHeader( nivelCorte , nodo.Nodo ) ) 
                 nodo.GuardadoEn( nodo.NombreArchivo( Cnt++ ) );
 
             foreach( NodoArbol hijo in nodo.Hijos ) 
