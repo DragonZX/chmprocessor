@@ -211,6 +211,37 @@ namespace ChmProcessorLib
             SaveWord(wordFileSrc, htmlFileDst, format);
         }
 
+        /// <summary>
+        /// Unlinks external image files on the document 
+        /// Thanks to Paolo Moretti for the patch.
+        /// <param name="aDoc">Document where to unlink images</param>
+        /// </summary>
+        static public void UnlinkFields(Document aDoc)
+        {
+            try
+            {
+                aDoc.Fields.Update();
+                foreach (Field field in aDoc.Fields)
+                {
+                    switch (field.Type)
+                    {
+                        case WdFieldType.wdFieldIncludePicture:
+                            field.Unlink();
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            catch { }
+        }
+
+        /// <summary>
+        /// Converts a Word document to other format.
+        /// </summary>
+        /// <param name="wordFileSrc">Path to the Word document to convert</param>
+        /// <param name="htmlFileDst">Path to the converted format</param>
+        /// <param name="format">Format witch to convert. One of WdSaveFormat values.</param>
         public void SaveWord(string wordFileSrc, string htmlFileDst, object format)
         {
             Document aDoc = null;
@@ -226,6 +257,10 @@ namespace ChmProcessorLib
 
                 // Open the document that was chosen by the dialog
                 aDoc = wordApp.Documents.Open(ref fileName, ref missing, ref readOnly, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing);
+
+                // Unlink images:
+                UnlinkFields(aDoc);
+
                 // Save document as filtered html:
                 object dst = htmlFileDst;
                 aDoc.SaveAs(ref dst, ref format, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing);
@@ -295,6 +330,9 @@ namespace ChmProcessorLib
                 Filename = sourceDocuments[i];
                 selection.InsertFile( (string)sourceDocuments[i] , ref range, ref confirmConversions, ref link, ref attachment);
             }
+
+            // Unlink images:
+            UnlinkFields(newDoc);
 
             // Save the document:
             object FileFormat = missing, LockComments = missing, Password = missing, AddToRecentFiles = missing, WritePassword = missing, ReadOnlyRecommended = missing, EmbedTrueTypeFonts = missing, SaveNativePictureFormat = missing, SaveFormsData = missing, SaveAsAOCELetter = missing, Encoding = missing, InsertLineBreaks = missing, AllowSubstitutions = missing, LineEnding = missing, AddBiDiMarks = missing;

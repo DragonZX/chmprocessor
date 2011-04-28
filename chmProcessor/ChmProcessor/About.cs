@@ -125,9 +125,9 @@ namespace ChmProcessor
             // 
             this.label2.Location = new System.Drawing.Point(86, 28);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(285, 16);
+            this.label2.Size = new System.Drawing.Size(365, 16);
             this.label2.TabIndex = 2;
-            this.label2.Text = "(C) 2008 Toni Bennasar Obrador, Mike Hudgell";
+            this.label2.Text = "(C) 2008 Toni Bennasar Obrador, Mike Hudgell, Paolo Moretti";
             // 
             // labLicencia
             // 
