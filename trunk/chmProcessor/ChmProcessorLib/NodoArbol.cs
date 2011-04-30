@@ -451,13 +451,40 @@ namespace ChmProcessorLib
             return null;
         }
 
-        public void GuardadoEn( string archivo ) 
+        /// <summary>
+        /// Stores on the node and their descendants the file name where this section will be saved.
+        /// </summary>
+        /// <param name="filename">Name of the HTML file where this section will be stored</param>
+        public void StoredAt( string filename ) 
         {
-            this.Archivo = archivo;
+            this.Archivo = filename;
             foreach( NodoArbol hijo in Hijos ) 
-                hijo.GuardadoEn( archivo );
+                hijo.StoredAt( filename );
         }
-        #region Miembros de IComparable
+
+        /// <summary>
+        /// Replaces the file where is stored this node and their descendants by other.
+        /// </summary>
+        /// <param name="newFile">Name of the new file where its stored</param>
+        public void ReplaceFile(string newFile)
+        {
+            ReplaceFile(Archivo, newFile);
+        }
+
+        /// <summary>
+        /// Replaces the file where is stored this node and their descendants by other.
+        /// </summary>
+        /// <param name="oldFile">Old name of the file. Only nodes with this file will be replaced</param>
+        /// <param name="newFile">Name of the new file where its stored</param>
+        private void ReplaceFile(string oldFile, string newFile)
+        {
+            if (Archivo != null && Archivo.Equals(oldFile))
+                Archivo = newFile;
+            foreach (NodoArbol child in Hijos)
+                child.ReplaceFile(oldFile, newFile);
+        }
+
+        #region IComparable members
 
         public int CompareTo(object obj)
         {
@@ -469,6 +496,7 @@ namespace ChmProcessorLib
         }
 
         #endregion
+
     }
 
 }
