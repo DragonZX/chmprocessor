@@ -213,7 +213,7 @@ namespace ChmProcessorLib
         private void AsignarNombreArchivos( NodoArbol nodo , ref int Cnt , int nivelCorte ) 
         {
             if( nodo.Nodo != null && DocumentProcessor.IsCutHeader( nivelCorte , nodo.Nodo ) ) 
-                nodo.GuardadoEn( nodo.NombreArchivo( Cnt++ ) );
+                nodo.StoredAt( nodo.NombreArchivo( Cnt++ ) );
 
             foreach( NodoArbol hijo in nodo.Hijos ) 
                 AsignarNombreArchivos( hijo , ref Cnt , nivelCorte );
@@ -239,7 +239,7 @@ namespace ChmProcessorLib
 
             // Por defecto, todos los nodos al documento por defecto. El resto
             // ya ira cogiendo el valor de su archivo:
-            this.Raiz.GuardadoEn( "1.htm" );
+            this.Raiz.StoredAt( "1.htm" );
 
             // Guardar en cada nodo en que archivo se habra guardado el nodo:
             int Cnt = 2;

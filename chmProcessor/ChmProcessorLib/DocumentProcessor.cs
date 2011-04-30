@@ -602,8 +602,8 @@ namespace ChmProcessorLib
                         // El hijo tiene cuerpo: Unificarlos.
                         nodo.body.insertAdjacentHTML("beforeEnd" , hijo.body.innerHTML);
                         hijo.body = null;
-                        //hijo.Archivo = nodo.Archivo;
-                        hijo.GuardadoEn(nodo.Archivo);
+                        //hijo.GuardadoEn(nodo.Archivo);
+                        hijo.ReplaceFile(nodo.Archivo);
                     }
                 }
             }
