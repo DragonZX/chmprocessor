@@ -2059,7 +2059,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_E7D348D744D74D57BE4C3D764E2E6A86"
             {
-            "SourcePath" = "8:..\\ChmProcessor\\obj\\Release\\ChmProcessor.exe"
+            "SourcePath" = "8:..\\ChmProcessor\\obj\\x86\\Release\\ChmProcessor.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_EFD050B0BC4A4E6EA11EC348692E2E00"

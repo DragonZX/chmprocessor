@@ -67,11 +67,12 @@ namespace ChmProcessorLib
             {
                 Console.WriteLine(text);
             }
-            catch (Exception ex)
+            catch {}
+            /*catch (Exception ex)
             {
                 int x = 0;
                 x++;
-            }
+            }*/
         }
 
         /// <summary>
