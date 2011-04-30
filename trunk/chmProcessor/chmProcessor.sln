@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChmProcessor", "ChmProcesso
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebIndexLib", "WebIndexLib\WebIndexLib.csproj", "{9C45708A-9A1B-4D13-B72B-0AE78D9140AD}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "chmProcessorSetup", "ChmProcessorSetup\ChmProcessorSetup.vdproj", "{AA535041-4402-41BD-BD66-280A083722C9}"
+EndProject
 Global
 	GlobalSection(SubversionScc) = preSolution
 		Svn-Managed = True
@@ -50,6 +52,18 @@ Global
 		{9C45708A-9A1B-4D13-B72B-0AE78D9140AD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9C45708A-9A1B-4D13-B72B-0AE78D9140AD}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{9C45708A-9A1B-4D13-B72B-0AE78D9140AD}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{AA535041-4402-41BD-BD66-280A083722C9}.Debug|.NET.ActiveCfg = Debug
+		{AA535041-4402-41BD-BD66-280A083722C9}.Debug|.NET.Build.0 = Debug
+		{AA535041-4402-41BD-BD66-280A083722C9}.Debug|Any CPU.ActiveCfg = Debug
+		{AA535041-4402-41BD-BD66-280A083722C9}.Debug|Any CPU.Build.0 = Debug
+		{AA535041-4402-41BD-BD66-280A083722C9}.Debug|Mixed Platforms.ActiveCfg = Debug
+		{AA535041-4402-41BD-BD66-280A083722C9}.Debug|Mixed Platforms.Build.0 = Debug
+		{AA535041-4402-41BD-BD66-280A083722C9}.Release|.NET.ActiveCfg = Release
+		{AA535041-4402-41BD-BD66-280A083722C9}.Release|.NET.Build.0 = Release
+		{AA535041-4402-41BD-BD66-280A083722C9}.Release|Any CPU.ActiveCfg = Release
+		{AA535041-4402-41BD-BD66-280A083722C9}.Release|Any CPU.Build.0 = Release
+		{AA535041-4402-41BD-BD66-280A083722C9}.Release|Mixed Platforms.ActiveCfg = Release
+		{AA535041-4402-41BD-BD66-280A083722C9}.Release|Mixed Platforms.Build.0 = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

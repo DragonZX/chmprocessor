@@ -461,13 +461,6 @@ namespace ChmProcessor
             this.txtCmdLine = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.tabControl2 = new System.Windows.Forms.TabControl();
-            this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.btnOpenSrcFiles = new System.Windows.Forms.Button();
-            this.btnMoveSrcFileDown = new System.Windows.Forms.Button();
-            this.btnMoveSrcFileUp = new System.Windows.Forms.Button();
-            this.btnRemoveSrcFile = new System.Windows.Forms.Button();
-            this.lstSourceFiles = new System.Windows.Forms.ListBox();
-            this.btnAddSrcFile = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.label2 = new System.Windows.Forms.Label();
             this.txtTitAyu = new System.Windows.Forms.TextBox();
@@ -480,6 +473,13 @@ namespace ChmProcessor
             this.label5 = new System.Windows.Forms.Label();
             this.numNivelCorte = new System.Windows.Forms.NumericUpDown();
             this.label3 = new System.Windows.Forms.Label();
+            this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.btnOpenSrcFiles = new System.Windows.Forms.Button();
+            this.btnMoveSrcFileDown = new System.Windows.Forms.Button();
+            this.btnMoveSrcFileUp = new System.Windows.Forms.Button();
+            this.btnRemoveSrcFile = new System.Windows.Forms.Button();
+            this.lstSourceFiles = new System.Windows.Forms.ListBox();
+            this.btnAddSrcFile = new System.Windows.Forms.Button();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.btnBorAdi = new System.Windows.Forms.Button();
             this.btnNueDirAdi = new System.Windows.Forms.Button();
@@ -493,11 +493,11 @@ namespace ChmProcessor
             this.tabJavaHelp.SuspendLayout();
             this.tabOther.SuspendLayout();
             this.tabControl2.SuspendLayout();
-            this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numTemasIndice)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numArbolContenidos)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numNivelCorte)).BeginInit();
+            this.tabPage1.SuspendLayout();
             this.tabPage3.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -1284,82 +1284,6 @@ namespace ChmProcessor
             this.tabControl2.Size = new System.Drawing.Size(687, 184);
             this.tabControl2.TabIndex = 60;
             // 
-            // tabPage1
-            // 
-            this.tabPage1.Controls.Add(this.btnOpenSrcFiles);
-            this.tabPage1.Controls.Add(this.btnMoveSrcFileDown);
-            this.tabPage1.Controls.Add(this.btnMoveSrcFileUp);
-            this.tabPage1.Controls.Add(this.btnRemoveSrcFile);
-            this.tabPage1.Controls.Add(this.lstSourceFiles);
-            this.tabPage1.Controls.Add(this.btnAddSrcFile);
-            this.tabPage1.Location = new System.Drawing.Point(4, 22);
-            this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(679, 158);
-            this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "Source files";
-            this.tabPage1.UseVisualStyleBackColor = true;
-            // 
-            // btnOpenSrcFiles
-            // 
-            this.btnOpenSrcFiles.Location = new System.Drawing.Point(599, 127);
-            this.btnOpenSrcFiles.Name = "btnOpenSrcFiles";
-            this.btnOpenSrcFiles.Size = new System.Drawing.Size(75, 23);
-            this.btnOpenSrcFiles.TabIndex = 5;
-            this.btnOpenSrcFiles.Text = "Open";
-            this.btnOpenSrcFiles.UseVisualStyleBackColor = true;
-            this.btnOpenSrcFiles.Click += new System.EventHandler(this.btnOpenSrcFiles_Click);
-            // 
-            // btnMoveSrcFileDown
-            // 
-            this.btnMoveSrcFileDown.Location = new System.Drawing.Point(598, 97);
-            this.btnMoveSrcFileDown.Name = "btnMoveSrcFileDown";
-            this.btnMoveSrcFileDown.Size = new System.Drawing.Size(75, 23);
-            this.btnMoveSrcFileDown.TabIndex = 4;
-            this.btnMoveSrcFileDown.Text = "Move down";
-            this.btnMoveSrcFileDown.UseVisualStyleBackColor = true;
-            this.btnMoveSrcFileDown.Click += new System.EventHandler(this.btnMoveSrcFileDown_Click);
-            // 
-            // btnMoveSrcFileUp
-            // 
-            this.btnMoveSrcFileUp.Location = new System.Drawing.Point(598, 64);
-            this.btnMoveSrcFileUp.Name = "btnMoveSrcFileUp";
-            this.btnMoveSrcFileUp.Size = new System.Drawing.Size(75, 26);
-            this.btnMoveSrcFileUp.TabIndex = 3;
-            this.btnMoveSrcFileUp.Text = "Move up";
-            this.btnMoveSrcFileUp.UseVisualStyleBackColor = true;
-            this.btnMoveSrcFileUp.Click += new System.EventHandler(this.btnMoveSrcFileUp_Click);
-            // 
-            // btnRemoveSrcFile
-            // 
-            this.btnRemoveSrcFile.Location = new System.Drawing.Point(598, 35);
-            this.btnRemoveSrcFile.Name = "btnRemoveSrcFile";
-            this.btnRemoveSrcFile.Size = new System.Drawing.Size(75, 23);
-            this.btnRemoveSrcFile.TabIndex = 2;
-            this.btnRemoveSrcFile.Text = "Remove";
-            this.btnRemoveSrcFile.UseVisualStyleBackColor = true;
-            this.btnRemoveSrcFile.Click += new System.EventHandler(this.btnRemoveSrcFile_Click);
-            // 
-            // lstSourceFiles
-            // 
-            this.lstSourceFiles.FormattingEnabled = true;
-            this.lstSourceFiles.Location = new System.Drawing.Point(6, 6);
-            this.lstSourceFiles.Name = "lstSourceFiles";
-            this.lstSourceFiles.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.lstSourceFiles.Size = new System.Drawing.Size(586, 147);
-            this.lstSourceFiles.TabIndex = 1;
-            this.lstSourceFiles.MouseDown += new System.Windows.Forms.MouseEventHandler(this.lstSourceFiles_MouseDown);
-            // 
-            // btnAddSrcFile
-            // 
-            this.btnAddSrcFile.Location = new System.Drawing.Point(598, 6);
-            this.btnAddSrcFile.Name = "btnAddSrcFile";
-            this.btnAddSrcFile.Size = new System.Drawing.Size(75, 23);
-            this.btnAddSrcFile.TabIndex = 0;
-            this.btnAddSrcFile.Text = "Add...";
-            this.btnAddSrcFile.UseVisualStyleBackColor = true;
-            this.btnAddSrcFile.Click += new System.EventHandler(this.btnAddSrcFile_Click);
-            // 
             // tabPage2
             // 
             this.tabPage2.Controls.Add(this.label2);
@@ -1489,6 +1413,82 @@ namespace ChmProcessor
             this.label3.TabIndex = 51;
             this.label3.Text = "Cut header level";
             // 
+            // tabPage1
+            // 
+            this.tabPage1.Controls.Add(this.btnOpenSrcFiles);
+            this.tabPage1.Controls.Add(this.btnMoveSrcFileDown);
+            this.tabPage1.Controls.Add(this.btnMoveSrcFileUp);
+            this.tabPage1.Controls.Add(this.btnRemoveSrcFile);
+            this.tabPage1.Controls.Add(this.lstSourceFiles);
+            this.tabPage1.Controls.Add(this.btnAddSrcFile);
+            this.tabPage1.Location = new System.Drawing.Point(4, 22);
+            this.tabPage1.Name = "tabPage1";
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage1.Size = new System.Drawing.Size(679, 158);
+            this.tabPage1.TabIndex = 0;
+            this.tabPage1.Text = "Source files";
+            this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // btnOpenSrcFiles
+            // 
+            this.btnOpenSrcFiles.Location = new System.Drawing.Point(599, 127);
+            this.btnOpenSrcFiles.Name = "btnOpenSrcFiles";
+            this.btnOpenSrcFiles.Size = new System.Drawing.Size(75, 23);
+            this.btnOpenSrcFiles.TabIndex = 5;
+            this.btnOpenSrcFiles.Text = "Open";
+            this.btnOpenSrcFiles.UseVisualStyleBackColor = true;
+            this.btnOpenSrcFiles.Click += new System.EventHandler(this.btnOpenSrcFiles_Click);
+            // 
+            // btnMoveSrcFileDown
+            // 
+            this.btnMoveSrcFileDown.Location = new System.Drawing.Point(598, 97);
+            this.btnMoveSrcFileDown.Name = "btnMoveSrcFileDown";
+            this.btnMoveSrcFileDown.Size = new System.Drawing.Size(75, 23);
+            this.btnMoveSrcFileDown.TabIndex = 4;
+            this.btnMoveSrcFileDown.Text = "Move down";
+            this.btnMoveSrcFileDown.UseVisualStyleBackColor = true;
+            this.btnMoveSrcFileDown.Click += new System.EventHandler(this.btnMoveSrcFileDown_Click);
+            // 
+            // btnMoveSrcFileUp
+            // 
+            this.btnMoveSrcFileUp.Location = new System.Drawing.Point(598, 64);
+            this.btnMoveSrcFileUp.Name = "btnMoveSrcFileUp";
+            this.btnMoveSrcFileUp.Size = new System.Drawing.Size(75, 26);
+            this.btnMoveSrcFileUp.TabIndex = 3;
+            this.btnMoveSrcFileUp.Text = "Move up";
+            this.btnMoveSrcFileUp.UseVisualStyleBackColor = true;
+            this.btnMoveSrcFileUp.Click += new System.EventHandler(this.btnMoveSrcFileUp_Click);
+            // 
+            // btnRemoveSrcFile
+            // 
+            this.btnRemoveSrcFile.Location = new System.Drawing.Point(598, 35);
+            this.btnRemoveSrcFile.Name = "btnRemoveSrcFile";
+            this.btnRemoveSrcFile.Size = new System.Drawing.Size(75, 23);
+            this.btnRemoveSrcFile.TabIndex = 2;
+            this.btnRemoveSrcFile.Text = "Remove";
+            this.btnRemoveSrcFile.UseVisualStyleBackColor = true;
+            this.btnRemoveSrcFile.Click += new System.EventHandler(this.btnRemoveSrcFile_Click);
+            // 
+            // lstSourceFiles
+            // 
+            this.lstSourceFiles.FormattingEnabled = true;
+            this.lstSourceFiles.Location = new System.Drawing.Point(6, 6);
+            this.lstSourceFiles.Name = "lstSourceFiles";
+            this.lstSourceFiles.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
+            this.lstSourceFiles.Size = new System.Drawing.Size(586, 147);
+            this.lstSourceFiles.TabIndex = 1;
+            this.lstSourceFiles.MouseDown += new System.Windows.Forms.MouseEventHandler(this.lstSourceFiles_MouseDown);
+            // 
+            // btnAddSrcFile
+            // 
+            this.btnAddSrcFile.Location = new System.Drawing.Point(598, 6);
+            this.btnAddSrcFile.Name = "btnAddSrcFile";
+            this.btnAddSrcFile.Size = new System.Drawing.Size(75, 23);
+            this.btnAddSrcFile.TabIndex = 0;
+            this.btnAddSrcFile.Text = "Add...";
+            this.btnAddSrcFile.UseVisualStyleBackColor = true;
+            this.btnAddSrcFile.Click += new System.EventHandler(this.btnAddSrcFile_Click);
+            // 
             // tabPage3
             // 
             this.tabPage3.Controls.Add(this.btnBorAdi);
@@ -1510,6 +1510,7 @@ namespace ChmProcessor
             this.btnBorAdi.Size = new System.Drawing.Size(112, 23);
             this.btnBorAdi.TabIndex = 22;
             this.btnBorAdi.Text = "Delete selected";
+            this.btnBorAdi.Click += new System.EventHandler(this.btnBorAdi_Click);
             // 
             // btnNueDirAdi
             // 
@@ -1518,6 +1519,7 @@ namespace ChmProcessor
             this.btnNueDirAdi.Size = new System.Drawing.Size(112, 23);
             this.btnNueDirAdi.TabIndex = 21;
             this.btnNueDirAdi.Text = "Add &directory...";
+            this.btnNueDirAdi.Click += new System.EventHandler(this.btnNueDirAdi_Click);
             // 
             // btnNueArcAdi
             // 
@@ -1526,6 +1528,7 @@ namespace ChmProcessor
             this.btnNueArcAdi.Size = new System.Drawing.Size(112, 23);
             this.btnNueArcAdi.TabIndex = 20;
             this.btnNueArcAdi.Text = "Add &file...";
+            this.btnNueArcAdi.Click += new System.EventHandler(this.btnNueArcAdi_Click);
             // 
             // lstArcAdicionales
             // 
@@ -1567,12 +1570,12 @@ namespace ChmProcessor
             this.tabOther.ResumeLayout(false);
             this.tabOther.PerformLayout();
             this.tabControl2.ResumeLayout(false);
-            this.tabPage1.ResumeLayout(false);
             this.tabPage2.ResumeLayout(false);
             this.tabPage2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numTemasIndice)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numArbolContenidos)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numNivelCorte)).EndInit();
+            this.tabPage1.ResumeLayout(false);
             this.tabPage3.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();

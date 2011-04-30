@@ -26,11 +26,16 @@ namespace ChmProcessorLib
 {
     /// <summary>
     /// Tool to print a file to a PDF file.
-    /// PdfCreator must to be installed, at least version 0.9.3. Other versions have not been tested.
+    /// PdfCreator must to be installed, ONLY VERSION 1.2 IS SUPPORTED. Other versions have not been tested.
     /// Be sure to take exceptions if its not installed or to be in use.
     /// </summary>
     public class PdfPrinter
     {
+        /// <summary>
+        /// Currently supported version.
+        /// </summary>
+        public const string SUPPORTEDVERSION = "1.2";
+
         private System.Windows.Forms.Timer timer;
         private const int maxTime = 180;    // 3 min.
         private bool ReadyState;
