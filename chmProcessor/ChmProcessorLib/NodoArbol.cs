@@ -124,16 +124,22 @@ namespace ChmProcessorLib
                 BuildListOfContainedANames(child);
         }
 
-        static public string ProcesarNombreArchivo( string nombreArchivo ) 
+        /// <summary>
+        /// Changes a file name file to other safe for references into the help.
+        /// Non digits or letters characters will be removed.
+        /// </summary>
+        /// <param name="filename">Original file name</param>
+        /// <returns>Safe version of the file name</returns>
+        static public string ToSafeFilename( string filename ) 
         {
-            if (nombreArchivo == null)
+            if (filename == null)
                 return "";
 
             string newName = "";
             int i;
-            for (i = 0; i < nombreArchivo.Length; i++)
+            for (i = 0; i < filename.Length; i++)
             {
-                char c = nombreArchivo[i];
+                char c = filename[i];
                 if (c == '-' || c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || 
                     c == '.' || ( c >= '0' && c <= '9' ) )
                     newName += c;
@@ -153,7 +159,7 @@ namespace ChmProcessorLib
                 nombre = NumSeccion + ".htm";
             else
                 nombre = NumSeccion + "_" + Nodo.innerText.Trim() + ".htm";
-            return ProcesarNombreArchivo( nombre );
+            return ToSafeFilename( nombre );
         }
 
         static public int NivelNodo( IHTMLElement nodo ) 
@@ -189,7 +195,7 @@ namespace ChmProcessorLib
                         // Remove empty spaces, because they will fail into the CHM. 
                         // The anchors to this will be replace too after.
                         //listaANames.Add( ((IHTMLAnchorElement)hijo).name.Replace( " " , "" ) );
-                        string processedName = ProcesarNombreArchivo( ((IHTMLAnchorElement)hijo).name );
+                        string processedName = ToSafeFilename( ((IHTMLAnchorElement)hijo).name );
                         listaANames.Add(processedName);
                     }
                 }

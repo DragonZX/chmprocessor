@@ -240,7 +240,12 @@ namespace ChmProcessorLib
             else if (File.Exists(dirHtml))
                 File.Delete(dirHtml);
             Directory.CreateDirectory(dirHtml);
-            string finalFile = dirHtml + Path.DirectorySeparatorChar + nombreArchivo + ".htm";
+
+            // Rename the file to a save name. If there is spaces, for example, 
+            // links to embedded images into the document are not found.
+            //string finalFile = dirHtml + Path.DirectorySeparatorChar + nombreArchivo + ".htm";
+            string finalFile = dirHtml + Path.DirectorySeparatorChar + NodoArbol.ToSafeFilename(nombreArchivo) + ".htm";
+
             msWord.SaveWordToHtml(MainSourceFile, finalFile);
             return finalFile;
         }
@@ -418,7 +423,7 @@ namespace ChmProcessorLib
                     if( href.StartsWith("#") ) 
                     {
                         // Cambiar el enlace interno para que vaya al archivo correspondiente:
-                        string safeRef = NodoArbol.ProcesarNombreArchivo(href.Substring(1));
+                        string safeRef = NodoArbol.ToSafeFilename(href.Substring(1));
                         NodoArbol nodoArbol = tree.Raiz.BuscarEnlace( safeRef );
                         if (nodoArbol != null)
                             link.href = nodoArbol.Archivo + "#" + safeRef;
@@ -442,7 +447,7 @@ namespace ChmProcessorLib
                 }
                 else if (link.name != null /*&& link.name.Contains(" ")*/ )
                 {
-                    string safeName = NodoArbol.ProcesarNombreArchivo(link.name);
+                    string safeName = NodoArbol.ToSafeFilename(link.name);
                     if (!link.name.Equals(safeName))
                     {
                         // Word bug? i have found names with space characters and other bad things. 
@@ -638,7 +643,7 @@ namespace ChmProcessorLib
                 string aName = "";
                 IHTMLAnchorElement a = BuscarNodoA( sectionHeader );
                 if( a != null && a.name != null )
-                    aName = NodoArbol.ProcesarNombreArchivo( a.name );
+                    aName = NodoArbol.ToSafeFilename( a.name );
                 nodeToStore = tree.Raiz.BuscarNodo( sectionHeader , aName );
             }
 
@@ -865,7 +870,8 @@ namespace ChmProcessorLib
                     log("Something wrong happened with the PDF generation. Remember you must to have Microsoft Office 2007 and the" +
                         "pdf/xps generation add-in (http://www.microsoft.com/downloads/details.aspx?FamilyID=4D951911-3E7E-4AE6-B059-A2E79ED87041&displaylang=en)", 1);
                 else
-                    log("Something wrong happened with the PDF generation. Remember you must to have PdfCreator (version 0.9.3 tested only) installed into your computer to " +
+                    log("Something wrong happened with the PDF generation. Remember you must to have PdfCreator (VERSION " + PdfPrinter.SUPPORTEDVERSION + 
+                        " AND ONLY THIS VERSION) installed into your computer to " +
                         "generate a PDF file. You can download it from http://www.pdfforge.org/products/pdfcreator/download", 1);
                 log(ex);
             }
