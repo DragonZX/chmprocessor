@@ -1,20 +1,25 @@
-COPY chmProcessor.chm ProcesadorHtml\bin\Release
-COPY license.txt ProcesadorHtml\bin\Release
-MKDIR ProcesadorHtml\bin\Release\webFiles
-COPY webFiles ProcesadorHtml\bin\Release\webFiles
-MKDIR ProcesadorHtml\bin\Release\webTranslations
-COPY webTranslations ProcesadorHtml\bin\Release\webTranslations
-copy ProcesadorHtml\dialog-information.png ProcesadorHtml\bin\Release
-copy ProcesadorHtml\dialog-error.png ProcesadorHtml\bin\Release
-copy searchdb.sql ProcesadorHtml\bin\Release
-copy web\chmProcessorDocumentation.pdf ProcesadorHtml\bin\Release
+
+MKDIR ChmProcessor\bin
+MKDIR ChmProcessor\bin\x86
+MKDIR ChmProcessor\bin\x86\Release
+
+COPY doc\chmProcessor.chm ChmProcessor\bin\x86\Release
+COPY license.txt ChmProcessor\bin\x86\Release
+MKDIR ChmProcessor\bin\x86\Release\webFiles
+COPY webFiles ChmProcessor\bin\x86\Release\webFiles
+MKDIR ChmProcessor\bin\x86\Release\webTranslations
+COPY webTranslations ChmProcessor\bin\x86\Release\webTranslations
+copy ChmProcessor\dialog-information.png ChmProcessor\bin\x86\Release
+copy ChmProcessor\dialog-error.png ChmProcessor\bin\x86\Release
+copy searchdb.sql ChmProcessor\bin\x86\Release
+copy doc\web\chmProcessorDocumentation.pdf ChmProcessor\bin\x86\Release
 
 REM PREPARE SEARCH FILES:
-MKDIR ProcesadorHtml\bin\Release\searchFiles
-MKDIR ProcesadorHtml\bin\Release\searchFiles\Bin
-COPY WebFullTextSearch\Bin ProcesadorHtml\bin\Release\searchFiles\Bin
-COPY WebFullTextSearch\search.aspx ProcesadorHtml\bin\Release\searchFiles
-COPY WebFullTextSearch\search.aspx.cs ProcesadorHtml\bin\Release\searchFiles
-COPY WebFullTextSearch\Web.Config ProcesadorHtml\bin\Release\searchFiles
+MKDIR ChmProcessor\bin\x86\Release\searchFiles
+MKDIR ChmProcessor\bin\x86\Release\searchFiles\Bin
+COPY WebFullTextSearch\Bin ChmProcessor\bin\x86\Release\searchFiles\Bin
+COPY WebFullTextSearch\search.aspx ChmProcessor\bin\x86\Release\searchFiles
+COPY WebFullTextSearch\search.aspx.cs ChmProcessor\bin\x86\Release\searchFiles
+COPY WebFullTextSearch\Web.Config ChmProcessor\bin\x86\Release\searchFiles
 
 PAUSE
