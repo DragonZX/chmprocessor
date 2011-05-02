@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuracion xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <SourceFiles>
+    <anyType xsi:type="xsd:string">D:\java\REPOSITORIO-CHMPROCESSOR\trunk\chmProcessor\doc\chmProcessor.doc</anyType>
+  </SourceFiles>
+  <Compilar>true</Compilar>
+  <DirectorioDestino>E:\dev\cs\ProcesadorHtml\chmProcessor-project</DirectorioDestino>
+  <HtmlCabecera />
+  <HtmlPie>D:\java\REPOSITORIO-CHMPROCESSOR\trunk\chmProcessor\doc\footer.htm</HtmlPie>
+  <TituloAyuda>chmProcessor. A Html / Word converter to Compiled HTML Help (CHM)</TituloAyuda>
+  <NivelCorte>0</NivelCorte>
+  <GenerarWeb>true</GenerarWeb>
+  <ArchivosAdicionales />
+  <AbrirProyecto>false</AbrirProyecto>
+  <DirectorioWeb>D:\java\REPOSITORIO-CHMPROCESSOR\trunk\chmProcessor\doc\web</DirectorioWeb>
+  <NivelArbolContenidos>0</NivelArbolContenidos>
+  <NivelTemasIndice>0</NivelTemasIndice>
+  <ArchivoAyuda>D:\java\REPOSITORIO-CHMPROCESSOR\trunk\chmProcessor\doc\chmProcessor.chm</ArchivoAyuda>
+  <CommandLine />
+  <GeneratePdf>true</GeneratePdf>
+  <PdfPath>D:\java\REPOSITORIO-CHMPROCESSOR\trunk\chmProcessor\doc\web\chmProcessorDocumentation.pdf</PdfPath>
+  <WebKeywords>word compiled help doc chm conversion converter translator java help javahelp word2chm doc2chm </WebKeywords>
+  <WebDescription>chmProcessor. A tool to convert Word documents to Compiled Help (CHM) / Java Help files</WebDescription>
+  <WebHeaderFile />
+  <WebFooterFile>D:\java\REPOSITORIO-CHMPROCESSOR\trunk\chmProcessor\doc\footer.htm</WebFooterFile>
+  <GenerateSitemap>true</GenerateSitemap>
+  <WebBase>http://chmprocessor.sourceforge.net</WebBase>
+  <ChangeFrequency>monthly</ChangeFrequency>
+  <WebLanguage>English</WebLanguage>
+  <FullTextSearch>false</FullTextSearch>
+  <PdfGeneration>PdfCreator</PdfGeneration>
+  <GenerateXps>false</GenerateXps>
+  <XpsPath>C:\Users\toni\Documents\ProcesadorHtml\web\chmProcessorDocumentation.xps</XpsPath>
+  <GenerateJavaHelp>false</GenerateJavaHelp>
+  <JavaHelpPath>C:\Users\toni\Documents\ProcesadorHtml\chmProcessor.jar</JavaHelpPath>
+</Configuracion>
