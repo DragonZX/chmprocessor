@@ -9,7 +9,7 @@ Log Level [/l1, /l2, /l3] lets you choose how much information is output, where 
 - Bug fixed "Hyperlink images are not included in CHM" (Thanks to Paolo Moretti)
 - Bug fixed "If 2 styles "title 1 and 2" follows without text, the conversion is not good."
 - Bug fixed. When the source word file had non ASCII characters, images were not well referenced from the CHM file.
-
+- Application was not working on 64 bits operating systems. Now the application runs always on 32 bit mode, needed to run Tidy.
 
 * 1.4
 - JavaHelp generation.
