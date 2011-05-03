@@ -3,6 +3,11 @@
 - Add submited patches:
 -> Quiet mode [/q] prevents a window being shown when run with the /g command line and logs messages to stdout/stderr
 -> Log Level [/l1, /l2, /l3] lets you choose how much information is output, where /l1 is minimal and /l3 is all the information.
+- Project conversion from 1.4 to 1.5 is not loading the source document at LSI (maybe because is now private?). Version and old sourcefile are not stored.
+- Add horizontal scroll bars to Source files an Additional files lists
+- If i cancel the execution, after joining the documents it does not exit. See the log:
+Joining documents to a single temporal file : C:\Documents and Settings\ToniB\Configuración local\Temp\tmp37D.tmp.doc
+Convert file C:\Documents and Settings\ToniB\Configuración local\Temp\tmp37D.tmp.doc to HTML
 
 - Microsoft PIA will not be longer distributed. Check if they are installed.
 - Change documentation
