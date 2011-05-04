@@ -50,7 +50,7 @@ namespace ChmProcessorLib
         /// This is deprecated until 1.5 version. Now we can use a list of source files.
         /// Use SourceFiles member instead.
         /// </summary>
-        private string ArchivoOrigen = null;
+        public string ArchivoOrigen = null;
 
         /// <summary>
         /// List of source files (MS Word and HTML) to generate the help.
@@ -222,7 +222,7 @@ namespace ChmProcessorLib
         /// <summary>
         /// Current version of this help project.
         /// </summary>
-        private double ConfigurationVersion;
+        public double ConfigurationVersion;
 
         /// <summary>
         /// Only applies if GenerateWeb = true.

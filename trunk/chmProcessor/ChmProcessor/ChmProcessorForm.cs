@@ -646,13 +646,13 @@ namespace ChmProcessor
             // labModified
             // 
             this.labModified.Name = "labModified";
-            this.labModified.Size = new System.Drawing.Size(71, 17);
+            this.labModified.Size = new System.Drawing.Size(61, 17);
             this.labModified.Text = "labModified";
             // 
             // labStatus
             // 
             this.labStatus.Name = "labStatus";
-            this.labStatus.Size = new System.Drawing.Size(55, 17);
+            this.labStatus.Size = new System.Drawing.Size(52, 17);
             this.labStatus.Text = "labStatus";
             // 
             // tabControl1
@@ -1472,6 +1472,7 @@ namespace ChmProcessor
             // lstSourceFiles
             // 
             this.lstSourceFiles.FormattingEnabled = true;
+            this.lstSourceFiles.HorizontalScrollbar = true;
             this.lstSourceFiles.Location = new System.Drawing.Point(6, 6);
             this.lstSourceFiles.Name = "lstSourceFiles";
             this.lstSourceFiles.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
@@ -1532,6 +1533,7 @@ namespace ChmProcessor
             // 
             // lstArcAdicionales
             // 
+            this.lstArcAdicionales.HorizontalScrollbar = true;
             this.lstArcAdicionales.Location = new System.Drawing.Point(6, 6);
             this.lstArcAdicionales.Name = "lstArcAdicionales";
             this.lstArcAdicionales.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
