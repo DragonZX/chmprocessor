@@ -232,6 +232,9 @@ namespace ChmProcessorLib
 
             MainSourceFile = CheckAndJoinWordSourceFiles(msWord);
 
+            if (CancellRequested())
+                return null;
+
             log("Convert file " + MainSourceFile + " to HTML", 2);
             string nombreArchivo = Path.GetFileNameWithoutExtension(MainSourceFile);
             dirHtml = Path.GetTempPath() + Path.DirectorySeparatorChar + nombreArchivo;
@@ -278,8 +281,14 @@ namespace ChmProcessorLib
                     // There is a single source HTML file.
                     MainSourceFile = (string)Project.SourceFiles[0];
 
+                if (CancellRequested())
+                    return;
+
                 if (AppSettings.UseTidyOverInput)
                     new TidyParser(UI).Parse(archivoFinal);
+
+                if (CancellRequested())
+                    return;
 
                 // Prepare loading:
                 HTMLDocumentClass docClass = new HTMLDocumentClass();
