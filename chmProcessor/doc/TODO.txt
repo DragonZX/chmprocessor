@@ -8,6 +8,7 @@
 - If i cancel the execution, after joining the documents it does not exit. See the log:
 Joining documents to a single temporal file : C:\Documents and Settings\ToniB\Configuración local\Temp\tmp37D.tmp.doc
 Convert file C:\Documents and Settings\ToniB\Configuración local\Temp\tmp37D.tmp.doc to HTML
+- When different word docs are joined, styles of the original docs are not used. Copy them from the first doc.
 
 - Microsoft PIA will not be longer distributed. Check if they are installed.
 - Change documentation
