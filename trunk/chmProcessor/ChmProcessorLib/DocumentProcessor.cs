@@ -1299,129 +1299,135 @@ namespace ChmProcessorLib
         /// <param name="archivosGenerados">List of all files of the help content.</param>
         /// <param name="index">Index help information</param>
         /// <param name="cssFile">File that contains extracted CSS styles</param>
-        /// <returns></returns>
-        private string GenerateWebSite( ArrayList archivosGenerados, Index index, string cssFile ) 
+        private void GenerateWebSite( ArrayList archivosGenerados, Index index, string cssFile ) 
         {
-            // Crear el directorio web y copiar archivos adicionales:
-            string dirWeb;
-            //if( DirectorioWeb.Equals("") )
-            if (Project.WebDirectory.Equals(""))
-                dirWeb = Project.HelpProjectDirectory + Path.DirectorySeparatorChar + "web";
-            else
-                dirWeb = Project.WebDirectory;
-            GenerarDirDestino( dirWeb );
-
-            // Copy the css file if was generated:
-            if (cssFile != null)
-                File.Copy( cssFile , dirWeb + Path.DirectorySeparatorChar + Path.GetFileName(cssFile) );
-
-            // Check if we can copy the generated files or we must to regenerate with other header 
-            // Copy generated chapter files:
-            //if (ArchivoCabecera.Equals(HtmlHeaderFile) && ArchivoPie.Equals(HtmlFooterFile) && !Configuration.FullTextSearch )
-            if (Project.ChmHeaderFile.Equals(Project.WebHeaderFile) && Project.ChmFooterFile.Equals(Project.WebFooterFile) && !Project.FullTextSearch)
-            {
-                // Copy files generated for the CHM help
-                foreach (string file in archivosGenerados)
-                {
-                    string archivoDst = dirWeb + Path.DirectorySeparatorChar + Path.GetFileName(file);
-                    File.Copy(file, archivoDst);
-                }
-            }
-            else
-            {
-                // Prepare the indexing database:
-                WebIndex indexer = null;
-                try
-                {
-                    if (Project.FullTextSearch)
-                    {
-                        indexer = new WebIndex();
-                        string dbFile = dirWeb + Path.DirectorySeparatorChar + "fullsearchdb.db3";
-                        string dirTextFiles = dirWeb + Path.DirectorySeparatorChar + "textFiles";
-                        indexer.Connect(dbFile);
-                        indexer.CreateDatabase(System.Windows.Forms.Application.StartupPath + Path.DirectorySeparatorChar + "searchdb.sql", dirTextFiles);
-                        indexer.StoreConfiguration(Project.WebLanguage);
-                    }
-
-                    // Create new files for the web help:
-                    GuardarDocumentos(dirWeb, HtmlHeaderCode, HtmlFooterCode, indexer);
-                }
-                finally
-                {
-                    if (indexer != null)
-                        indexer.Disconnect();
-                }
-            }
-
-            // Copy base files for web help:
-            string keywordsMeta = "", descriptionMeta = "";
-            //if( !WebKeywords.Trim().Equals( "" ) ) 
-            if (!Project.WebKeywords.Trim().Equals("")) 
-                //keywordsMeta = "<meta name=\"keywords\" content=\"" + WebKeywords + "\" >";
-                keywordsMeta = "<meta name=\"keywords\" content=\"" + Project.WebKeywords + "\" >";
-            //if( !WebDescription.Trim().Equals( "" ) ) 
-            if (!Project.WebDescription.Trim().Equals("")) 
-                //descriptionMeta = "<meta name=\"description\" content=\"" + WebDescription + "\" >";
-                descriptionMeta = "<meta name=\"description\" content=\"" + Project.WebDescription + "\" >";
-
-            // Convert title to windows-1252 enconding:
-            string title = HtmlEncode(Project.HelpTitle);
-
-            // Generate search form HTML code:
-            string textSearch = "";
-            if (Project.FullTextSearch)
-            {
-                textSearch = "<form name=\"searchform\" method=\"post\" action=\"search.aspx\" id=\"searchform\" onsubmit=\"doFullTextSearch();return false;\" >\n";
-                textSearch += "<p><img src=\"system-search.png\" align=middle alt=\"Search image\" /> <b>%Search Text%:</b><br /><input type=\"text\" id=\"searchText\" style=\"width:80%;\" name=\"searchText\"/>\n";
-                textSearch += "<input type=\"button\" value=\"%Search%\" onclick=\"doFullTextSearch();\" id=\"Button1\" name=\"Button1\"/></p>\n";
-            }
-            else
-            {
-                textSearch = "<form name=\"searchform\" method=\"post\" action=\"search.aspx\" id=\"searchform\" onsubmit=\"doSearch();return false;\" >\n";
-                textSearch += "<p><img src=\"system-search.png\" align=middle alt=\"Search image\" /> <b>%Search Text%:</b><br /><input type=\"text\" id=\"searchText\" style=\"width:80%;\" name=\"searchText\"/><br/>\n";
-                textSearch += "<input type=\"button\" value=\"%Search%\" onclick=\"doSearch();\" id=\"Button1\" name=\"Button1\"/></p>\n";
-                textSearch += "<select id=\"searchResult\" style=\"width:100%;\" size=\"20\" name=\"searchResult\">\n";
-                textSearch += "<option></option>\n";
-                textSearch += "</select>\n";
-            }
-            textSearch += "</form>\n";
-
-            string[] variables = { "%TEXTSEARCH%" , "%TITLE%", "%TREE%", "%TOPICS%", "%FIRSTPAGECONTENT%", 
-                "%WEBDESCRIPTION%", "%KEYWORDS%" , "%HEADER%" , "%FOOTER%" };
-            //string[] newValues = { textSearch , title, arbol.GenerarArbolHtml(NivelMaximoTOC, "contentsTree", 
-            string[] newValues = { textSearch , title, tree.GenerarArbolHtml(Project.MaxHeaderContentTree, "contentsTree", 
-                "contentTree"), index.GenerateWebIndex(), FirstChapterContent, descriptionMeta, 
-                keywordsMeta , HtmlHeaderCode , HtmlFooterCode };
-            string baseDir = System.Windows.Forms.Application.StartupPath + Path.DirectorySeparatorChar + "webFiles";
-            string[] extensions = { ".htm", ".html" };
-            Replacements replacements = new Replacements(variables, newValues);
-            string translationFile = System.Windows.Forms.Application.StartupPath + 
-                Path.DirectorySeparatorChar + "webTranslations" + Path.DirectorySeparatorChar + 
-                Project.WebLanguage + ".txt";
             try
             {
-                replacements.AddReplacementsFromFile(translationFile);
+                // Crear el directorio web y copiar archivos adicionales:
+                string dirWeb;
+                //if( DirectorioWeb.Equals("") )
+                if (Project.WebDirectory.Equals(""))
+                    dirWeb = Project.HelpProjectDirectory + Path.DirectorySeparatorChar + "web";
+                else
+                    dirWeb = Project.WebDirectory;
+                GenerarDirDestino(dirWeb);
+
+                // Copy the css file if was generated:
+                if (cssFile != null)
+                    File.Copy(cssFile, dirWeb + Path.DirectorySeparatorChar + Path.GetFileName(cssFile));
+
+                // Check if we can copy the generated files or we must to regenerate with other header 
+                // Copy generated chapter files:
+                //if (ArchivoCabecera.Equals(HtmlHeaderFile) && ArchivoPie.Equals(HtmlFooterFile) && !Configuration.FullTextSearch )
+                if (Project.ChmHeaderFile.Equals(Project.WebHeaderFile) && Project.ChmFooterFile.Equals(Project.WebFooterFile) && !Project.FullTextSearch)
+                {
+                    // Copy files generated for the CHM help
+                    foreach (string file in archivosGenerados)
+                    {
+                        string archivoDst = dirWeb + Path.DirectorySeparatorChar + Path.GetFileName(file);
+                        File.Copy(file, archivoDst);
+                    }
+                }
+                else
+                {
+                    // Prepare the indexing database:
+                    WebIndex indexer = null;
+                    try
+                    {
+                        if (Project.FullTextSearch)
+                        {
+                            indexer = new WebIndex();
+                            string dbFile = dirWeb + Path.DirectorySeparatorChar + "fullsearchdb.db3";
+                            string dirTextFiles = dirWeb + Path.DirectorySeparatorChar + "textFiles";
+                            indexer.Connect(dbFile);
+                            indexer.CreateDatabase(System.Windows.Forms.Application.StartupPath + Path.DirectorySeparatorChar + "searchdb.sql", dirTextFiles);
+                            indexer.StoreConfiguration(Project.WebLanguage);
+                        }
+
+                        // Create new files for the web help:
+                        GuardarDocumentos(dirWeb, HtmlHeaderCode, HtmlFooterCode, indexer);
+                    }
+                    finally
+                    {
+                        if (indexer != null)
+                            indexer.Disconnect();
+                    }
+                }
+
+                // Copy base files for web help:
+                string keywordsMeta = "", descriptionMeta = "";
+                //if( !WebKeywords.Trim().Equals( "" ) ) 
+                if (!Project.WebKeywords.Trim().Equals(""))
+                    //keywordsMeta = "<meta name=\"keywords\" content=\"" + WebKeywords + "\" >";
+                    keywordsMeta = "<meta name=\"keywords\" content=\"" + Project.WebKeywords + "\" >";
+                //if( !WebDescription.Trim().Equals( "" ) ) 
+                if (!Project.WebDescription.Trim().Equals(""))
+                    //descriptionMeta = "<meta name=\"description\" content=\"" + WebDescription + "\" >";
+                    descriptionMeta = "<meta name=\"description\" content=\"" + Project.WebDescription + "\" >";
+
+                // Convert title to windows-1252 enconding:
+                string title = HtmlEncode(Project.HelpTitle);
+
+                // Generate search form HTML code:
+                string textSearch = "";
+                if (Project.FullTextSearch)
+                {
+                    textSearch = "<form name=\"searchform\" method=\"post\" action=\"search.aspx\" id=\"searchform\" onsubmit=\"doFullTextSearch();return false;\" >\n";
+                    textSearch += "<p><img src=\"system-search.png\" align=middle alt=\"Search image\" /> <b>%Search Text%:</b><br /><input type=\"text\" id=\"searchText\" style=\"width:80%;\" name=\"searchText\"/>\n";
+                    textSearch += "<input type=\"button\" value=\"%Search%\" onclick=\"doFullTextSearch();\" id=\"Button1\" name=\"Button1\"/></p>\n";
+                }
+                else
+                {
+                    textSearch = "<form name=\"searchform\" method=\"post\" action=\"search.aspx\" id=\"searchform\" onsubmit=\"doSearch();return false;\" >\n";
+                    textSearch += "<p><img src=\"system-search.png\" align=middle alt=\"Search image\" /> <b>%Search Text%:</b><br /><input type=\"text\" id=\"searchText\" style=\"width:80%;\" name=\"searchText\"/><br/>\n";
+                    textSearch += "<input type=\"button\" value=\"%Search%\" onclick=\"doSearch();\" id=\"Button1\" name=\"Button1\"/></p>\n";
+                    textSearch += "<select id=\"searchResult\" style=\"width:100%;\" size=\"20\" name=\"searchResult\">\n";
+                    textSearch += "<option></option>\n";
+                    textSearch += "</select>\n";
+                }
+                textSearch += "</form>\n";
+
+                string[] variables = { "%TEXTSEARCH%" , "%TITLE%", "%TREE%", "%TOPICS%", "%FIRSTPAGECONTENT%", 
+                    "%WEBDESCRIPTION%", "%KEYWORDS%" , "%HEADER%" , "%FOOTER%" };
+                //string[] newValues = { textSearch , title, arbol.GenerarArbolHtml(NivelMaximoTOC, "contentsTree", 
+                string[] newValues = { textSearch , title, tree.GenerarArbolHtml(Project.MaxHeaderContentTree, "contentsTree", 
+                    "contentTree"), index.GenerateWebIndex(), FirstChapterContent, descriptionMeta, 
+                    keywordsMeta , HtmlHeaderCode , HtmlFooterCode };
+                string baseDir = System.Windows.Forms.Application.StartupPath + Path.DirectorySeparatorChar + "webFiles";
+                string[] extensions = { ".htm", ".html" };
+                Replacements replacements = new Replacements(variables, newValues);
+                string translationFile = System.Windows.Forms.Application.StartupPath +
+                    Path.DirectorySeparatorChar + "webTranslations" + Path.DirectorySeparatorChar +
+                    Project.WebLanguage + ".txt";
+                try
+                {
+                    replacements.AddReplacementsFromFile(translationFile);
+                }
+                catch (Exception ex)
+                {
+                    log("Error opening web translations file" + translationFile + ": " + ex.Message, 1);
+                    log(ex);
+                }
+
+                replacements.CopyDirectoryReplaced(baseDir, dirWeb, extensions, AppSettings.UseTidyOverOutput, UI);
+                if (Project.FullTextSearch)
+                {
+                    // Copy full text serch files:
+                    string[] aspxExtensions = { ".aspx" };
+                    string dirSearchFiles = System.Windows.Forms.Application.StartupPath + Path.DirectorySeparatorChar + "searchFiles";
+                    replacements.CopyDirectoryReplaced(dirSearchFiles, dirWeb, aspxExtensions, false, UI);
+                }
+
+                if (Project.GenerateSitemap)
+                    // Generate site map for web indexers (google).
+                    GeneateSitemap(dirWeb);
+
+                //return dirWeb + Path.DirectorySeparatorChar + "index.html";
             }
             catch (Exception ex)
             {
-                log("Error opening web translations file" + translationFile + ": " + ex.Message , 1 );
                 log(ex);
             }
-
-            replacements.CopyDirectoryReplaced(baseDir, dirWeb, extensions , AppSettings.UseTidyOverOutput , UI );
-            if (Project.FullTextSearch)
-            {
-                // Copy full text serch files:
-                string[] aspxExtensions = { ".aspx" };
-                string dirSearchFiles = System.Windows.Forms.Application.StartupPath + Path.DirectorySeparatorChar + "searchFiles";
-                replacements.CopyDirectoryReplaced(dirSearchFiles, dirWeb, aspxExtensions, false, UI);
-            }
-
-            if (Project.GenerateSitemap)
-                // Generate site map for web indexers (google).
-                GeneateSitemap(dirWeb);
-
-            return dirWeb + Path.DirectorySeparatorChar + "index.html";
         }
 
         /// <summary>

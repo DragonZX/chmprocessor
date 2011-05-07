@@ -139,12 +139,12 @@ namespace ChmProcessor
 
         private void lnkJdk_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            Process.Start("http://java.sun.com/javase/downloads/index.jsp");
+            Process.Start("http://www.oracle.com/technetwork/java/javase/downloads/index.html");
         }
 
         private void lnkJavaHelp_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            Process.Start("http://java.sun.com/javase/technologies/desktop/javahelp/download_binary.html");
+            Process.Start("http://javahelp.java.net/");
         }
 
         private void btnSelJavaHelp_Click(object sender, EventArgs e)

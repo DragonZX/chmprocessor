@@ -1596,6 +1596,12 @@ namespace ChmProcessor
             {
                 // Verify errors:
 
+                if (lstSourceFiles.Items.Count == 0)
+                {
+                    MessageBox.Show(this, "No source file was specified.", "Error");
+                    return;
+                }
+
                 foreach (string file in lstSourceFiles.Items)
                 {
                     if (!File.Exists(file))
