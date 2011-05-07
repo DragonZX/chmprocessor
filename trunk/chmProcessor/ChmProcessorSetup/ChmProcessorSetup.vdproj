@@ -15,12 +15,6 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_05981990E2ED4A998F01B2099ED809EB"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_0902A76104044015A255B9B000770518"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -191,6 +185,12 @@
         {
         "MsmKey" = "8:_91EB2B34CBD8D439516A754ADA517297"
         "OwnerKey" = "8:_E7D348D744D74D57BE4C3D764E2E6A86"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_942C362342F778C435C9073511E6F7DB"
+        "OwnerKey" = "8:_CAFA9BA1EAEA211217B9B6F8B2A51B1C"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -464,26 +464,6 @@
         }
         "File"
         {
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_05981990E2ED4A998F01B2099ED809EB"
-            {
-            "SourcePath" = "8:..\\libraries\\TidyATL.dll"
-            "TargetName" = "8:TidyATL.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_EFD050B0BC4A4E6EA11EC348692E2E00"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:4"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0902A76104044015A255B9B000770518"
             {
             "SourcePath" = "8:..\\WebFullTextSearch\\search.aspx.cs"
@@ -1028,6 +1008,26 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_942C362342F778C435C9073511E6F7DB"
+            {
+            "SourcePath" = "8:TidyATL.dll"
+            "TargetName" = "8:TidyATL.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_EFD050B0BC4A4E6EA11EC348692E2E00"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:4"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_99DF0DE6C7B34E2F8B4DEFFFD7CF38A8"
             {
             "SourcePath" = "8:..\\webFiles\\tree.js"
@@ -1123,7 +1123,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:ChmProcessorLib, Version=1.5.4144.22617, Culture=neutral, processorArchitecture=x86"
+            "AssemblyAsmDisplayName" = "8:ChmProcessorLib, Version=1.5.4144.23003, Culture=neutral, processorArchitecture=x86"
                 "ScatterAssemblies"
                 {
                     "_ADA6546AE8F097B38316B6AC2AF09C51"
@@ -1525,7 +1525,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:chmProcessor"
         "ProductCode" = "8:{FD029D81-7682-46C2-BB91-71263991EB83}"
-        "PackageCode" = "8:{7911C266-8DB8-4780-9DB0-6DBE95F97A62}"
+        "PackageCode" = "8:{7B68DFFF-E7CA-452F-A50F-5FB4F2E37E68}"
         "UpgradeCode" = "8:{4B15581B-7387-47B1-9642-75A7B1E52B30}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
