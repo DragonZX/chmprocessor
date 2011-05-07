@@ -66,24 +66,31 @@ namespace ChmProcessorLib
 
         public void Parse( string file ) {
 
-            log("Parsing file " + file + "...", 2);
+            try
+            {
+                log("Parsing file " + file + "...", 2);
 
-            Document tdoc = CommonParse();
+                Document tdoc = CommonParse();
 
-            int status = 0;
-            status = tdoc.ParseFile(file);
-            CheckStatus(status);
+                int status = 0;
+                status = tdoc.ParseFile(file);
+                CheckStatus(status);
 
-            status = tdoc.CleanAndRepair();
-            CheckStatus(status);
+                status = tdoc.CleanAndRepair();
+                CheckStatus(status);
 
-            status = tdoc.SaveFile(file);
-            CheckStatus(status);
+                status = tdoc.SaveFile(file);
+                CheckStatus(status);
+            }
+            catch (Exception ex)
+            {
+                log(ex);
+            }
         }
 
         public string ParseString(string htmlText)
         {
-            log("Parsing html..." , 2);
+            log("Parsing html...", 2);
 
             Document tdoc = CommonParse();
 
@@ -110,5 +117,12 @@ namespace ChmProcessorLib
             if (ui != null)
                 ui.log("Tidy: " + text, level);
         }
+
+        private void log(Exception ex)
+        {
+            if (ui != null)
+                ui.log(ex);
+        }
+
     }
 }
