@@ -306,13 +306,30 @@ namespace ChmProcessorLib
         {
             object missing = System.Reflection.Missing.Value;
 
+            // If we create a new document, all styles on source documents are lost:
+            /*
             // Create the destination document:
             object template = missing, newTemplate = missing, documentType = missing;
             object visible = false;
             Document newDoc = wordApp.Documents.Add(ref template, ref newTemplate, ref documentType, ref visible);
-            
+            */
+            // So, make a copy of the first document, open it and append there the new files
+            // This will keep the styles of the first document and they will be applied to the other
+            // docs.
+            File.Copy((string)sourceDocuments[0], destinationDocument);
+            // Open the document that was chosen by the dialog
+            object copyOfFirstDocument = destinationDocument;
+            Document newDoc = wordApp.Documents.Open(ref copyOfFirstDocument, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing, ref missing);
+
             // The current selection on the destination document. Its the end of the file
-            newDoc.Select();
+            //newDoc.Select();
+            //Selection selection = wordApp.Selection;
+
+            // Move the "cursor" to the end of the document:
+            //newDoc.Select();
+            object what = WdGoToItem.wdGoToLine; 
+            object which = WdGoToDirection.wdGoToLast;
+            newDoc.GoTo(ref what, ref which, ref missing, ref missing).Select();
             Selection selection = wordApp.Selection;
 
             // Break page to add after each document:
@@ -320,11 +337,10 @@ namespace ChmProcessorLib
 
             object Filename;
 
-            // Insert files on the destination document:
-            for(int i=0; i< sourceDocuments.Count; i++) {
-                if (i > 0)
-                    // Add a page break:
-                    selection.InsertBreak(ref sectionBreak);
+            // Insert other files on the destination document:
+            for(int i=1; i< sourceDocuments.Count; i++) {
+                // Add a page break:
+                selection.InsertBreak(ref sectionBreak);
                 // Add the document at the end of the file:
                 object range = missing, confirmConversions = false, link = false, attachment = false;
                 Filename = sourceDocuments[i];
@@ -337,7 +353,8 @@ namespace ChmProcessorLib
             // Save the document:
             object FileFormat = missing, LockComments = missing, Password = missing, AddToRecentFiles = missing, WritePassword = missing, ReadOnlyRecommended = missing, EmbedTrueTypeFonts = missing, SaveNativePictureFormat = missing, SaveFormsData = missing, SaveAsAOCELetter = missing, Encoding = missing, InsertLineBreaks = missing, AllowSubstitutions = missing, LineEnding = missing, AddBiDiMarks = missing;
             Filename = destinationDocument;
-            newDoc.SaveAs(ref Filename, ref FileFormat, ref LockComments, ref Password, ref AddToRecentFiles, ref WritePassword, ref ReadOnlyRecommended, ref EmbedTrueTypeFonts, ref SaveNativePictureFormat, ref SaveFormsData, ref SaveAsAOCELetter, ref Encoding, ref InsertLineBreaks, ref AllowSubstitutions, ref LineEnding, ref AddBiDiMarks);
+            //newDoc.SaveAs(ref Filename, ref FileFormat, ref LockComments, ref Password, ref AddToRecentFiles, ref WritePassword, ref ReadOnlyRecommended, ref EmbedTrueTypeFonts, ref SaveNativePictureFormat, ref SaveFormsData, ref SaveAsAOCELetter, ref Encoding, ref InsertLineBreaks, ref AllowSubstitutions, ref LineEnding, ref AddBiDiMarks);
+            newDoc.Save();
             object SaveChanges = false, OriginalFormat = missing, RouteDocument = missing;
             ((_Document)newDoc).Close(ref SaveChanges, ref OriginalFormat, ref RouteDocument);
         }
