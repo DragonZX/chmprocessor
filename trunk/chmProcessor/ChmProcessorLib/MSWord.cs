@@ -22,6 +22,7 @@ using System.Runtime.InteropServices;
 using Microsoft.Office.Interop.Word;
 using System.IO;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace ChmProcessorLib
 {
@@ -302,7 +303,7 @@ namespace ChmProcessorLib
         /// <param name="sourceDocuments">List of paths of documentos to join</param>
         /// <param name="destinationDocument">Path to the destination document. If it exists, it will
         /// be overwrited</param>
-        public void JoinDocuments(ArrayList sourceDocuments, String destinationDocument)
+        public void JoinDocuments(string[] sourceDocuments, String destinationDocument)
         {
             object missing = System.Reflection.Missing.Value;
 
@@ -338,7 +339,7 @@ namespace ChmProcessorLib
             object Filename;
 
             // Insert other files on the destination document:
-            for(int i=1; i< sourceDocuments.Count; i++) {
+            for(int i=1; i< sourceDocuments.Length; i++) {
                 // Add a page break:
                 selection.InsertBreak(ref sectionBreak);
                 // Add the document at the end of the file:

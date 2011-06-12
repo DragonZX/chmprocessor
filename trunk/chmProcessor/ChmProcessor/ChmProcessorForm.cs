@@ -2035,7 +2035,7 @@ namespace ChmProcessor
             {
                 ChmProject cfg = GetCurrentProject();
 
-                cfg.Guardar(file);
+                cfg.Save(file);
                 AgregarUltimoArchivo(file);
                 Modified = false;
                 //labStatus.Text = file;
