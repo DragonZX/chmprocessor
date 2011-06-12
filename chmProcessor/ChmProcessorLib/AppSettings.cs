@@ -35,6 +35,12 @@ namespace ChmProcessorLib
         static private string JAVAHELPPATH = "javahelppath";
 
         /// <summary>
+        /// Key that stores if we must to save project paths as relative to the project file path 
+        /// A string true.toString() or false.toString().
+        /// </summary>
+        static private string SAVERELATIVEPATHS = "saverelativepahts";
+
+        /// <summary>
         /// Windows registry leaf where the program stores settings
         /// </summary>
         static public string KEY = "Software\\chmProcessor";
@@ -289,6 +295,36 @@ namespace ChmProcessorLib
                     else
                         txt = "false";
                     rk.SetValue(USETIDYOVEROUTPUT, txt);
+                }
+                catch { }
+            }
+        }
+
+        /// <summary>
+        /// Should we store paths on a ChmProject as relative to the project file path?
+        /// </summary>
+        static public bool SaveRelativePaths
+        {
+            get
+            {
+                bool value;
+                try
+                {
+                    RegistryKey rk = Registry.CurrentUser.CreateSubKey(KEY);
+                    value = Boolean.Parse( (string) rk.GetValue(SAVERELATIVEPATHS, true ) );
+                }
+                catch
+                {
+                    value = true;
+                }
+                return value;
+            }
+            set
+            {
+                try
+                {
+                    RegistryKey rk = Registry.CurrentUser.OpenSubKey(KEY, true);
+                    rk.SetValue(SAVERELATIVEPATHS, value.ToString() );
                 }
                 catch { }
             }

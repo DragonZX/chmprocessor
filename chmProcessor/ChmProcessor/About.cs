@@ -106,7 +106,7 @@ namespace ChmProcessor
             // 
             // btnOk
             // 
-            this.btnOk.Location = new System.Drawing.Point(186, 380);
+            this.btnOk.Location = new System.Drawing.Point(218, 380);
             this.btnOk.Name = "btnOk";
             this.btnOk.Size = new System.Drawing.Size(88, 32);
             this.btnOk.TabIndex = 0;
@@ -115,31 +115,32 @@ namespace ChmProcessor
             // 
             // label1
             // 
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(86, 12);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(377, 16);
+            this.label1.Size = new System.Drawing.Size(426, 16);
             this.label1.TabIndex = 1;
-            this.label1.Text = "chmProcessor - A Html / Word converter to Compiled HTML Help v1.5";
+            this.label1.Text = "chmProcessor - A Html / Word converter to Compiled HTML Help v1.6";
             // 
             // label2
             // 
             this.label2.Location = new System.Drawing.Point(86, 28);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(365, 16);
+            this.label2.Size = new System.Drawing.Size(426, 34);
             this.label2.TabIndex = 2;
-            this.label2.Text = "(C) 2008 Toni Bennasar Obrador, Mike Hudgell, Paolo Moretti";
+            this.label2.Text = "(C) 2008 Toni Bennasar Obrador, Mike Hudgell, Paolo Moretti, Jozsef Bekes";
             // 
             // labLicencia
             // 
             this.labLicencia.Location = new System.Drawing.Point(11, 81);
             this.labLicencia.Name = "labLicencia";
-            this.labLicencia.Size = new System.Drawing.Size(100, 23);
+            this.labLicencia.Size = new System.Drawing.Size(100, 19);
             this.labLicencia.TabIndex = 3;
             this.labLicencia.Text = "License:";
             // 
             // lnkWebsite
             // 
-            this.lnkWebsite.Location = new System.Drawing.Point(86, 44);
+            this.lnkWebsite.Location = new System.Drawing.Point(86, 62);
             this.lnkWebsite.Name = "lnkWebsite";
             this.lnkWebsite.Size = new System.Drawing.Size(200, 16);
             this.lnkWebsite.TabIndex = 4;
@@ -149,12 +150,12 @@ namespace ChmProcessor
             // 
             // txtLicencia
             // 
-            this.txtLicencia.Location = new System.Drawing.Point(11, 105);
+            this.txtLicencia.Location = new System.Drawing.Point(11, 103);
             this.txtLicencia.Multiline = true;
             this.txtLicencia.Name = "txtLicencia";
             this.txtLicencia.ReadOnly = true;
             this.txtLicencia.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.txtLicencia.Size = new System.Drawing.Size(440, 224);
+            this.txtLicencia.Size = new System.Drawing.Size(501, 226);
             this.txtLicencia.TabIndex = 5;
             // 
             // label3
@@ -212,7 +213,7 @@ namespace ChmProcessor
             // 
             this.AcceptButton = this.btnOk;
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
-            this.ClientSize = new System.Drawing.Size(466, 424);
+            this.ClientSize = new System.Drawing.Size(524, 424);
             this.ControlBox = false;
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.lnkTango);

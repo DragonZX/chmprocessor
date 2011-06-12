@@ -18,11 +18,34 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Xml.Serialization;
 using System.IO;
+using System.Reflection;
+using System.Diagnostics;
+using System.Xml;
 
 namespace ChmProcessorLib
 {
+
+    /*internal abstract class PathAttribute : Attribute
+    {
+    }*/
+
+    /// <summary>
+    /// Attribute for fields that store a directory path.
+    /// </summary>
+    internal class DirPathAttribute : Attribute
+    {
+    }
+
+    /// <summary>
+    /// Attribute for fields that store a file path.
+    /// </summary>
+    internal class FilePathAttribute : Attribute
+    {
+    }
+
 	/// <summary>
 	/// A chmProcessor project file.
 	/// </summary>
@@ -33,7 +56,7 @@ namespace ChmProcessorLib
         /// <summary>
         /// Current version of the file format.
         /// </summary>
-        public const double CURRENTFILEVERSION = 1.5;
+        public const double CURRENTFILEVERSION = 1.6;
 
         /// <summary>
         /// Ways to generate the PDF file: With PdfCreator, or with the Office 2007 add-in.
@@ -45,18 +68,21 @@ namespace ChmProcessorLib
         /// </summary>
         public enum FrequencyOfChange { always, hourly, daily, weekly, monthly, yearly, never };
 
+        /*
         /// <summary>
         /// DEPRECATED. Source file name for the help content.
         /// This is deprecated until 1.5 version. Now we can use a list of source files.
         /// Use SourceFiles member instead.
         /// </summary>
         public string ArchivoOrigen = null;
+        */
 
         /// <summary>
         /// List of source files (MS Word and HTML) to generate the help.
         /// From 1.5 version.
         /// </summary>
-        public ArrayList SourceFiles = new ArrayList();
+        [FilePathAttribute]
+        public List<string> SourceFiles = new List<string>();
 
         /// <summary>
         /// True if we must to generate a compiled CHM file. False if we must generate the 
@@ -70,21 +96,21 @@ namespace ChmProcessorLib
         /// If its false, the project will be generated on a temporal directory
         /// <see cref="HelpProjectDirectory"/>
         /// </summary>
-        [XmlElement(ElementName = "DirectorioDestino")] // To keep compatibility with 1.4 version.
+        [XmlElement(ElementName = "DirectorioDestino"), DirPathAttribute] // To keep compatibility with 1.4 version.
         public string DestinationProjectDirectory = "";
 
         /// <summary>
         /// Path to the file with the HTML to put on the header of the CHM html files.
         /// If its equals to "", no header will be put.
         /// </summary>
-        [XmlElement(ElementName = "HtmlCabecera")] // To keep compatibility with 1.4 version.
+        [XmlElement(ElementName = "HtmlCabecera"), FilePathAttribute] // To keep compatibility with 1.4 version.
         public string ChmHeaderFile = "";
 
         /// <summary>
         /// Path to the file with the HTML to put on the footer of the CHM html files.
         /// If its equals to "", no footer will be put.
         /// </summary>
-        [XmlElement(ElementName = "HtmlPie")] // To keep compatibility with 1.4 version.
+        [XmlElement(ElementName = "HtmlPie"), FilePathAttribute] // To keep compatibility with 1.4 version.
         public string ChmFooterFile = "";
 
         /// <summary>
@@ -110,8 +136,12 @@ namespace ChmProcessorLib
 
         /// <summary>
         /// Path list to additional files and directories that must to be included on the help file.
+        /// (tonib: ArchivosAdicionales can contain files AND directories, so [FilePathAttribute] does not apply.
+        /// This is assuming that only contains files, but its working...
+        /// So I left it like this.)
         /// </summary>
-        public ArrayList ArchivosAdicionales = new ArrayList();
+        [FilePathAttribute]
+        public List<string> ArchivosAdicionales = new List<string>();
 
         /// <summary>
         /// Only applies if Compile = true.
@@ -125,7 +155,7 @@ namespace ChmProcessorLib
         /// Only applies if GenerateWeb = true.
         /// The directory where the web site will be generated.
         /// </summary>
-        [XmlElement(ElementName = "DirectorioWeb")] // To keep compatibility with 1.4 version.
+        [XmlElement(ElementName = "DirectorioWeb"), DirPathAttribute] // To keep compatibility with 1.4 version.
         public string WebDirectory = "";
 
         /// <summary>
@@ -146,7 +176,7 @@ namespace ChmProcessorLib
         /// Only applies if Compile = true.
         /// Path to the CHM help file that will be generated.
         /// </summary>
-        [XmlElement(ElementName = "ArchivoAyuda")] // To keep compatibility with 1.4 version.
+        [XmlElement(ElementName = "ArchivoAyuda"), FilePathAttribute] // To keep compatibility with 1.4 version.
         public string HelpFile;
 
         /// <summary>
@@ -164,6 +194,7 @@ namespace ChmProcessorLib
         /// Only applies if GeneratePdf = true.
         /// Path where will be generated the PDF file.
         /// </summary>
+        [FilePathAttribute]
         public string PdfPath = "";
 
         /// <summary>
@@ -184,6 +215,7 @@ namespace ChmProcessorLib
         /// web page of the help.
         /// If its equals to "", no header will be put.
         /// </summary>
+        [FilePathAttribute]
         public string WebHeaderFile = "";
 
         /// <summary>
@@ -192,6 +224,7 @@ namespace ChmProcessorLib
         /// web page of the help.
         /// If its equals to "", no footer will be put.
         /// </summary>
+        [FilePathAttribute]
         public string WebFooterFile = "";
 
         /// <summary>
@@ -244,6 +277,7 @@ namespace ChmProcessorLib
         /// <summary>
         /// Absolute path of the xps file to generate, if GenerateXps = true.
         /// </summary>
+        [FilePathAttribute]
         public string XpsPath;
 
         /// <summary>
@@ -254,6 +288,7 @@ namespace ChmProcessorLib
         /// <summary>
         /// If GenerateJavaHelp = true, path where to generate the jar.
         /// </summary>
+        [FilePathAttribute]
         public string JavaHelpPath;
 
         /// <summary>
@@ -278,19 +313,28 @@ namespace ChmProcessorLib
 
 		public ChmProject()
 		{
-            ArchivosAdicionales = new ArrayList();
+            ArchivosAdicionales = new List<string>();
             ConfigurationVersion = CURRENTFILEVERSION;
             ChangeFrequency = FrequencyOfChange.monthly;
             WebLanguage = "English";
             PdfGeneration = PdfGenerationWay.OfficeAddin;
 		}
 
-        public void Guardar( string archivo ) 
+        /// <summary>
+        /// Stores the project as an xml file.
+        /// </summary>
+        /// <param name="archivo">Path where to store the xml file. 
+        /// By convention, file extension should be ".whc"</param>
+        public void Save( string filePath ) 
         {
-            StreamWriter writer = new StreamWriter(archivo);
+            if( AppSettings.SaveRelativePaths )
+                MakePathsRelative(filePath);
+            StreamWriter writer = new StreamWriter(filePath);
             XmlSerializer serializador = new XmlSerializer( typeof(ChmProject) );
             serializador.Serialize( writer , this );
             writer.Close();
+            if ( AppSettings.SaveRelativePaths )
+                MakePathsAbsolute(filePath);
         }
 
         /// <summary>
@@ -329,51 +373,145 @@ namespace ChmProcessorLib
             return null;
         }
 
-        static public ChmProject Open( string archivo ) 
+        /// <summary>
+        /// Open a xml file with a ChmProject object serialized.
+        /// </summary>
+        /// <param name="archivo">Path to xml file to read.</param>
+        /// <returns>The ChmProject readed.</returns>
+        static public ChmProject Open( string filePath ) 
         {
-            StreamReader reader = null;
-            try 
+
+            // Load and upgrade the xml project document 
+            ChmProjectXml xml = new ChmProjectXml();
+            xml.Load(filePath);
+            xml.UpgradeXml();
+            ChmProject cfg = xml.Deserialize();
+
+            // Change relative paths to absolute:
+            //if (AppSettings.SaveRelativePaths) < do it always
+                cfg.MakePathsAbsolute(filePath);
+
+            return cfg;
+        }
+
+        /// <summary>
+        /// Change any directory or file relative path stored at the project to make it absolute, 
+        /// using the file project file path as the reference.
+        /// Author is Jozsef Bekes
+        /// </summary>
+        /// <param name="filePath">Path to the project file</param>
+        private void MakePathsAbsolute(string filePath)
+        {
+            // Calculate absolute paths
+            // Set current dir to the project file dir
+            System.IO.Directory.SetCurrentDirectory(System.IO.Path.GetDirectoryName(filePath));
+
+            // go through all fields which are marked with PathAttribute
+            FieldInfo[] fields = this.GetType().GetFields();
+            foreach (FieldInfo fi in fields)
             {
-                reader = new StreamReader( archivo );
-                XmlSerializer serializador = new XmlSerializer( typeof(ChmProject) );
-                ChmProject cfg = (ChmProject)serializador.Deserialize(reader);
-
-                if (cfg.ConfigurationVersion > CURRENTFILEVERSION)
-                    throw new Exception("Project was generated by a higher version of the application. The version of the file is " + 
-                        cfg.ConfigurationVersion + ". The current version is " + CURRENTFILEVERSION);
-
-                // Project format upgrade:
-                if (cfg.ConfigurationVersion < 1.3)
+                if (fi.GetCustomAttributes(typeof(DirPathAttribute), false).Length > 0 ||
+                    fi.GetCustomAttributes(typeof(FilePathAttribute), false).Length > 0)
                 {
-                    cfg.WebHeaderFile = cfg.ChmHeaderFile;
-                    cfg.WebFooterFile = cfg.ChmFooterFile;
-                    cfg.ChangeFrequency = FrequencyOfChange.monthly;
-                    cfg.GenerateSitemap = false;
-                    cfg.WebLanguage = "English";
-                    cfg.FullTextSearch = false;
+                    if (fi.GetValue(this) is String)
+                    {
+                        object valueInFile = fi.GetValue(this);
+                        if (valueInFile != null && valueInFile.ToString().Length > 0)
+                        {
+                            fi.SetValue(this, System.IO.Path.GetFullPath(valueInFile.ToString()));
+                        }
+                    }
+                    else if (fi.GetValue(this) is List<string>)
+                    {
+                        List<string> entries = (List<string>)fi.GetValue(this);
+                        for (int idx = 0; idx < entries.Count; ++idx)
+                        {
+                            entries[idx] = System.IO.Path.GetFullPath(entries[idx]);
+                        }
+                        //fi.SetValue(this, System.IO.Path.GetFullPath(fi.GetValue(this).ToString()));
+                    }
+                    else
+                    {
+                        Debug.Assert(false, "PathAttribute should only be applied to a field that is of string or List<string> type");
+                    }
                 }
-                if (cfg.ConfigurationVersion < 1.4)
-                {
-                    cfg.PdfGeneration = PdfGenerationWay.PdfCreator;
-                    cfg.GenerateXps = false;
-                    cfg.XpsPath = "";
-                    cfg.GenerateJavaHelp = false;
-                    cfg.JavaHelpPath = "";
-                }
-
-                if (cfg.ConfigurationVersion < 1.5)
-                {
-                    cfg.SourceFiles = new ArrayList();
-                    cfg.SourceFiles.Add(cfg.ArchivoOrigen);
-                }
-
-                cfg.ConfigurationVersion = CURRENTFILEVERSION;
-                return cfg;
             }
-            finally 
+        }
+        
+        /// <summary>
+        /// Change any directory or file path stored at the project to make it relative to the 
+        /// path of the project file.
+        /// Author is Jozsef Bekes.
+        /// </summary>
+        /// <param name="filePath">Path to the project fil.</param>
+        private void MakePathsRelative(string filePath)
+        {
+            // Calculate absolute paths
+            // Set current dir to the project file dir
+            System.IO.Directory.SetCurrentDirectory(System.IO.Path.GetDirectoryName(filePath));
+
+            // go through all fields which are marked with PathAttribute
+            FieldInfo[] fields = this.GetType().GetFields();
+            foreach (FieldInfo fi in fields)
             {
-                if( reader != null )
-                    reader.Close();
+                if (fi.GetCustomAttributes(typeof(DirPathAttribute), false).Length > 0 ||
+                    fi.GetCustomAttributes(typeof(FilePathAttribute), false).Length > 0)
+                {
+                    FileSystem.FSObjType tgtType = FileSystem.FSObjType.eAuto;
+                    if (fi.GetCustomAttributes(typeof(FilePathAttribute), false).Length > 0)
+                    {
+                        tgtType = FileSystem.FSObjType.eFile;
+                    }
+                    else if (fi.GetCustomAttributes(typeof(DirPathAttribute), false).Length > 0)
+                    {
+                        tgtType = FileSystem.FSObjType.eDir;
+                    }
+                    else
+                    {
+                        Debug.Assert(false, "unexpected that this branch executes");
+                    }
+
+
+                    if (fi.GetValue(this) is String)
+                    {
+                        object valueInFile = fi.GetValue(this);
+                        if (valueInFile != null && valueInFile.ToString().Length > 0)
+                        {
+                            try
+                            {
+                                fi.SetValue(this, FileSystem.GetRelativePath(FileSystem.FSObjType.eFile,
+                                                                       filePath,
+                                                                       tgtType,
+                                                                       valueInFile.ToString()));
+                            }
+                            catch
+                            {
+                                // If files dont have a common root, keep the absolute path.
+                            }
+                        }
+                    }
+                    else if (fi.GetValue(this) is List<string>)
+                    {
+                        List<string> entries = (List<string>)fi.GetValue(this);
+                        for (int idx = 0; idx < entries.Count; ++idx)
+                        {
+                            try
+                            {
+                                entries[idx] = FileSystem.GetRelativePath(FileSystem.FSObjType.eFile, filePath,
+                                                                     tgtType, entries[idx]);
+                            }
+                            catch
+                            {
+                                // If files dont have a common root, keep the absolute path.
+                            }
+                        }
+                        //fi.SetValue(this, System.IO.Path.GetFullPath(fi.GetValue(this).ToString()));
+                    }
+                    else
+                    {
+                        Debug.Assert(false, "PathAttribute should only be applied to a field that is of string or List<string> type");
+                    }
+                }
             }
         }
 

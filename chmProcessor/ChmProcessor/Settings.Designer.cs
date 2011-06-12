@@ -48,12 +48,13 @@
             this.btnSelJavaHelp = new System.Windows.Forms.Button();
             this.txtJavaHelpPath = new System.Windows.Forms.TextBox();
             this.lnkJavaHelp = new System.Windows.Forms.LinkLabel();
+            this.chkSaveRelativePaths = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // btnCancel
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(268, 212);
+            this.btnCancel.Location = new System.Drawing.Point(267, 235);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 13;
@@ -72,7 +73,7 @@
             // 
             // btnAccept
             // 
-            this.btnAccept.Location = new System.Drawing.Point(187, 212);
+            this.btnAccept.Location = new System.Drawing.Point(186, 235);
             this.btnAccept.Name = "btnAccept";
             this.btnAccept.Size = new System.Drawing.Size(75, 23);
             this.btnAccept.TabIndex = 12;
@@ -226,13 +227,24 @@
             this.lnkJavaHelp.Text = "Java Help can be downloaded here";
             this.lnkJavaHelp.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkJavaHelp_LinkClicked);
             // 
+            // chkSaveRelativePaths
+            // 
+            this.chkSaveRelativePaths.AutoSize = true;
+            this.chkSaveRelativePaths.Location = new System.Drawing.Point(213, 196);
+            this.chkSaveRelativePaths.Name = "chkSaveRelativePaths";
+            this.chkSaveRelativePaths.Size = new System.Drawing.Size(172, 17);
+            this.chkSaveRelativePaths.TabIndex = 15;
+            this.chkSaveRelativePaths.Text = "Save relative paths on projects";
+            this.chkSaveRelativePaths.UseVisualStyleBackColor = true;
+            // 
             // Settings
             // 
             this.AcceptButton = this.btnAccept;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
-            this.ClientSize = new System.Drawing.Size(559, 247);
+            this.ClientSize = new System.Drawing.Size(559, 270);
+            this.Controls.Add(this.chkSaveRelativePaths);
             this.Controls.Add(this.lnkJavaHelp);
             this.Controls.Add(this.btnSelJavaHelp);
             this.Controls.Add(this.txtJavaHelpPath);
@@ -252,6 +264,9 @@
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnAccept);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.HelpButton = true;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "Settings";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Settings";
@@ -283,5 +298,6 @@
         private System.Windows.Forms.Button btnSelJavaHelp;
         private System.Windows.Forms.TextBox txtJavaHelpPath;
         private System.Windows.Forms.LinkLabel lnkJavaHelp;
+        private System.Windows.Forms.CheckBox chkSaveRelativePaths;
     }
 }

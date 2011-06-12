@@ -217,7 +217,7 @@ namespace ChmProcessorLib
             joinedDocument += ".doc";
 
             log("Joining documents to a single temporal file : " + joinedDocument, 2);
-            msWord.JoinDocuments(Project.SourceFiles, joinedDocument);
+            msWord.JoinDocuments(Project.SourceFiles.ToArray(), joinedDocument);
             return joinedDocument;
         }
 

@@ -44,6 +44,7 @@ namespace ChmProcessor
             chtTidyOutput.Checked = AppSettings.UseTidyOverOutput;
             txtJdk.Text = AppSettings.JdkHome;
             txtJavaHelpPath.Text = AppSettings.JavaHelpPath;
+            chkSaveRelativePaths.Checked = AppSettings.SaveRelativePaths;
 
             chkTidyInput.Visible = false;       // Its not working well. Some bug with the encodings... TODO
         }
@@ -117,6 +118,7 @@ namespace ChmProcessor
             AppSettings.UseTidyOverOutput = chtTidyOutput.Checked;
             AppSettings.JdkHome = txtJdk.Text;
             AppSettings.JavaHelpPath = txtJavaHelpPath.Text;
+            AppSettings.SaveRelativePaths = chkSaveRelativePaths.Checked;
 
             this.Close();
         }
