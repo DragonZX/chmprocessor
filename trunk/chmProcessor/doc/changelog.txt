@@ -1,3 +1,6 @@
+* 1.6
+- Path to files of the project now can be stored relative to location of the project. Thanks to Jozsef Bekes for the patch.
+
 * 1.5
 - Bug fixed. chmProcessor was not working on 64 bits operating systems due to AnyCPU option. Now the application runs always on 32 bit mode, needed to run Tidy. Thanks to cjervin for the info.
 - Multiple Word documents can be joined on a single help.

@@ -1,19 +1,7 @@
-- List errors on generation dialog (DONE)
-- Change version number to 1.5 (DONE)
-- Add submited patches:
--> Quiet mode [/q] prevents a window being shown when run with the /g command line and logs messages to stdout/stderr
--> Log Level [/l1, /l2, /l3] lets you choose how much information is output, where /l1 is minimal and /l3 is all the information.
-- Project conversion from 1.4 to 1.5 is not loading the source document at LSI (maybe because is now private?). Version and old sourcefile are not stored.
-- Add horizontal scroll bars to Source files an Additional files lists
-- If i cancel the execution, after joining the documents it does not exit. See the log:
-Joining documents to a single temporal file : C:\Documents and Settings\ToniB\Configuración local\Temp\tmp37D.tmp.doc
-Convert file C:\Documents and Settings\ToniB\Configuración local\Temp\tmp37D.tmp.doc to HTML
-- When different word docs are joined, styles of the original docs are not used. Copy them from the first doc.
-
-- Microsoft PIA will not be longer distributed. Check if they are installed.
-- Change documentation
-- Change pdf generation error message to point to the current PDFCreator version.
 - Change documentation. Think about documentate the chmprocessorlib for external use.
 - Remove temporal file with joined word docs.
 - Store references to files relative to project location.
-- Use relative paths instead of absolute paths.
+- Change documentation to notice that Microsoft PIA is no longer distributed. Needed (?) on full text search web site.
+- Remove compile warnings about UComIStream
+- Allow to add file to add tags to the <head> of the generated html files. Needed for google stadistics.
+- If pdfcreator hangs up, if the user press cancel, exit inmediatelly. Add a referente to the user interface to the PdfPrinter class and check if the process was cancelled.
