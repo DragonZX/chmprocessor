@@ -26,7 +26,7 @@ using System.Runtime.CompilerServices;
 // Puede especificar todos los valores o usar los valores predeterminados (número de versión de compilación y de revisión) 
 // usando el símbolo '*' como se muestra a continuación:
 
-[assembly: AssemblyVersion("1.5.*")]
+[assembly: AssemblyVersion("1.6.*")]
 
 //
 // Si desea firmar el ensamblado, debe especificar una clave para su uso. Consulte la documentación de 

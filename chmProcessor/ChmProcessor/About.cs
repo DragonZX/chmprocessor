@@ -128,7 +128,8 @@ namespace ChmProcessor
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(426, 34);
             this.label2.TabIndex = 2;
-            this.label2.Text = "(C) 2008 Toni Bennasar Obrador, Mike Hudgell, Paolo Moretti, Jozsef Bekes";
+            this.label2.Text = "(C) 2008 Toni Bennasar Obrador, Mike Hudgell, Paolo Moretti, Jozsef Bekes, Luc Va" +
+                "n Asch";
             // 
             // labLicencia
             // 
@@ -262,5 +263,6 @@ namespace ChmProcessor
         {
             Process.Start("http://tango.freedesktop.org/Tango_Desktop_Project");
         }
+
 	}
 }
