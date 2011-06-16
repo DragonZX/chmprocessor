@@ -33,14 +33,14 @@ namespace ChmProcessorLib
     }*/
 
     /// <summary>
-    /// Attribute for fields that store a directory path.
+    /// Attribute for fields that store directory path.
     /// </summary>
     internal class DirPathAttribute : Attribute
     {
     }
 
     /// <summary>
-    /// Attribute for fields that store a file path.
+    /// Attribute for fields that store file path.
     /// </summary>
     internal class FilePathAttribute : Attribute
     {

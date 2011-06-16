@@ -6,9 +6,9 @@ using System.Runtime.InteropServices;
 // conjunto de atributos. Cambie estos atributos para modificar la información
 // asociada con un ensamblado.
 [assembly: AssemblyTitle("WebIndexLib")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Library to index and search html documents")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("TonibSoft")]
 [assembly: AssemblyProduct("WebIndexLib")]
 [assembly: AssemblyCopyright("©  2008")]
 [assembly: AssemblyTrademark("")]
