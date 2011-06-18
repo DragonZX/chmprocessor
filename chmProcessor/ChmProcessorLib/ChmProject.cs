@@ -292,6 +292,13 @@ namespace ChmProcessorLib
         public string JavaHelpPath;
 
         /// <summary>
+        /// File with content to include into the "head" tag of the web (not at chm) html pages.
+        /// Usefull to include, as example, the google analytics javascript code.
+        /// </summary>
+        [FilePathAttribute]
+        public String HeadTagFile = "";
+
+        /// <summary>
         /// The directory where will be generated the help project.
         /// </summary>
         public string HelpProjectDirectory
@@ -418,7 +425,14 @@ namespace ChmProcessorLib
                         object valueInFile = fi.GetValue(this);
                         if (valueInFile != null && valueInFile.ToString().Length > 0)
                         {
-                            fi.SetValue(this, System.IO.Path.GetFullPath(valueInFile.ToString()));
+                            try
+                            {
+                                fi.SetValue(this, System.IO.Path.GetFullPath(valueInFile.ToString()));
+                            }
+                            catch
+                            {
+                                // If the path is invalid, keep it as it is.
+                            }
                         }
                     }
                     else if (fi.GetValue(this) is List<string>)
@@ -426,9 +440,15 @@ namespace ChmProcessorLib
                         List<string> entries = (List<string>)fi.GetValue(this);
                         for (int idx = 0; idx < entries.Count; ++idx)
                         {
-                            entries[idx] = System.IO.Path.GetFullPath(entries[idx]);
+                            try
+                            {
+                                entries[idx] = System.IO.Path.GetFullPath(entries[idx]);
+                            }
+                            catch
+                            {
+                                // If the path is invalid, keep it as it is.
+                            }
                         }
-                        //fi.SetValue(this, System.IO.Path.GetFullPath(fi.GetValue(this).ToString()));
                     }
                     else
                     {

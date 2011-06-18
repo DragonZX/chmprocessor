@@ -20,6 +20,7 @@ using System;
 using System.IO;
 using mshtml;
 using System.Collections;
+using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
 using System.Management;
@@ -58,6 +59,22 @@ namespace ChmProcessorLib
         private IHTMLDocument2 iDoc;
 
         /// <summary>
+        /// HTML title nodes (H1,H2,etc) tree.
+        /// </summary>
+        private ArbolCapitulos tree;
+
+        /// <summary>
+        /// Decorator for pages for the generated CHM 
+        /// </summary>
+        private HtmlPageDecorator chmDecorator;
+
+        /// <summary>
+        /// Decorator for pages for the generated web site
+        /// </summary>
+        private HtmlPageDecorator webDecorator;
+
+        /*
+        /// <summary>
         /// Texto a colocar antes del tag body.
         /// </summary>
         /// 
@@ -67,12 +84,7 @@ namespace ChmProcessorLib
         /// Texto a colocar despues del tag body.
         /// </summary>
         private string textoDespuesBody;
-
-        /// <summary>
-        /// HTML title nodes (H1,H2,etc) tree.
-        /// </summary>
-        private ArbolCapitulos tree;
-
+         
         /// <summary>
         /// Html code for the CHM headers
         /// </summary>
@@ -82,6 +94,17 @@ namespace ChmProcessorLib
         /// Html code for the CHM footers
         /// </summary>
         private string HtmlPie;
+         
+        /// <summary>
+        /// HTML code loaded for the web site headers.
+        /// </summary>
+        private string HtmlHeaderCode;
+
+        /// <summary>
+        /// HTML code loaded for the web site footers.
+        /// </summary>
+        private string HtmlFooterCode;
+        */
 
         /// <summary>
         /// Lista de archivos y directorios adicionales a añadir al proyecto de ayuda
@@ -107,14 +130,9 @@ namespace ChmProcessorLib
         private string FirstChapterContent;
 
         /// <summary>
-        /// HTML code loaded for the web site headers.
+        /// HTML code loaded from the "head" tag include.
         /// </summary>
-        private string HtmlHeaderCode;
-
-        /// <summary>
-        /// HTML code loaded for the web site footers.
-        /// </summary>
-        private string HtmlFooterCode;
+        private string HeadTagCode;
 
         /// <summary>
         /// Project to generate the help. 
@@ -145,7 +163,7 @@ namespace ChmProcessorLib
         /// <summary>
         /// Stores an exception into the log.
         /// </summary>
-        /// <param name="exception"></param>
+        /// <param name="exception">Exception to log</param>
         private void log(Exception exception)
         {
             GenerationExceptions.Add(exception);
@@ -366,54 +384,6 @@ namespace ChmProcessorLib
             this.ArchivosAdicionales = new ArrayList(configuration.ArchivosAdicionales);
         }
 
-        private void AntesYDespuesBody() 
-        {
-            textoAntesBody = "";
-            textoDespuesBody = "";
-            bool antes = true;
-            IHTMLDocument3 iDoc3 = (IHTMLDocument3) iDoc;
-            IHTMLDOMChildrenCollection col = (IHTMLDOMChildrenCollection)iDoc3.childNodes;
-            foreach( IHTMLElement e in col )
-            {
-                if( e is IHTMLCommentElement ) 
-                {
-                    IHTMLCommentElement com = (IHTMLCommentElement) e;
-                    if( antes )
-                        textoAntesBody += com.text + "\n";
-                    else
-                        textoDespuesBody += com.text  + "\n";
-                }
-                else if( e is IHTMLHtmlElement ) 
-                {
-                    // Get the HTML tag node.
-                    textoAntesBody += "<html ";
-                    IHTMLAttributeCollection atrCol = (IHTMLAttributeCollection) ((IHTMLDOMNode)e).attributes;
-
-                    foreach (IHTMLDOMAttribute atr in atrCol)
-                    {
-                        if( atr.specified )
-                            textoAntesBody += atr.nodeName + "=\"" + atr.nodeValue + "\"";
-                    }
-                    textoAntesBody += " >\n";
-
-                    IHTMLElementCollection colBody = (IHTMLElementCollection)e.children;
-                    foreach( IHTMLElement hijo in colBody ) 
-                    {
-                        if( hijo is IHTMLBodyElement ) 
-                            antes = false;
-                        else if( antes )
-                            textoAntesBody += hijo.outerHTML  + "\n";
-                        else
-                            textoDespuesBody += hijo.outerHTML  + "\n";
-                    }
-
-                    textoDespuesBody += "</html>\n";
-                }
-                    
-            }
-
-        }
-
         /// <summary>
         /// Modifica un nodo HTML si hace falta
         /// </summary>
@@ -511,7 +481,7 @@ namespace ChmProcessorLib
             return iDocFirstChapter.body.innerHTML.Replace("about:blank", "").Replace("about:", "");
         }
         
-        private void GuardarDocumentos( string directory , string header , string footer , NodoArbol nodo , ArrayList archivosGenerados , WebIndex indexer ) 
+        private void GuardarDocumentos(string directory, HtmlPageDecorator decorator, NodoArbol nodo, ArrayList archivosGenerados, WebIndex indexer) 
         {
             if( nodo.body != null ) 
             {
@@ -540,35 +510,9 @@ namespace ChmProcessorLib
                         foreach( IHTMLElement nodoBody in col ) 
                             PreProcesarNodo( nodoBody , null);
 
-                        // Generar el documento a guardar:
-
-                        IHTMLDOMNode domNode = (IHTMLDOMNode)nodo.body;
-                        IHTMLElement clonedBody = (IHTMLElement)domNode.cloneNode(true);
-
-                        // Si hay pie o cabecera, añadirlos al body:
-                        if (header != null && !header.Equals(""))
-                            clonedBody.insertAdjacentHTML("afterBegin", header);
-                        if (footer != null && !footer.Equals(""))
-                            clonedBody.insertAdjacentHTML("beforeEnd", footer);
-
-                        iDoc.title = titulo;
-                        AntesYDespuesBody();
-
-                        string archivo = directory + Path.DirectorySeparatorChar + nodo.Archivo;
-
-                        Encoding encoding = Encoding.GetEncoding( iDoc.charset );
-                        StreamWriter writer = new StreamWriter( archivo , false , encoding );
-                        writer.WriteLine( textoAntesBody );
-                        texto = clonedBody.outerHTML;
-                        
-                        // Parece que hay un bug por el cual pone about:blank en los links. Quitarlos:
-                        texto = texto.Replace( "about:blank" , "" ).Replace("about:" , "" );
-                        writer.WriteLine( texto );
-                        writer.WriteLine( textoDespuesBody );
-                        writer.Close();
-
-                        // Clean the files using Tidy
-                        TidyOutputFile(archivo);
+                        // Save the section, adding header, footers, etc:
+                        string filePath = directory + Path.DirectorySeparatorChar + nodo.Archivo;
+                        decorator.ProcessAndSavePage(nodo.body, filePath, UI);
 
                         if (FirstChapterContent == null)
                         {
@@ -577,28 +521,29 @@ namespace ChmProcessorLib
                             FirstChapterContent = nodo.body.innerHTML.Replace("about:blank", "").Replace("about:", "");
                         }
 
-                        archivosGenerados.Add( archivo );
+                        archivosGenerados.Add(filePath);
 
                         if (indexer != null)
                             // Store the document at the full text search index:
-                            indexer.AddPage(nodo.Archivo, nodo.Title , clonedBody );
+                            indexer.AddPage(nodo.Archivo, nodo.Title, nodo.body);
+                            
                     }
                 }
             }
 
             foreach( NodoArbol hijo in nodo.Hijos ) 
-                GuardarDocumentos( directory , header , footer , hijo , archivosGenerados , indexer );
+                GuardarDocumentos( directory , decorator , hijo , archivosGenerados , indexer );
         }
 
         /// <summary>
         /// Run tidy over the output file, if the configuration says we must to do it.
         /// </summary>
         /// <param name="filePath">Path to the HTML file to repair with tidy.</param>
-        private void TidyOutputFile(string filePath)
+        /*private void TidyOutputFile(string filePath)
         {
             if( AppSettings.UseTidyOverOutput )
                 new TidyParser(UI).Parse(filePath);
-        }
+        }*/
 
         private void UnificarNodos( NodoArbol nodo ) 
         {
@@ -626,7 +571,7 @@ namespace ChmProcessorLib
                 UnificarNodos( hijo );
         }
 
-        private ArrayList GuardarDocumentos(string directory, string header, string footer, WebIndex indexer ) 
+        private ArrayList GuardarDocumentos(string directory, HtmlPageDecorator decorator, WebIndex indexer) 
         {
             // Intentar unificar nodos que quedarian vacios, con solo el titulo de la seccion:
             foreach( NodoArbol nodo in tree.Raiz.Hijos ) 
@@ -635,7 +580,7 @@ namespace ChmProcessorLib
             // Recorrer el arbol en busca de nodos con cuerpo
             ArrayList archivosGenerados = new ArrayList();
             foreach (NodoArbol nodo in tree.Raiz.Hijos)
-                GuardarDocumentos(directory , header , footer , nodo, archivosGenerados , indexer );
+                GuardarDocumentos(directory, decorator, nodo, archivosGenerados, indexer);
 
             return archivosGenerados;
         }
@@ -953,52 +898,47 @@ namespace ChmProcessorLib
             if (CancellRequested())
                 return null;
 
-            //if( !ArchivoCabecera.Equals("") ) 
+            chmDecorator = new HtmlPageDecorator( (IHTMLDocument3) iDoc);
+            webDecorator = new HtmlPageDecorator((IHTMLDocument3) iDoc);
+
             if (!Project.ChmHeaderFile.Equals("")) 
             {
-                log("Reading header: " + Project.ChmHeaderFile , 2);
-                // Cargar el html del archivo de cabecera:
-                StreamReader reader = new StreamReader(Project.ChmHeaderFile);
-                HtmlCabecera = reader.ReadToEnd();
-                reader.Close();
+                log("Reading chm header: " + Project.ChmHeaderFile , 2);
+                chmDecorator.HeaderHtmlFile = Project.ChmHeaderFile;
             }
 
             if (CancellRequested())
                 return null;
 
-            //if( !ArchivoPie.Equals("") ) 
             if (!Project.ChmFooterFile.Equals("")) 
             {
-                log("Reading footer: " + Project.ChmFooterFile , 2);
-                // Cargar el html del archivo de cabecera:
-                StreamReader reader = new StreamReader(Project.ChmFooterFile);
-                HtmlPie = reader.ReadToEnd();
-                reader.Close();
+                log("Reading chm footer: " + Project.ChmFooterFile, 2);
+                chmDecorator.FooterHtmlFile = Project.ChmFooterFile;
             }
 
             if (CancellRequested())
                 return null;
 
-            //if (!HtmlHeaderFile.Equals(""))
-            if (!Project.WebHeaderFile.Equals(""))
+            if ( Project.GenerateWeb && !Project.WebHeaderFile.Equals(""))
             {
-                log("Reading header: " + Project.WebHeaderFile , 2);
-                // Cargar el html del archivo de cabecera:
-                StreamReader reader = new StreamReader(Project.WebHeaderFile);
-                HtmlHeaderCode = reader.ReadToEnd();
-                reader.Close();
+                log("Reading web header: " + Project.WebHeaderFile , 2);
+                webDecorator.HeaderHtmlFile = Project.WebHeaderFile;
             }
 
             if (CancellRequested())
                 return null;
 
-            //if (!HtmlFooterFile.Equals(""))
-            if (!Project.WebFooterFile.Equals(""))
+            if (Project.GenerateWeb && !Project.WebFooterFile.Equals(""))
             {
-                log("Reading footer: " + Project.WebFooterFile , 2);
-                // Cargar el html del archivo de cabecera:
-                StreamReader reader = new StreamReader(Project.WebFooterFile);
-                HtmlFooterCode = reader.ReadToEnd();
+                log("Reading web footer: " + Project.WebFooterFile, 2);
+                webDecorator.FooterHtmlFile = Project.WebFooterFile;
+            }
+
+            if (Project.GenerateWeb && !Project.HeadTagFile.Equals(""))
+            {
+                log("Reading <header> include: " + Project.HeadTagFile, 2);
+                StreamReader reader = new StreamReader(Project.HeadTagFile);
+                HeadTagCode = reader.ReadToEnd();
                 reader.Close();
             }
 
@@ -1031,7 +971,6 @@ namespace ChmProcessorLib
             // Traverse root nodes:
             foreach( IHTMLElement nodo in col ) 
             {
-                //if( EsHeaderDeCorte( nivelCorte , nodo ) ) 
                 if (IsCutHeader(nodo)) 
                 {
                     // Found start of a new part: Store the current body part.
@@ -1065,7 +1004,7 @@ namespace ChmProcessorLib
 
             // Generar los archivos HTML:
             log( "Storing splitted files" , 2);
-            ArrayList archivosGenerados = GuardarDocumentos(Project.HelpProjectDirectory, HtmlCabecera, HtmlPie, null);
+            ArrayList archivosGenerados = GuardarDocumentos(Project.HelpProjectDirectory, chmDecorator, null);
 
             if (CancellRequested())
                 return null;
@@ -1110,7 +1049,6 @@ namespace ChmProcessorLib
             if (CancellRequested())
                 return null;
 
-            //if( GenerarHtml ) 
             if( Project.GenerateWeb )
             {
                 // Generar la web con la ayuda:
@@ -1318,8 +1256,10 @@ namespace ChmProcessorLib
 
                 // Check if we can copy the generated files or we must to regenerate with other header 
                 // Copy generated chapter files:
-                //if (ArchivoCabecera.Equals(HtmlHeaderFile) && ArchivoPie.Equals(HtmlFooterFile) && !Configuration.FullTextSearch )
-                if (Project.ChmHeaderFile.Equals(Project.WebHeaderFile) && Project.ChmFooterFile.Equals(Project.WebFooterFile) && !Project.FullTextSearch)
+                if (Project.ChmHeaderFile.Equals(Project.WebHeaderFile) && 
+                    Project.ChmFooterFile.Equals(Project.WebFooterFile) && 
+                    !Project.FullTextSearch && 
+                    Project.HeadTagFile.Trim() == "" )
                 {
                     // Copy files generated for the CHM help
                     foreach (string file in archivosGenerados)
@@ -1345,7 +1285,7 @@ namespace ChmProcessorLib
                         }
 
                         // Create new files for the web help:
-                        GuardarDocumentos(dirWeb, HtmlHeaderCode, HtmlFooterCode, indexer);
+                        GuardarDocumentos(dirWeb, webDecorator, indexer);
                     }
                     finally
                     {
@@ -1389,10 +1329,11 @@ namespace ChmProcessorLib
 
                 string[] variables = { "%TEXTSEARCH%" , "%TITLE%", "%TREE%", "%TOPICS%", "%FIRSTPAGECONTENT%", 
                     "%WEBDESCRIPTION%", "%KEYWORDS%" , "%HEADER%" , "%FOOTER%" };
-                //string[] newValues = { textSearch , title, arbol.GenerarArbolHtml(NivelMaximoTOC, "contentsTree", 
                 string[] newValues = { textSearch , title, tree.GenerarArbolHtml(Project.MaxHeaderContentTree, "contentsTree", 
                     "contentTree"), index.GenerateWebIndex(), FirstChapterContent, descriptionMeta, 
-                    keywordsMeta , HtmlHeaderCode , HtmlFooterCode };
+                    //keywordsMeta , HtmlHeaderCode , HtmlFooterCode };
+                    keywordsMeta , webDecorator.HeaderHtmlCode , webDecorator.FooterHtmlCode };
+
                 string baseDir = System.Windows.Forms.Application.StartupPath + Path.DirectorySeparatorChar + "webFiles";
                 string[] extensions = { ".htm", ".html" };
                 Replacements replacements = new Replacements(variables, newValues);
@@ -1422,7 +1363,6 @@ namespace ChmProcessorLib
                     // Generate site map for web indexers (google).
                     GeneateSitemap(dirWeb);
 
-                //return dirWeb + Path.DirectorySeparatorChar + "index.html";
             }
             catch (Exception ex)
             {

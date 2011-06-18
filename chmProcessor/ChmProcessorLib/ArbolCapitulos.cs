@@ -266,36 +266,5 @@ namespace ChmProcessorLib
             return lista;
         }
 
-        /*
-        private ArbolCapitulosXml.NodoArbol GenerarArbolXml( NodoArbol nodo , int NivelMaximoTOC , int nivel ) 
-        {
-            ArbolCapitulosXml.NodoArbol nodoNuevo = new ArbolCapitulosXml.NodoArbol(); 
-            if( nodo.Nodo != null && nodo.Nodo.innerText != null )
-                nodoNuevo.Titulo = nodo.Nodo.innerText;
-            else
-                nodoNuevo.Titulo = "";
-            nodoNuevo.Href = nodo.HrefNoCodificado;
-            if( NivelMaximoTOC == 0 || nivel < NivelMaximoTOC ) 
-            {
-                foreach( NodoArbol hijo in nodo.Hijos )
-                    nodoNuevo.Hijos.Add( GenerarArbolXml( hijo , NivelMaximoTOC , nivel + 1 ) );
-            }
-            return nodoNuevo;
-        }
-
-        
-        /// <summary>
-        /// Genera el arbol xml de este arbol.
-        /// </summary>
-        /// <returns>El arbol generado</returns>
-        public ArbolCapitulosXml GenerarArbolXml( String cabecera , int NivelMaximoTOC ) 
-        {
-            ArbolCapitulosXml arbol = new ArbolCapitulosXml();
-            arbol.Cabecera = cabecera;
-            foreach( NodoArbol nodo in this.Raiz.Hijos ) 
-                arbol.Raiz.Hijos.Add( GenerarArbolXml( nodo , NivelMaximoTOC , 1 ) );
-            return arbol;
-        }
-        */
     }
 }
