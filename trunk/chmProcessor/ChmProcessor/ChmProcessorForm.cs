@@ -171,6 +171,9 @@ namespace ChmProcessor
         private Button btnNueDirAdi;
         private Button btnNueArcAdi;
         private ListBox lstArcAdicionales;
+        private TextBox txtHeadInclude;
+        private Button btnSelHeadInclude;
+        private LinkLabel lnkHeadInclude;
         private ToolStripStatusLabel labStatus;
         #endregion
 
@@ -418,6 +421,9 @@ namespace ChmProcessor
             this.radCompilar = new System.Windows.Forms.RadioButton();
             this.chkAbrirProyecto = new System.Windows.Forms.CheckBox();
             this.tabWeb = new System.Windows.Forms.TabPage();
+            this.txtHeadInclude = new System.Windows.Forms.TextBox();
+            this.btnSelHeadInclude = new System.Windows.Forms.Button();
+            this.lnkHeadInclude = new System.Windows.Forms.LinkLabel();
             this.lnkWebBase = new System.Windows.Forms.LinkLabel();
             this.chkFullSearch = new System.Windows.Forms.CheckBox();
             this.cmbWebLanguage = new System.Windows.Forms.ComboBox();
@@ -505,7 +511,7 @@ namespace ChmProcessor
             // 
             this.btnProcesar.Image = ((System.Drawing.Image)(resources.GetObject("btnProcesar.Image")));
             this.btnProcesar.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.btnProcesar.Location = new System.Drawing.Point(264, 435);
+            this.btnProcesar.Location = new System.Drawing.Point(264, 466);
             this.btnProcesar.Name = "btnProcesar";
             this.btnProcesar.Size = new System.Drawing.Size(206, 36);
             this.btnProcesar.TabIndex = 21;
@@ -636,7 +642,7 @@ namespace ChmProcessor
             this.stsStatus.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.labModified,
             this.labStatus});
-            this.stsStatus.Location = new System.Drawing.Point(0, 488);
+            this.stsStatus.Location = new System.Drawing.Point(0, 505);
             this.stsStatus.Name = "stsStatus";
             this.stsStatus.Size = new System.Drawing.Size(735, 22);
             this.stsStatus.SizingGrip = false;
@@ -646,13 +652,13 @@ namespace ChmProcessor
             // labModified
             // 
             this.labModified.Name = "labModified";
-            this.labModified.Size = new System.Drawing.Size(61, 17);
+            this.labModified.Size = new System.Drawing.Size(71, 17);
             this.labModified.Text = "labModified";
             // 
             // labStatus
             // 
             this.labStatus.Name = "labStatus";
-            this.labStatus.Size = new System.Drawing.Size(52, 17);
+            this.labStatus.Size = new System.Drawing.Size(55, 17);
             this.labStatus.Text = "labStatus";
             // 
             // tabControl1
@@ -665,7 +671,7 @@ namespace ChmProcessor
             this.tabControl1.Location = new System.Drawing.Point(12, 202);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(691, 227);
+            this.tabControl1.Size = new System.Drawing.Size(691, 258);
             this.tabControl1.TabIndex = 19;
             // 
             // tabChm
@@ -688,7 +694,7 @@ namespace ChmProcessor
             this.tabChm.Location = new System.Drawing.Point(4, 22);
             this.tabChm.Name = "tabChm";
             this.tabChm.Padding = new System.Windows.Forms.Padding(3);
-            this.tabChm.Size = new System.Drawing.Size(683, 201);
+            this.tabChm.Size = new System.Drawing.Size(683, 232);
             this.tabChm.TabIndex = 0;
             this.tabChm.Text = "Compiled Help (CHM)";
             this.tabChm.UseVisualStyleBackColor = true;
@@ -738,7 +744,7 @@ namespace ChmProcessor
             this.btnSelPie.Size = new System.Drawing.Size(24, 21);
             this.btnSelPie.TabIndex = 42;
             this.btnSelPie.Text = "...";
-            this.btnSelPie.Click += new System.EventHandler(this.btnSelCab_Click);
+            this.btnSelPie.Click += new System.EventHandler(this.btnChooseHtmlFile_Click);
             // 
             // btnSelCab
             // 
@@ -747,7 +753,7 @@ namespace ChmProcessor
             this.btnSelCab.Size = new System.Drawing.Size(24, 20);
             this.btnSelCab.TabIndex = 39;
             this.btnSelCab.Text = "...";
-            this.btnSelCab.Click += new System.EventHandler(this.btnSelCab_Click);
+            this.btnSelCab.Click += new System.EventHandler(this.btnChooseHtmlFile_Click);
             // 
             // lnkDirProyecto
             // 
@@ -832,6 +838,9 @@ namespace ChmProcessor
             // 
             // tabWeb
             // 
+            this.tabWeb.Controls.Add(this.txtHeadInclude);
+            this.tabWeb.Controls.Add(this.btnSelHeadInclude);
+            this.tabWeb.Controls.Add(this.lnkHeadInclude);
             this.tabWeb.Controls.Add(this.lnkWebBase);
             this.tabWeb.Controls.Add(this.chkFullSearch);
             this.tabWeb.Controls.Add(this.cmbWebLanguage);
@@ -857,15 +866,42 @@ namespace ChmProcessor
             this.tabWeb.Location = new System.Drawing.Point(4, 22);
             this.tabWeb.Name = "tabWeb";
             this.tabWeb.Padding = new System.Windows.Forms.Padding(3);
-            this.tabWeb.Size = new System.Drawing.Size(683, 201);
+            this.tabWeb.Size = new System.Drawing.Size(683, 232);
             this.tabWeb.TabIndex = 1;
             this.tabWeb.Text = "Web Help";
             this.tabWeb.UseVisualStyleBackColor = true;
             // 
+            // txtHeadInclude
+            // 
+            this.txtHeadInclude.Location = new System.Drawing.Point(211, 163);
+            this.txtHeadInclude.Name = "txtHeadInclude";
+            this.txtHeadInclude.Size = new System.Drawing.Size(426, 20);
+            this.txtHeadInclude.TabIndex = 73;
+            this.txtHeadInclude.TextChanged += new System.EventHandler(this.FieldModified);
+            // 
+            // btnSelHeadInclude
+            // 
+            this.btnSelHeadInclude.Location = new System.Drawing.Point(647, 162);
+            this.btnSelHeadInclude.Name = "btnSelHeadInclude";
+            this.btnSelHeadInclude.Size = new System.Drawing.Size(24, 21);
+            this.btnSelHeadInclude.TabIndex = 74;
+            this.btnSelHeadInclude.Text = "...";
+            this.btnSelHeadInclude.Click += new System.EventHandler(this.btnChooseHtmlFile_Click);
+            // 
+            // lnkHeadInclude
+            // 
+            this.lnkHeadInclude.AutoSize = true;
+            this.lnkHeadInclude.Location = new System.Drawing.Point(109, 166);
+            this.lnkHeadInclude.Name = "lnkHeadInclude";
+            this.lnkHeadInclude.Size = new System.Drawing.Size(96, 13);
+            this.lnkHeadInclude.TabIndex = 72;
+            this.lnkHeadInclude.TabStop = true;
+            this.lnkHeadInclude.Text = "<head> include file";
+            // 
             // lnkWebBase
             // 
             this.lnkWebBase.AutoSize = true;
-            this.lnkWebBase.Location = new System.Drawing.Point(208, 167);
+            this.lnkWebBase.Location = new System.Drawing.Point(208, 195);
             this.lnkWebBase.Name = "lnkWebBase";
             this.lnkWebBase.Size = new System.Drawing.Size(57, 13);
             this.lnkWebBase.TabIndex = 34;
@@ -906,16 +942,16 @@ namespace ChmProcessor
             // 
             this.cmbChangeFrequency.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbChangeFrequency.FormattingEnabled = true;
-            this.cmbChangeFrequency.Location = new System.Drawing.Point(555, 165);
+            this.cmbChangeFrequency.Location = new System.Drawing.Point(546, 192);
             this.cmbChangeFrequency.Name = "cmbChangeFrequency";
-            this.cmbChangeFrequency.Size = new System.Drawing.Size(115, 21);
+            this.cmbChangeFrequency.Size = new System.Drawing.Size(124, 21);
             this.cmbChangeFrequency.TabIndex = 36;
             this.cmbChangeFrequency.TextChanged += new System.EventHandler(this.FieldModified);
             // 
             // label12
             // 
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(478, 168);
+            this.label12.Location = new System.Drawing.Point(469, 198);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(71, 13);
             this.label12.TabIndex = 67;
@@ -923,7 +959,7 @@ namespace ChmProcessor
             // 
             // txtWebBase
             // 
-            this.txtWebBase.Location = new System.Drawing.Point(280, 164);
+            this.txtWebBase.Location = new System.Drawing.Point(269, 192);
             this.txtWebBase.Name = "txtWebBase";
             this.txtWebBase.Size = new System.Drawing.Size(194, 20);
             this.txtWebBase.TabIndex = 35;
@@ -932,7 +968,7 @@ namespace ChmProcessor
             // chkGenSitemap
             // 
             this.chkGenSitemap.AutoSize = true;
-            this.chkGenSitemap.Location = new System.Drawing.Point(107, 167);
+            this.chkGenSitemap.Location = new System.Drawing.Point(112, 194);
             this.chkGenSitemap.Name = "chkGenSitemap";
             this.chkGenSitemap.Size = new System.Drawing.Size(94, 17);
             this.chkGenSitemap.TabIndex = 33;
@@ -945,10 +981,10 @@ namespace ChmProcessor
             this.lnkFooterWeb.AutoSize = true;
             this.lnkFooterWeb.Location = new System.Drawing.Point(109, 113);
             this.lnkFooterWeb.Name = "lnkFooterWeb";
-            this.lnkFooterWeb.Size = new System.Drawing.Size(89, 13);
+            this.lnkFooterWeb.Size = new System.Drawing.Size(83, 13);
             this.lnkFooterWeb.TabIndex = 28;
             this.lnkFooterWeb.TabStop = true;
-            this.lnkFooterWeb.Text = "HTML Footer File";
+            this.lnkFooterWeb.Text = "HTML footer file";
             this.lnkFooterWeb.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkFooterWeb_LinkClicked);
             // 
             // lnkHeaderWeb
@@ -956,10 +992,10 @@ namespace ChmProcessor
             this.lnkHeaderWeb.AutoSize = true;
             this.lnkHeaderWeb.Location = new System.Drawing.Point(109, 89);
             this.lnkHeaderWeb.Name = "lnkHeaderWeb";
-            this.lnkHeaderWeb.Size = new System.Drawing.Size(94, 13);
+            this.lnkHeaderWeb.Size = new System.Drawing.Size(89, 13);
             this.lnkHeaderWeb.TabIndex = 25;
             this.lnkHeaderWeb.TabStop = true;
-            this.lnkHeaderWeb.Text = "HTML Header File";
+            this.lnkHeaderWeb.Text = "HTML header file";
             this.lnkHeaderWeb.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkHeaderWeb_LinkClicked);
             // 
             // txtFooterWeb
@@ -985,7 +1021,7 @@ namespace ChmProcessor
             this.btnSelFooterWeb.Size = new System.Drawing.Size(24, 21);
             this.btnSelFooterWeb.TabIndex = 30;
             this.btnSelFooterWeb.Text = "...";
-            this.btnSelFooterWeb.Click += new System.EventHandler(this.btnSelCab_Click);
+            this.btnSelFooterWeb.Click += new System.EventHandler(this.btnChooseHtmlFile_Click);
             // 
             // btnSelHeaderWeb
             // 
@@ -994,7 +1030,7 @@ namespace ChmProcessor
             this.btnSelHeaderWeb.Size = new System.Drawing.Size(24, 20);
             this.btnSelHeaderWeb.TabIndex = 27;
             this.btnSelHeaderWeb.Text = "...";
-            this.btnSelHeaderWeb.Click += new System.EventHandler(this.btnSelCab_Click);
+            this.btnSelHeaderWeb.Click += new System.EventHandler(this.btnChooseHtmlFile_Click);
             // 
             // txtDescription
             // 
@@ -1080,7 +1116,7 @@ namespace ChmProcessor
             this.tabPdf.Controls.Add(this.lnkPdfPath);
             this.tabPdf.Location = new System.Drawing.Point(4, 22);
             this.tabPdf.Name = "tabPdf";
-            this.tabPdf.Size = new System.Drawing.Size(683, 201);
+            this.tabPdf.Size = new System.Drawing.Size(683, 232);
             this.tabPdf.TabIndex = 2;
             this.tabPdf.Text = "PDF / XPS";
             this.tabPdf.UseVisualStyleBackColor = true;
@@ -1193,7 +1229,7 @@ namespace ChmProcessor
             this.tabJavaHelp.Location = new System.Drawing.Point(4, 22);
             this.tabJavaHelp.Name = "tabJavaHelp";
             this.tabJavaHelp.Padding = new System.Windows.Forms.Padding(3);
-            this.tabJavaHelp.Size = new System.Drawing.Size(683, 201);
+            this.tabJavaHelp.Size = new System.Drawing.Size(683, 232);
             this.tabJavaHelp.TabIndex = 4;
             this.tabJavaHelp.Text = "Java Help";
             this.tabJavaHelp.UseVisualStyleBackColor = true;
@@ -1251,7 +1287,7 @@ namespace ChmProcessor
             this.tabOther.Controls.Add(this.label1);
             this.tabOther.Location = new System.Drawing.Point(4, 22);
             this.tabOther.Name = "tabOther";
-            this.tabOther.Size = new System.Drawing.Size(683, 201);
+            this.tabOther.Size = new System.Drawing.Size(683, 232);
             this.tabOther.TabIndex = 3;
             this.tabOther.Text = "Other";
             this.tabOther.UseVisualStyleBackColor = true;
@@ -1545,7 +1581,7 @@ namespace ChmProcessor
             // 
             this.AcceptButton = this.btnProcesar;
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
-            this.ClientSize = new System.Drawing.Size(735, 510);
+            this.ClientSize = new System.Drawing.Size(735, 527);
             this.Controls.Add(this.tabControl2);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.stsStatus);
@@ -1646,6 +1682,13 @@ namespace ChmProcessor
                 {
                     MessageBox.Show(this, "The web footer file " + txtFooterWeb.Text + " does not exist");
                     txtFooterWeb.Focus();
+                    return;
+                }
+
+                if (chkGenWeb.Checked && !txtHeadInclude.Text.Trim().Equals("") && !File.Exists(txtHeadInclude.Text.Trim()))
+                {
+                    MessageBox.Show(this, "The web <head> include file " + txtHeadInclude.Text + " does not exist");
+                    txtHeadInclude.Focus();
                     return;
                 }
 
@@ -1796,7 +1839,10 @@ namespace ChmProcessor
                 txtDirDst.Text = dlg.SelectedPath;
         }
 
-        private void btnSelCab_Click(object sender, System.EventArgs e)
+        /// <summary>
+        /// Button to choose a HTML file pressed.
+        /// </summary>
+        private void btnChooseHtmlFile_Click(object sender, System.EventArgs e)
         {
             OpenFileDialog dialog = new OpenFileDialog();
             //dialog.FileName = txtArchivo.Text;
@@ -1805,14 +1851,16 @@ namespace ChmProcessor
             dialog.RestoreDirectory = true;
             if (dialog.ShowDialog() == DialogResult.OK) 
             {
-                if( sender == btnSelCab )
+                if (sender == btnSelCab)
                     txtArcCab.Text = dialog.FileName;
-                else if( sender == btnSelPie )
+                else if (sender == btnSelPie)
                     txtArcPie.Text = dialog.FileName;
-                else if( sender == btnSelHeaderWeb )
+                else if (sender == btnSelHeaderWeb)
                     txtHeaderWeb.Text = dialog.FileName;
                 else if (sender == btnSelFooterWeb)
                     txtFooterWeb.Text = dialog.FileName;
+                else if (sender == btnSelHeadInclude)
+                    txtHeadInclude.Text = dialog.FileName;
             }
         }
 
@@ -1930,6 +1978,7 @@ namespace ChmProcessor
             txtXps.Text = cfg.XpsPath;
             chkJavaHelp.Checked = cfg.GenerateJavaHelp;
             txtJavaHelp.Text = cfg.JavaHelpPath;
+            txtHeadInclude.Text = cfg.HeadTagFile;
 
             // Source files:
             lstSourceFiles.Items.Clear();
@@ -1975,6 +2024,10 @@ namespace ChmProcessor
             }
         }
 
+        /// <summary>
+        /// Get a ChmProject with the current content of the user interface.
+        /// </summary>
+        /// <returns>The project with the current settings on the user interface</returns>
         private ChmProject GetCurrentProject()
         {
             ChmProject cfg = new ChmProject();
@@ -2010,6 +2063,7 @@ namespace ChmProcessor
             cfg.GenerateXps = chkGenerateXps.Checked;
             cfg.GenerateJavaHelp = chkJavaHelp.Checked;
             cfg.JavaHelpPath = txtJavaHelp.Text;
+            cfg.HeadTagFile = txtHeadInclude.Text.Trim();
 
             // Source files:
             foreach (string file in lstSourceFiles.Items)
@@ -2081,6 +2135,7 @@ namespace ChmProcessor
             chkGenSitemap_CheckedChanged(sender, e);
             cmbWebLanguage.Enabled = chkGenWeb.Checked;
             chkFullSearch.Enabled = chkGenWeb.Checked;
+            txtHeadInclude.Enabled = chkGenWeb.Checked;
         }
 
         private void btnSelWeb_Click(object sender, System.EventArgs e)

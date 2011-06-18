@@ -125,6 +125,9 @@ namespace ChmProcessorLib
                 //and now are <string>c:\file path</string>
                 ConvertArrayListToStringList(root, "SourceFiles");
                 ConvertArrayListToStringList(root, "ArchivosAdicionales");
+
+                // Code to include into the <head> tag of the web html files.
+                CreateXmlNode(root, "HeadTagFile", "");
             }
 
             // Set the current version:

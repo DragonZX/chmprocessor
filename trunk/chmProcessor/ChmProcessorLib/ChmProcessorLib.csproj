@@ -153,6 +153,7 @@
     <Compile Include="DocumentProcessor.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="HtmlPageDecorator.cs" />
     <Compile Include="Index.cs">
       <SubType>Code</SubType>
     </Compile>

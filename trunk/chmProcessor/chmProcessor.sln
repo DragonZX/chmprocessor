@@ -30,8 +30,6 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "WebFullTextSearch", "WebFul
 		VWDPort = "49174"
 	EndProjectSection
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "chmProcessorSetup", "ChmProcessorSetup\ChmProcessorSetup.vdproj", "{30A50369-8D10-487B-9001-D9C75975B119}"
-EndProject
 Global
 	GlobalSection(SubversionScc) = preSolution
 		Svn-Managed = True
@@ -102,22 +100,6 @@ Global
 		{64504A5B-D21A-45AC-B1BD-2A6E0752DC1B}.Release|Mixed Platforms.ActiveCfg = Debug|.NET
 		{64504A5B-D21A-45AC-B1BD-2A6E0752DC1B}.Release|Mixed Platforms.Build.0 = Debug|.NET
 		{64504A5B-D21A-45AC-B1BD-2A6E0752DC1B}.Release|x86.ActiveCfg = Debug|.NET
-		{30A50369-8D10-487B-9001-D9C75975B119}.Debug|.NET.ActiveCfg = Debug
-		{30A50369-8D10-487B-9001-D9C75975B119}.Debug|.NET.Build.0 = Debug
-		{30A50369-8D10-487B-9001-D9C75975B119}.Debug|Any CPU.ActiveCfg = Debug
-		{30A50369-8D10-487B-9001-D9C75975B119}.Debug|Any CPU.Build.0 = Debug
-		{30A50369-8D10-487B-9001-D9C75975B119}.Debug|Mixed Platforms.ActiveCfg = Debug
-		{30A50369-8D10-487B-9001-D9C75975B119}.Debug|Mixed Platforms.Build.0 = Debug
-		{30A50369-8D10-487B-9001-D9C75975B119}.Debug|x86.ActiveCfg = Debug
-		{30A50369-8D10-487B-9001-D9C75975B119}.Debug|x86.Build.0 = Debug
-		{30A50369-8D10-487B-9001-D9C75975B119}.Release|.NET.ActiveCfg = Release
-		{30A50369-8D10-487B-9001-D9C75975B119}.Release|.NET.Build.0 = Release
-		{30A50369-8D10-487B-9001-D9C75975B119}.Release|Any CPU.ActiveCfg = Release
-		{30A50369-8D10-487B-9001-D9C75975B119}.Release|Any CPU.Build.0 = Release
-		{30A50369-8D10-487B-9001-D9C75975B119}.Release|Mixed Platforms.ActiveCfg = Release
-		{30A50369-8D10-487B-9001-D9C75975B119}.Release|Mixed Platforms.Build.0 = Release
-		{30A50369-8D10-487B-9001-D9C75975B119}.Release|x86.ActiveCfg = Release
-		{30A50369-8D10-487B-9001-D9C75975B119}.Release|x86.Build.0 = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
