@@ -1,5 +1,7 @@
 * 1.6
-- Path to files of the project now can be stored relative to location of the project. Thanks to Jozsef Bekes for the patch.
+- Path to files of the project now can be stored relative to location of the project. Thanks to Jozsef Bekes for the patch
+- Added web translations to frech and dutch. Thanks to Luc Van Asch
+- Added field to project to add HTML code into the head tag of the generated web pages (to add google analytics code, for example)
 
 * 1.5
 - Bug fixed. chmProcessor was not working on 64 bits operating systems due to AnyCPU option. Now the application runs always on 32 bit mode, needed to run Tidy. Thanks to cjervin for the info.

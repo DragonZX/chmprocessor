@@ -34,4 +34,5 @@
   <XpsPath>.\web\chmProcessorDocumentation.xps</XpsPath>
   <GenerateJavaHelp>false</GenerateJavaHelp>
   <JavaHelpPath>.\web\chmProcessorDocumentation.jar</JavaHelpPath>
+  <HeadTagFile>.\headInclude.htm</HeadTagFile>
 </Configuracion>
