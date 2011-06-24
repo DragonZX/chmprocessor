@@ -66,45 +66,12 @@ namespace ChmProcessorLib
         /// <summary>
         /// Decorator for pages for the generated CHM 
         /// </summary>
-        private HtmlPageDecorator chmDecorator;
+        private HtmlPageDecorator chmDecorator = new HtmlPageDecorator();
 
         /// <summary>
         /// Decorator for pages for the generated web site
         /// </summary>
-        private HtmlPageDecorator webDecorator;
-
-        /*
-        /// <summary>
-        /// Texto a colocar antes del tag body.
-        /// </summary>
-        /// 
-        private string textoAntesBody;
-
-        /// <summary>
-        /// Texto a colocar despues del tag body.
-        /// </summary>
-        private string textoDespuesBody;
-         
-        /// <summary>
-        /// Html code for the CHM headers
-        /// </summary>
-        private string HtmlCabecera;
-
-        /// <summary>
-        /// Html code for the CHM footers
-        /// </summary>
-        private string HtmlPie;
-         
-        /// <summary>
-        /// HTML code loaded for the web site headers.
-        /// </summary>
-        private string HtmlHeaderCode;
-
-        /// <summary>
-        /// HTML code loaded for the web site footers.
-        /// </summary>
-        private string HtmlFooterCode;
-        */
+        private HtmlPageDecorator webDecorator = new HtmlPageDecorator();
 
         /// <summary>
         /// Lista de archivos y directorios adicionales a añadir al proyecto de ayuda
@@ -128,11 +95,6 @@ namespace ChmProcessorLib
         /// HTML content of the body of the first chapter into the document.
         /// </summary>
         private string FirstChapterContent;
-
-        /// <summary>
-        /// HTML code loaded from the "head" tag include.
-        /// </summary>
-        private string HeadTagCode;
 
         /// <summary>
         /// Project to generate the help. 
@@ -512,7 +474,7 @@ namespace ChmProcessorLib
 
                         // Save the section, adding header, footers, etc:
                         string filePath = directory + Path.DirectorySeparatorChar + nodo.Archivo;
-                        decorator.ProcessAndSavePage(nodo.body, filePath, UI);
+                        decorator.ProcessAndSavePage(nodo.body, filePath);
 
                         if (FirstChapterContent == null)
                         {
@@ -625,8 +587,16 @@ namespace ChmProcessorLib
         private ArrayList GenerarDirDestino( string dirDst ) 
         {
             // Recrear el directorio:
-            if( Directory.Exists( dirDst ) )
-                Directory.Delete( dirDst , true );
+            try
+            {
+                if (Directory.Exists(dirDst))
+                    Directory.Delete(dirDst, true);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error deleting directory: " + dirDst + ". Is it on use?", ex);
+            }
+
             Directory.CreateDirectory( dirDst );
             
             // Copiar los archivos adicionales
@@ -731,7 +701,7 @@ namespace ChmProcessorLib
             }
             catch (Exception ex)
             {
-                log("Something wrong happened with the XPS generation. Remember you must to have Microsoft Office 2007 and the" +
+                log("Something wrong happened with the XPS generation. Remember you must to have Microsoft Office 2007 and the " +
                         "pdf/xps generation add-in (http://www.microsoft.com/downloads/details.aspx?FamilyID=4D951911-3E7E-4AE6-B059-A2E79ED87041&displaylang=en)", 1);
                 log(ex);
             }
@@ -874,6 +844,68 @@ namespace ChmProcessorLib
         }
 
         /// <summary>
+        /// Configure decorators to add headers, footer, metas and other stuff to the generated
+        /// web pages. Call this after do any change on the original page
+        /// </summary>
+        private void PrepareHtmlDecorators() 
+        {
+
+            chmDecorator.ui = this.UI;
+            webDecorator.ui = this.UI;
+            webDecorator.MetaDescriptionValue = Project.WebDescription;
+            webDecorator.MetaKeywordsValue = Project.WebKeywords;
+
+            if (!Project.ChmHeaderFile.Equals(""))
+            {
+                log("Reading chm header: " + Project.ChmHeaderFile, 2);
+                chmDecorator.HeaderHtmlFile = Project.ChmHeaderFile;
+            }
+
+            if (CancellRequested())
+                return;
+
+            if (!Project.ChmFooterFile.Equals(""))
+            {
+                log("Reading chm footer: " + Project.ChmFooterFile, 2);
+                chmDecorator.FooterHtmlFile = Project.ChmFooterFile;
+            }
+
+            if (CancellRequested())
+                return;
+
+            if (Project.GenerateWeb && !Project.WebHeaderFile.Equals(""))
+            {
+                log("Reading web header: " + Project.WebHeaderFile, 2);
+                webDecorator.HeaderHtmlFile = Project.WebHeaderFile;
+            }
+
+            if (CancellRequested())
+                return;
+
+            if (Project.GenerateWeb && !Project.WebFooterFile.Equals(""))
+            {
+                log("Reading web footer: " + Project.WebFooterFile, 2);
+                webDecorator.FooterHtmlFile = Project.WebFooterFile;
+            }
+
+            if (CancellRequested())
+                return;
+
+            if (Project.GenerateWeb && !Project.HeadTagFile.Equals(""))
+            {
+                log("Reading <header> include: " + Project.HeadTagFile, 2);
+                webDecorator.HeadIncludeFile = Project.HeadTagFile;
+            }
+
+            if (CancellRequested())
+                return;
+
+            // Prepare decorators for use. Do it after extract style tags:
+            webDecorator.PrepareHtmlPattern((IHTMLDocument3)iDoc);
+            chmDecorator.PrepareHtmlPattern((IHTMLDocument3)iDoc);
+        }
+
+        /// <summary>
         /// Generates help products.
         /// </summary>
         /// <returns>Path to help project generated.</returns>
@@ -898,8 +930,12 @@ namespace ChmProcessorLib
             if (CancellRequested())
                 return null;
 
-            chmDecorator = new HtmlPageDecorator( (IHTMLDocument3) iDoc);
-            webDecorator = new HtmlPageDecorator((IHTMLDocument3) iDoc);
+            /*chmDecorator = new HtmlPageDecorator();
+            chmDecorator.ui = this.UI;
+            webDecorator = new HtmlPageDecorator();
+            webDecorator.ui = this.UI;
+            webDecorator.MetaDescriptionValue = Project.WebDescription;
+            webDecorator.MetaKeywordsValue = Project.WebKeywords;
 
             if (!Project.ChmHeaderFile.Equals("")) 
             {
@@ -937,10 +973,8 @@ namespace ChmProcessorLib
             if (Project.GenerateWeb && !Project.HeadTagFile.Equals(""))
             {
                 log("Reading <header> include: " + Project.HeadTagFile, 2);
-                StreamReader reader = new StreamReader(Project.HeadTagFile);
-                HeadTagCode = reader.ReadToEnd();
-                reader.Close();
-            }
+                webDecorator.HeadIncludeFile = Project.HeadTagFile;
+            }*/
 
             // Preparar el directorio de destino.
             log("Creating project directory: " + Project.HelpProjectDirectory , 2);
@@ -951,6 +985,15 @@ namespace ChmProcessorLib
             string cssFile = CheckForStyleTags();
             if (cssFile != null)
                 listaFinalArchivos.Add(cssFile);
+
+            if (CancellRequested())
+                return null;
+
+            PrepareHtmlDecorators();
+
+            // Prepare decorators for use. Do it after extract style tags:
+            /*webDecorator.PrepareHtmlPattern((IHTMLDocument3)iDoc);
+            chmDecorator.PrepareHtmlPattern((IHTMLDocument3)iDoc);*/
 
             if (CancellRequested())
                 return null;
@@ -1146,6 +1189,7 @@ namespace ChmProcessorLib
         /// <param name="index">Index of topics of the document</param>
         void GenerateJavaHelpSetFile(String dirJavaHelp, Index index)
         {
+            // TODO: Translate the labels with web translation files:
             StreamWriter writer = new StreamWriter( dirJavaHelp + Path.DirectorySeparatorChar + "help.hs" ,
                 false, Encoding.UTF8 );
             writer.WriteLine("<?xml version=\"1.0\" encoding=\"utf-8\" ?>");
@@ -1295,15 +1339,11 @@ namespace ChmProcessorLib
                 }
 
                 // Copy base files for web help:
-                string keywordsMeta = "", descriptionMeta = "";
-                //if( !WebKeywords.Trim().Equals( "" ) ) 
+                /*string keywordsMeta = "", descriptionMeta = "";
                 if (!Project.WebKeywords.Trim().Equals(""))
-                    //keywordsMeta = "<meta name=\"keywords\" content=\"" + WebKeywords + "\" >";
                     keywordsMeta = "<meta name=\"keywords\" content=\"" + Project.WebKeywords + "\" >";
-                //if( !WebDescription.Trim().Equals( "" ) ) 
                 if (!Project.WebDescription.Trim().Equals(""))
-                    //descriptionMeta = "<meta name=\"description\" content=\"" + WebDescription + "\" >";
-                    descriptionMeta = "<meta name=\"description\" content=\"" + Project.WebDescription + "\" >";
+                    descriptionMeta = "<meta name=\"description\" content=\"" + Project.WebDescription + "\" >";*/
 
                 // Convert title to windows-1252 enconding:
                 string title = HtmlEncode(Project.HelpTitle);
@@ -1328,11 +1368,12 @@ namespace ChmProcessorLib
                 textSearch += "</form>\n";
 
                 string[] variables = { "%TEXTSEARCH%" , "%TITLE%", "%TREE%", "%TOPICS%", "%FIRSTPAGECONTENT%", 
-                    "%WEBDESCRIPTION%", "%KEYWORDS%" , "%HEADER%" , "%FOOTER%" };
+                    "%WEBDESCRIPTION%", "%KEYWORDS%" , "%HEADER%" , "%FOOTER%" , "%HEADINCLUDE%" };
                 string[] newValues = { textSearch , title, tree.GenerarArbolHtml(Project.MaxHeaderContentTree, "contentsTree", 
-                    "contentTree"), index.GenerateWebIndex(), FirstChapterContent, descriptionMeta, 
-                    //keywordsMeta , HtmlHeaderCode , HtmlFooterCode };
-                    keywordsMeta , webDecorator.HeaderHtmlCode , webDecorator.FooterHtmlCode };
+                    "contentTree"), index.GenerateWebIndex(), FirstChapterContent, 
+                    /*descriptionMeta, keywordsMeta , */
+                    webDecorator.MetaDescriptionTag , webDecorator.MetaKeywordsTag ,
+                    webDecorator.HeaderHtmlCode , webDecorator.FooterHtmlCode , webDecorator.HeadIncludeHtmlCode };
 
                 string baseDir = System.Windows.Forms.Application.StartupPath + Path.DirectorySeparatorChar + "webFiles";
                 string[] extensions = { ".htm", ".html" };
