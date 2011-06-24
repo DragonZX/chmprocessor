@@ -1,7 +1,8 @@
 - Change documentation. Think about documentate the chmprocessorlib for external use.
 - Remove temporal file with joined word docs.
-- Store references to files relative to project location.
-- Change documentation to notice that Microsoft PIA is no longer distributed. Needed (?) on full text search web site.
 - Remove compile warnings about UComIStream
 - Allow to add file to add tags to the <head> of the generated html files. Needed for google stadistics.
 - If pdfcreator hangs up, if the user press cancel, exit inmediatelly. Add a referente to the user interface to the PdfPrinter class and check if the process was cancelled.
+- Try to make it work with others character sets. 
+- When two docs are joined, if you generate twice, the second time it gives an error that first document cannot be opened.
+- Add option to remove broken internal links.
