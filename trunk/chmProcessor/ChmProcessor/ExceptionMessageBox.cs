@@ -60,7 +60,7 @@ namespace ChmProcessor
             catch { }
 
             if (exception.InnerException != null)
-                txtInner.Text = exception.Message;
+                txtInner.Text = exception.InnerException.Message;
             else
             {
                 lnkInner.Visible = false;

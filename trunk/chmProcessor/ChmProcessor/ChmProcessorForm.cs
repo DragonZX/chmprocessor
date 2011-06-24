@@ -897,6 +897,7 @@ namespace ChmProcessor
             this.lnkHeadInclude.TabIndex = 72;
             this.lnkHeadInclude.TabStop = true;
             this.lnkHeadInclude.Text = "<head> include file";
+            this.lnkHeadInclude.Click += new System.EventHandler(this.lnkHeadInclude_Click);
             // 
             // lnkWebBase
             // 
@@ -1239,9 +1240,9 @@ namespace ChmProcessor
             this.label7.AutoSize = true;
             this.label7.Location = new System.Drawing.Point(232, 41);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(293, 13);
+            this.label7.Size = new System.Drawing.Size(331, 13);
             this.label7.TabIndex = 35;
-            this.label7.Text = "Same file header specified on Compiled Help tab will be used";
+            this.label7.Text = "Same file header / footer specified on Compiled Help tab will be used";
             // 
             // lnkJavaHelp
             // 
@@ -2553,6 +2554,11 @@ namespace ChmProcessor
         }
 
         #endregion
+
+        private void lnkHeadInclude_Click(object sender, EventArgs e)
+        {
+            OpenGeneralFile(txtHeadInclude.Text);
+        }
 
     }
 }

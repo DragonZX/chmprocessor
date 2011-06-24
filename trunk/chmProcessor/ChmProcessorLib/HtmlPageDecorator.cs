@@ -14,6 +14,11 @@ namespace ChmProcessorLib
     {
 
         /// <summary>
+        /// User interface to log messages. Can be null
+        /// </summary>
+        public UserInterface ui;
+
+        /// <summary>
         /// The encoding of the pattern HTML page
         /// </summary>
         private Encoding encoding;
@@ -29,12 +34,50 @@ namespace ChmProcessorLib
         private string textAfterBody = "";
 
         /// <summary>
+        /// Text to add as a meta keywords tag. If its empty, no tag will be added
+        /// </summary>
+        public string MetaKeywordsValue = "";
+
+        /// <summary>
+        /// HTML keywords meta tag, if MetaKeywordsValue is not empty. "" otherwise.
+        /// </summary>
+        public string MetaKeywordsTag
+        {
+            get
+            {
+                if (MetaKeywordsValue != "")
+                    return "<meta name=\"keywords\" content=\"" + MetaKeywordsValue + "\" >";
+                else
+                    return "";
+            }
+        }
+
+        /// <summary>
+        /// Text to add as a meta description tag. If its empty, no tag will be added
+        /// </summary>
+        public string MetaDescriptionValue = "";
+
+        /// <summary>
+        /// HTML keywords meta tag, if MetaDescriptionValue is not empty. "" otherwise.
+        /// </summary>
+        public string MetaDescriptionTag
+        {
+            get
+            {
+                if (MetaKeywordsValue != "")
+                    return "<meta name=\"description\" content=\"" + MetaDescriptionValue + "\" >";
+                else
+                    return "";
+            }
+        }
+
+        /// <summary>
         /// HTML code to add as header to the content of the body of the HTML page.
         /// </summary>
         public string HeaderHtmlCode = "";
 
         /// <summary>
-        /// Source file for the HTML code to include as body content header.
+        /// Path to file for the HTML code to include as body content header.
         /// </summary>
         public string HeaderHtmlFile
         {
@@ -52,7 +95,7 @@ namespace ChmProcessorLib
         public string FooterHtmlCode = "";
 
         /// <summary>
-        /// Source file for the HTML code to include as body content footer.
+        /// Path to file for the HTML code to include as body content footer.
         /// </summary>
         public string FooterHtmlFile
         {
@@ -60,6 +103,25 @@ namespace ChmProcessorLib
             {
                 StreamReader reader = new StreamReader(value);
                 FooterHtmlCode = reader.ReadToEnd();
+                reader.Close();
+            }
+        }
+
+        /// <summary>
+        /// HTML code to include into the "head" tag of the page.
+        /// </summary>
+        public string HeadIncludeHtmlCode = "";
+
+        /// <summary>
+        /// Path to file for the HTML code to include into the "head" tag.
+        /// </summary>
+        public string HeadIncludeFile
+        {
+            set
+            {
+                // Read the HTML code to include into the <head> tag.
+                StreamReader reader = new StreamReader(value);
+                HeadIncludeHtmlCode = reader.ReadToEnd();
                 reader.Close();
             }
         }
@@ -73,20 +135,29 @@ namespace ChmProcessorLib
         /// was specified, return the original body itself.</returns>
         private IHTMLElement AddFooterAndHeader(IHTMLElement body)
         {
-
+            
             if (HeaderHtmlCode == "" && FooterHtmlCode == "")
                 return body;
 
             // Clone the body:
-            IHTMLElement clonedBody = (IHTMLElement) ((IHTMLDOMNode)body).cloneNode(true);
+            IHTMLElement clonedBody = (IHTMLElement)((IHTMLDOMNode)body).cloneNode(true);
 
-            // Add content headers and footers:
-            if (HeaderHtmlCode != "")
-                clonedBody.insertAdjacentHTML("afterBegin", HeaderHtmlCode);
-            if (FooterHtmlCode != "")
-                clonedBody.insertAdjacentHTML("beforeEnd", FooterHtmlCode);
+            try
+            {
+                // Add content headers and footers:
+                if (HeaderHtmlCode != "")
+                    clonedBody.insertAdjacentHTML("afterBegin", HeaderHtmlCode);
+                if (FooterHtmlCode != "")
+                    clonedBody.insertAdjacentHTML("beforeEnd", FooterHtmlCode);
+            }
+            catch (Exception ex)
+            {
+                log(new Exception("There is something wrong with your HTML header or footer. Internet " +
+                    "Explorer said NO when we tried to add them to the body", ex));
+            }
 
             return clonedBody;
+            
         }
 
         /// <summary>
@@ -95,7 +166,7 @@ namespace ChmProcessorLib
         /// <param name="body">"body" tag to write into the html file</param>
         /// <param name="filePath">Path where to write the HTML file</param>
         /// <param name="UI">User interface of the application</param>
-        public void ProcessAndSavePage(IHTMLElement body, string filePath, UserInterface UI)
+        public void ProcessAndSavePage(IHTMLElement body, string filePath)
         {
             // Make a copy of the body and add the header and footer:
             IHTMLElement clonedBody = AddFooterAndHeader(body);
@@ -113,18 +184,51 @@ namespace ChmProcessorLib
 
             // Clean the files using Tidy
             if (AppSettings.UseTidyOverOutput)
-                new TidyParser(UI).Parse(filePath);
+                new TidyParser(ui).Parse(filePath);
+        }
+
+        /// <summary>
+        /// Get a new head tag with the desired include code.
+        /// </summary>
+        /// <param name="head">The original head tag</param>
+        /// <returns>HTML code wit the new head tag processed.</returns>
+        private string ProcessHeadTag(IHTMLElement head)
+        {
+
+            // Copy the original <head> node:
+            string newHeadText = "<head>\n";
+            IHTMLElementCollection headChidren = (IHTMLElementCollection)head.children;
+            foreach (IHTMLElement e in headChidren)
+                newHeadText += e.outerHTML + "\n";
+
+            // Add includes
+            if (HeadIncludeHtmlCode != "")
+                newHeadText += HeadIncludeHtmlCode + "\n";
+
+            // Add some spam:
+            newHeadText += "<meta name=\"GENERATOR\" content=\"chmProcessor\" >\n";
+
+            // Add other metas
+            newHeadText += MetaKeywordsTag + "\n" + MetaDescriptionTag + "\n";
+
+            newHeadText += "</head>\n";
+            return newHeadText;
         }
 
         /// <summary>
         /// Extracts all the HTML code before and after the "body" tag of the pattern HTML page
         /// and saves if on textBeforeBody and textAfterBody members.
+        /// This function MUST to be called before start to make calls to ProcessHeadTag.
         /// </summary>
         /// <param name="originalSourcePage">The HTML pattern page to extract the code</param>
-        private void GetHtmlPattern(IHTMLDocument3 originalSourcePage)
+        public void PrepareHtmlPattern(IHTMLDocument3 originalSourcePage)
         {
-            bool beforeBody = true; // Are we currently before or after the "body" node?
 
+            // Get the encoding of the pattern page:
+            encoding = Encoding.GetEncoding(((IHTMLDocument2)originalSourcePage).charset);
+
+            bool beforeBody = true; // Are we currently before or after the "body" node?
+            
             // Traverse the root nodes of the HTML page:
             IHTMLDOMChildrenCollection col = (IHTMLDOMChildrenCollection)originalSourcePage.childNodes;
             foreach (IHTMLElement e in col)
@@ -157,6 +261,8 @@ namespace ChmProcessorLib
                     {
                         if (child is IHTMLBodyElement)
                             beforeBody = false;
+                        else if (child is IHTMLHeadElement)
+                            textBeforeBody += ProcessHeadTag(child);
                         else if (beforeBody)
                             textBeforeBody += child.outerHTML + "\n";
                         else
@@ -167,23 +273,19 @@ namespace ChmProcessorLib
                     textBeforeBody += "</html>\n";
                 }
 
+                // TODO: Other tags should not be added too?
             }
 
         }
 
         /// <summary>
-        /// Constructor.
+        /// Log an exception to the user interface
         /// </summary>
-        /// <param name="originalSourcePage">The source HTML page pattern.
-        /// It will used as the pattern to build the processed pages. All its content,
-        /// except the "body" tag will be put into generate the processed pages.
-        /// </param>
-        public HtmlPageDecorator(IHTMLDocument3 originalSourcePage)
+        /// <param name="ex">Exception to log</param>
+        private void log(Exception ex)
         {
-            // Get the encoding of the pattern page:
-            encoding = Encoding.GetEncoding( ((IHTMLDocument2)originalSourcePage).charset);
-
-            GetHtmlPattern(originalSourcePage);
+            if (ui != null)
+                ui.log(ex);
         }
     }
 }
