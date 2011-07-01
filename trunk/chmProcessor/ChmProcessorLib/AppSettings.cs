@@ -41,6 +41,11 @@ namespace ChmProcessorLib
         static private string SAVERELATIVEPATHS = "saverelativepahts";
 
         /// <summary>
+        /// Key that stores if we must to replace/remove broken links.
+        /// </summary>
+        static private string REMOVEBROKENLINKS = "removebrokenlinks";
+
+        /// <summary>
         /// Windows registry leaf where the program stores settings
         /// </summary>
         static public string KEY = "Software\\chmProcessor";
@@ -220,41 +225,12 @@ namespace ChmProcessorLib
         {
             get
             {
-                string value = "";
-                try
-                {
-                    RegistryKey rk = Registry.CurrentUser.CreateSubKey(KEY);
-                    value = (string)rk.GetValue(USETIDYOVERINPUT, "");
-                }
-                catch
-                {
-                    value = "";
-                }
-
-                if (value.Equals(""))
-                {
-                    value = "false";
-                    UseTidyOverInput = false;
-                }
-                if (value.Equals("true"))
-                    return true;
-                else
-                    return false;
+                return GetBooleanValueRegistry(USETIDYOVERINPUT, false);
             }
 
             set
             {
-                try
-                {
-                    RegistryKey rk = Registry.CurrentUser.OpenSubKey(KEY, true);
-                    string txt;
-                    if (value)
-                        txt = "true";
-                    else
-                        txt = "false";
-                    rk.SetValue(USETIDYOVERINPUT, txt);
-                }
-                catch { }
+                SetBooleanValueRegistry(USETIDYOVERINPUT, value);
             }
         }
 
@@ -262,42 +238,37 @@ namespace ChmProcessorLib
         {
             get
             {
-                string value = "";
-                try
-                {
-                    RegistryKey rk = Registry.CurrentUser.CreateSubKey(KEY);
-                    value = (string)rk.GetValue(USETIDYOVEROUTPUT, "");
-                }
-                catch
-                {
-                    value = "";
-                }
-
-                if (value.Equals(""))
-                {
-                    value = "true";
-                    UseTidyOverOutput = true;
-                }
-                if (value.Equals("true"))
-                    return true;
-                else
-                    return false;
+                return GetBooleanValueRegistry(USETIDYOVEROUTPUT, true);
             }
 
             set
             {
-                try
-                {
-                    RegistryKey rk = Registry.CurrentUser.OpenSubKey(KEY, true);
-                    string txt;
-                    if (value)
-                        txt = "true";
-                    else
-                        txt = "false";
-                    rk.SetValue(USETIDYOVEROUTPUT, txt);
-                }
-                catch { }
+                SetBooleanValueRegistry(USETIDYOVEROUTPUT, value);
             }
+        }
+
+        static private bool GetBooleanValueRegistry(string subkey, bool defaultValue) {
+            bool value;
+            try
+            {
+                RegistryKey rk = Registry.CurrentUser.CreateSubKey(KEY);
+                string stringValue = (string) rk.GetValue(subkey, defaultValue.ToString() );
+                value = stringValue.ToLower() == Boolean.TrueString.ToLower();
+            }
+            catch
+            {
+                value = defaultValue;
+            }
+            return value;
+        }
+
+        static private void SetBooleanValueRegistry(string subkey, bool value) {
+            try
+            {
+                RegistryKey rk = Registry.CurrentUser.OpenSubKey(KEY, true);
+                rk.SetValue(subkey, value.ToString() );
+            }
+            catch { }
         }
 
         /// <summary>
@@ -307,26 +278,29 @@ namespace ChmProcessorLib
         {
             get
             {
-                bool value;
-                try
-                {
-                    RegistryKey rk = Registry.CurrentUser.CreateSubKey(KEY);
-                    value = Boolean.Parse( (string) rk.GetValue(SAVERELATIVEPATHS, true ) );
-                }
-                catch
-                {
-                    value = true;
-                }
-                return value;
+                return GetBooleanValueRegistry(SAVERELATIVEPATHS, true);
             }
             set
             {
-                try
-                {
-                    RegistryKey rk = Registry.CurrentUser.OpenSubKey(KEY, true);
-                    rk.SetValue(SAVERELATIVEPATHS, value.ToString() );
-                }
-                catch { }
+                SetBooleanValueRegistry(SAVERELATIVEPATHS, value);
+            }
+        }
+
+        /// <summary>
+        /// If true, if an internal link (link to some section of the document) is broken 
+        /// (the destination of the link is not found), we will try to replace it to a reference
+        /// of the first section of the document with the title of the link text. If none is
+        /// found, we will remove the hyperlink, but the text/image/etc of the link will remain.
+        /// </summary>
+        static public bool ReplaceBrokenLinks
+        {
+            get
+            {
+                return GetBooleanValueRegistry(REMOVEBROKENLINKS, true);
+            }
+            set
+            {
+                SetBooleanValueRegistry(REMOVEBROKENLINKS, value);
             }
         }
 

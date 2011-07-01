@@ -45,6 +45,7 @@ namespace ChmProcessor
             txtJdk.Text = AppSettings.JdkHome;
             txtJavaHelpPath.Text = AppSettings.JavaHelpPath;
             chkSaveRelativePaths.Checked = AppSettings.SaveRelativePaths;
+            chkReplaceBrokenLinks.Checked = AppSettings.ReplaceBrokenLinks;
 
             chkTidyInput.Visible = false;       // Its not working well. Some bug with the encodings... TODO
         }
@@ -119,6 +120,7 @@ namespace ChmProcessor
             AppSettings.JdkHome = txtJdk.Text;
             AppSettings.JavaHelpPath = txtJavaHelpPath.Text;
             AppSettings.SaveRelativePaths = chkSaveRelativePaths.Checked;
+            AppSettings.ReplaceBrokenLinks = chkReplaceBrokenLinks.Checked;
 
             this.Close();
         }

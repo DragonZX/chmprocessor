@@ -24,7 +24,7 @@ using Tidy;
 namespace ChmProcessorLib
 {
     /// <summary>
-    /// Class to parse and repair HTML with Tidy (http://tidy.sourceforge.net/)
+    /// Class to clean and repair HTML with Tidy (http://tidy.sourceforge.net/)
     /// </summary>
     public class TidyParser
     {

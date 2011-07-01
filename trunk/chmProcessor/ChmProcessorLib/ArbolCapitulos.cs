@@ -35,6 +35,7 @@ namespace ChmProcessorLib
         /// </summary>
         private NodoArbol ultimoInsertado;
 
+        // TODO: This should be a private member
         public NodoArbol Raiz;
 
         public ArbolCapitulos()
@@ -266,5 +267,16 @@ namespace ChmProcessorLib
             return lista;
         }
 
+        /// <summary>
+        /// Searches the first section with a given title. 
+        /// The comparation is done without letter case.
+        /// </summary>
+        /// <param name="sectionTitle">The section title to seach</param>
+        /// <returns>The first section of the document with that title. null if no section was
+        /// found.</returns>
+        public NodoArbol SearchBySectionTitle(string sectionTitle)
+        {
+            return Raiz.SearchBySectionTitle(sectionTitle);
+        }
     }
 }

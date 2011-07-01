@@ -49,12 +49,13 @@
             this.txtJavaHelpPath = new System.Windows.Forms.TextBox();
             this.lnkJavaHelp = new System.Windows.Forms.LinkLabel();
             this.chkSaveRelativePaths = new System.Windows.Forms.CheckBox();
+            this.chkReplaceBrokenLinks = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // btnCancel
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(267, 235);
+            this.btnCancel.Location = new System.Drawing.Point(267, 262);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 13;
@@ -73,7 +74,7 @@
             // 
             // btnAccept
             // 
-            this.btnAccept.Location = new System.Drawing.Point(186, 235);
+            this.btnAccept.Location = new System.Drawing.Point(186, 262);
             this.btnAccept.Name = "btnAccept";
             this.btnAccept.Size = new System.Drawing.Size(75, 23);
             this.btnAccept.TabIndex = 12;
@@ -156,7 +157,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(37, 106);
+            this.label4.Location = new System.Drawing.Point(12, 106);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(122, 13);
             this.label4.TabIndex = 10;
@@ -193,7 +194,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(37, 150);
+            this.label5.Location = new System.Drawing.Point(12, 150);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(170, 13);
             this.label5.TabIndex = 14;
@@ -237,13 +238,24 @@
             this.chkSaveRelativePaths.Text = "Save relative paths on projects";
             this.chkSaveRelativePaths.UseVisualStyleBackColor = true;
             // 
+            // chkReplaceBrokenLinks
+            // 
+            this.chkReplaceBrokenLinks.AutoSize = true;
+            this.chkReplaceBrokenLinks.Location = new System.Drawing.Point(213, 220);
+            this.chkReplaceBrokenLinks.Name = "chkReplaceBrokenLinks";
+            this.chkReplaceBrokenLinks.Size = new System.Drawing.Size(203, 17);
+            this.chkReplaceBrokenLinks.TabIndex = 16;
+            this.chkReplaceBrokenLinks.Text = "Remove/replace broken internal links";
+            this.chkReplaceBrokenLinks.UseVisualStyleBackColor = true;
+            // 
             // Settings
             // 
             this.AcceptButton = this.btnAccept;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
-            this.ClientSize = new System.Drawing.Size(559, 270);
+            this.ClientSize = new System.Drawing.Size(559, 297);
+            this.Controls.Add(this.chkReplaceBrokenLinks);
             this.Controls.Add(this.chkSaveRelativePaths);
             this.Controls.Add(this.lnkJavaHelp);
             this.Controls.Add(this.btnSelJavaHelp);
@@ -299,5 +311,6 @@
         private System.Windows.Forms.TextBox txtJavaHelpPath;
         private System.Windows.Forms.LinkLabel lnkJavaHelp;
         private System.Windows.Forms.CheckBox chkSaveRelativePaths;
+        private System.Windows.Forms.CheckBox chkReplaceBrokenLinks;
     }
 }

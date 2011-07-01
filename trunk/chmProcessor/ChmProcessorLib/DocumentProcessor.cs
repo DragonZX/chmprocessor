@@ -78,8 +78,6 @@ namespace ChmProcessorLib
         /// </summary>
         private ArrayList ArchivosAdicionales;
 
-        //public ArrayList Errores;
-
         /// <summary>
         /// Indica si el archivo a procesar es un documento word o uno html
         /// </summary>
@@ -115,6 +113,12 @@ namespace ChmProcessorLib
         /// Handler of the user interface of the generation process. Can be null.
         /// </summary>
         public UserInterface UI;
+
+        /// <summary>
+        /// Should we replace / remove broken links?
+        /// It gets its value from <see cref="AppSettings.ReplaceBrokenLinks"/>
+        /// </summary>
+        private bool replaceBrokenLinks;
 
         private void log(string texto, int logLevel) 
         {
@@ -340,71 +344,130 @@ namespace ChmProcessorLib
             }
         }
 
-        public DocumentProcessor( ChmProject configuration)
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="project">Data about the document to convert to help.</param>
+        public DocumentProcessor( ChmProject project )
         {
-            this.Project = configuration;
-            this.ArchivosAdicionales = new ArrayList(configuration.ArchivosAdicionales);
+            this.Project = project;
+            this.ArchivosAdicionales = new ArrayList(project.ArchivosAdicionales);
+            this.replaceBrokenLinks = AppSettings.ReplaceBrokenLinks;
         }
 
         /// <summary>
-        /// Modifica un nodo HTML si hace falta
+        /// Repair or remove an internal link.
+        /// Given a broken internal link, it searches a section title of the document with the
+        /// same text of the broken link. If its found, the destination link is modified to point to
+        /// that section. If a matching section is not found, the link will be removed and its content
+        /// will be keept.
         /// </summary>
-        /// <param name="nodo">Un nodo HTML del documento</param>
-        /// <param name="parent">Parent node of nodo. Null if nodo has no parents.</param>
-        private void PreProcesarNodo( IHTMLElement nodo , IHTMLElement parent ) 
+        /// <param name="link">The broken link</param>
+        /// <param name="parent">The parent of the broken link</param>
+        private void ReplaceBrokenLink(IHTMLAnchorElement link, IHTMLElement parent)
         {
-            if( nodo is IHTMLAnchorElement ) 
+            try
             {
-                IHTMLAnchorElement link = (IHTMLAnchorElement)nodo;
-                // Remove the about:blank
-                string href = link.href;
-                if( href!= null ) 
+                // Get the text of the link
+                string linkText = ((IHTMLElement)link).innerText.Trim();
+                // Seach a title with the same text of the link:
+                NodoArbol destinationTitle = tree.SearchBySectionTitle(linkText);
+                if (destinationTitle != null)
+                    // Replace the original internal broken link with this:
+                    link.href = destinationTitle.Href;
+                else
                 {
-                    href = href.Replace( "about:blank" , "" ).Replace("about:" , "" );
-                    if( href.StartsWith("#") ) 
-                    {
-                        // Cambiar el enlace interno para que vaya al archivo correspondiente:
-                        string safeRef = NodoArbol.ToSafeFilename(href.Substring(1));
-                        NodoArbol nodoArbol = tree.Raiz.BuscarEnlace( safeRef );
-                        if (nodoArbol != null)
-                            link.href = nodoArbol.Archivo + "#" + safeRef;
-                        else
-                        {
-                            // Broken link.
-                            log("WARNING: Broken link with text: '" + nodo.innerText + "'" , 1 );
-                            if (parent != null)
-                            {
-                                String inText = parent.innerText;
-                                if (inText != null)
-                                {
-                                    if (inText.Length > 200)
-                                        inText = inText.Substring(0, 200) + "...";
-                                    log(" near of text: '" + inText + "'" , 1 );
-                                }
-                            }
-                        }
-                        
-                    }
-                }
-                else if (link.name != null /*&& link.name.Contains(" ")*/ )
-                {
-                    string safeName = NodoArbol.ToSafeFilename(link.name);
-                    if (!link.name.Equals(safeName))
-                    {
-                        // Word bug? i have found names with space characters and other bad things. 
-                        // They fail into the CHM:
-                        //link.name = link.name.Replace(" ", ""); < NOT WORKS
-                        IHTMLDOMNode domNodeParent = (IHTMLDOMNode)nodo.parentElement;
-                        string htmlNewNode = "<a name=" + safeName + "></a>";
-                        IHTMLDOMNode newDomNode = (IHTMLDOMNode)iDoc.createElement(htmlNewNode);
-                        domNodeParent.replaceChild(newDomNode, (IHTMLDOMNode)nodo);
-                    }
+                    // No candidate title was found. Remove the link and keep its content
+                    //IHTMLElementCollection col = (IHTMLElementCollection)parent.children;
+                    IHTMLElementCollection linkChildren = (IHTMLElementCollection) ((IHTMLElement)link).children;
+                    IHTMLDOMNode domLink = (IHTMLDOMNode)link;
+                    IHTMLDOMNode domParent = (IHTMLDOMNode)parent;
+                    foreach (IHTMLElement child in linkChildren)
+                        domParent.insertBefore( (IHTMLDOMNode) child, domLink);
+                    domLink.removeNode(false);
                 }
             }
+            catch (Exception ex)
+            {
+                log(ex);
+            }
+        }
 
-            IHTMLElementCollection col = (IHTMLElementCollection) nodo.children;
-            foreach (IHTMLElement hijo in col)
-                PreProcesarNodo(hijo, nodo);
+        /// <summary>
+        /// Checks if the node is an internal link. 
+        /// If it is, replace the destination of the link from the original source file 
+        /// to the splitted file.
+        /// Also checks if the link is broken. If it is, we will try to replace it.
+        /// </summary>
+        /// <param name="node">HTML node to verify</param>
+        /// <param name="parent">Parent of the node. null if nodo has no parents.</param>
+        private void PreprocessHtmlNode( IHTMLElement node , IHTMLElement parent ) 
+        {
+            try
+            {
+                if (node is IHTMLAnchorElement)
+                {
+                    IHTMLAnchorElement link = (IHTMLAnchorElement)node;
+                    // Remove the about:blank
+                    // TODO: Check if this is really needed.
+                    string href = link.href;
+                    if (href != null)
+                    {
+                        // An hyperlink node
+                        href = href.Replace("about:blank", "").Replace("about:", "");
+                        if (href.StartsWith("#"))
+                        {
+                            // A internal link.
+                            // Replace it to point to the right splitted file.
+                            string safeRef = NodoArbol.ToSafeFilename(href.Substring(1));
+                            NodoArbol nodoArbol = tree.Raiz.BuscarEnlace(safeRef);
+                            if (nodoArbol != null)
+                                link.href = nodoArbol.Archivo + "#" + safeRef;
+                            else
+                            {
+                                // Broken link.
+                                log("WARNING: Broken link with text: '" + node.innerText + "'", 1);
+                                if (parent != null)
+                                {
+                                    String inText = parent.innerText;
+                                    if (inText != null)
+                                    {
+                                        if (inText.Length > 200)
+                                            inText = inText.Substring(0, 200) + "...";
+                                        log(" near of text: '" + inText + "'", 1);
+                                    }
+                                }
+                                if (replaceBrokenLinks)
+                                    ReplaceBrokenLink(link, parent);
+                            }
+
+                        }
+                    }
+                    else if (link.name != null)
+                    {
+                        // A HTML "boomark", the destination of a link.
+                        string safeName = NodoArbol.ToSafeFilename(link.name);
+                        if (!link.name.Equals(safeName))
+                        {
+                            // Word bug? i have found names with space characters and other bad things. 
+                            // They fail into the CHM:
+                            //link.name = link.name.Replace(" ", ""); < NOT WORKS
+                            IHTMLDOMNode domNodeParent = (IHTMLDOMNode)node.parentElement;
+                            string htmlNewNode = "<a name=" + safeName + "></a>";
+                            IHTMLDOMNode newDomNode = (IHTMLDOMNode)iDoc.createElement(htmlNewNode);
+                            domNodeParent.replaceChild(newDomNode, (IHTMLDOMNode)node);
+                        }
+                    }
+                }
+
+                IHTMLElementCollection col = (IHTMLElementCollection)node.children;
+                foreach (IHTMLElement hijo in col)
+                    PreprocessHtmlNode(hijo, node);
+            }
+            catch (Exception ex)
+            {
+                log(ex);
+            }
         }
 
         private IHTMLElement BuscarNodo( IHTMLElement nodo , string tag ) 
@@ -470,7 +533,7 @@ namespace ChmProcessorLib
                         // hacer un preproceso de TODOS los nodos del cuerpo:
                         IHTMLElementCollection col = (IHTMLElementCollection)nodo.body.children;
                         foreach( IHTMLElement nodoBody in col ) 
-                            PreProcesarNodo( nodoBody , null);
+                            PreprocessHtmlNode( nodoBody , null);
 
                         // Save the section, adding header, footers, etc:
                         string filePath = directory + Path.DirectorySeparatorChar + nodo.Archivo;
