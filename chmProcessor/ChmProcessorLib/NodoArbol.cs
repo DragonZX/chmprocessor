@@ -490,6 +490,26 @@ namespace ChmProcessorLib
                 child.ReplaceFile(oldFile, newFile);
         }
 
+        /// <summary>
+        /// Searches the first descendant section of this with a given title. 
+        /// The comparation is done without letter case.
+        /// </summary>
+        /// <param name="sectionTitle">The section title to seach</param>
+        /// <returns>The first section of the document with that title. null if no section was
+        /// found.</returns>
+        public NodoArbol SearchBySectionTitle(string sectionTitle)
+        {
+            if (this.Name.ToLower() == sectionTitle.ToLower())
+                return this;
+            foreach (NodoArbol child in Hijos)
+            {
+                NodoArbol result = child.SearchBySectionTitle(sectionTitle);
+                if (result != null)
+                    return result;
+            }
+            return null;
+        }
+
         #region IComparable members
 
         public int CompareTo(object obj)
@@ -497,7 +517,6 @@ namespace ChmProcessorLib
             if( ! ( obj is NodoArbol ) )
                 return 0;
             NodoArbol nodo = (NodoArbol) obj;
-            //return Name.CompareTo( nodo.Name );
             return String.CompareOrdinal( Name.ToLower() , nodo.Name.ToLower() );
         }
 
