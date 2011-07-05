@@ -267,7 +267,8 @@ namespace ChmProcessorLib
 
                 string texto = "<LI> <OBJECT type=\"text/sitemap\">\n" +
                     "     <param name=\"Name\" value=\"" + 
-                    DocumentProcessor.HtmlEncode( nombre , false ) + 
+                    //DocumentProcessor.HtmlEncode( nombre , false ) + 
+                    this.EncodedName + 
                     "\">\n" + 
                     "     <param name=\"Local\" value=\"" +  Href;
                 texto += "\">\n" + "     </OBJECT>\n";

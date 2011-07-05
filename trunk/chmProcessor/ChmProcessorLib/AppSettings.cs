@@ -46,10 +46,21 @@ namespace ChmProcessorLib
         static private string REMOVEBROKENLINKS = "removebrokenlinks";
 
         /// <summary>
-        /// Windows registry leaf where the program stores settings
+        /// Key that stores if we must to use Microsoft AppLocate to run the CHM compiler
+        /// </summary>
+        static public string USEAPPLOCATE = "useapplocate";
+
+        /// <summary>
+        /// Key that stores the path to the Microsoft AppLocate
+        /// </summary>
+        static public string APPLOCATEPATH = "applocatepath";
+
+        /// <summary>
+        /// Windows registry leaf where the application stores settings
         /// </summary>
         static public string KEY = "Software\\chmProcessor";
 
+        
         /// <summary>
         /// The jar.exe absolute path on the system.
         /// </summary>
@@ -225,12 +236,13 @@ namespace ChmProcessorLib
         {
             get
             {
-                return GetBooleanValueRegistry(USETIDYOVERINPUT, false);
+                //return GetBooleanValueRegistry(USETIDYOVERINPUT, false);
+                return false;
             }
 
             set
             {
-                SetBooleanValueRegistry(USETIDYOVERINPUT, value);
+                //SetBooleanValueRegistry(USETIDYOVERINPUT, value);
             }
         }
 
@@ -238,15 +250,46 @@ namespace ChmProcessorLib
         {
             get
             {
-                return GetBooleanValueRegistry(USETIDYOVEROUTPUT, true);
+                //return GetBooleanValueRegistry(USETIDYOVEROUTPUT, true);
+                return false;
             }
 
             set
             {
-                SetBooleanValueRegistry(USETIDYOVEROUTPUT, value);
+                //SetBooleanValueRegistry(USETIDYOVEROUTPUT, value);
             }
         }
 
+        static private string GetStringValueRegistry(string subkey)
+        {
+            string value = "";
+            try
+            {
+                RegistryKey rk = Registry.CurrentUser.CreateSubKey(KEY);
+                value = (string)rk.GetValue(subkey, "");
+            }
+            catch
+            {
+            }
+            return value;
+        }
+
+        static private void SetStringValueRegistry(string subkey, string value)
+        {
+            try
+            {
+                RegistryKey rk = Registry.CurrentUser.OpenSubKey(KEY, true);
+                rk.SetValue(subkey, value);
+            }
+            catch { }
+        }
+
+        /// <summary>
+        /// Reads a boolean value from the registry.
+        /// </summary>
+        /// <param name="subkey">subkey identifier to read</param>
+        /// <param name="defaultValue">Default value to return if the subkey is not found.</param>
+        /// <returns>The readed value</returns>
         static private bool GetBooleanValueRegistry(string subkey, bool defaultValue) {
             bool value;
             try
@@ -262,6 +305,11 @@ namespace ChmProcessorLib
             return value;
         }
 
+        /// <summary>
+        /// Writes a boolean vlaue to the registry.
+        /// </summary>
+        /// <param name="subkey">subkey identifier to write</param>
+        /// <param name="value">The value to write</param>
         static private void SetBooleanValueRegistry(string subkey, bool value) {
             try
             {
@@ -296,7 +344,7 @@ namespace ChmProcessorLib
         {
             get
             {
-                return GetBooleanValueRegistry(REMOVEBROKENLINKS, true);
+                return GetBooleanValueRegistry(REMOVEBROKENLINKS, false);
             }
             set
             {
@@ -304,5 +352,34 @@ namespace ChmProcessorLib
             }
         }
 
+        /// <summary>
+        /// Should we use Microsoft AppLocate to run the CHM compiler?
+        /// </summary>
+        static public bool UseAppLocate
+        {
+            get
+            {
+                return GetBooleanValueRegistry(USEAPPLOCATE, false);
+            }
+            set
+            {
+                SetBooleanValueRegistry(USEAPPLOCATE, value);
+            }
+        }
+
+        /// <summary>
+        /// Path to the Microsoft AppLocate exe
+        /// </summary>
+        static public string AppLocatePath
+        {
+            get
+            {
+                return GetStringValueRegistry(APPLOCATEPATH);
+            }
+            set
+            {
+                SetStringValueRegistry(APPLOCATEPATH, value);
+            }
+        }
     }
 }

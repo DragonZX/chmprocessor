@@ -66,13 +66,15 @@ namespace ChmProcessorLib
         /// <summary>
         /// Store the HHK file for the help project with the topics index.
         /// </summary>
-        /// <param name="fileName"></param>
-        public void StoreHelpIndex( string fileName ) 
+        /// <param name="fileName">Path where to save the file</param>
+        /// <param name="encoding">Encoding used to write the file</param>
+        public void StoreHelpIndex( string fileName , Encoding encoding) 
         {
-            StreamWriter writer = new StreamWriter( fileName , false , DocumentProcessor.HelpWorkshopEncoding );
+            StreamWriter writer = new StreamWriter( fileName , false , encoding );
             writer.WriteLine( "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML//EN\">" );
             writer.WriteLine( "<HTML>" );
             writer.WriteLine( "<HEAD>" );
+            //writer.WriteLine("<HEAD>");
             writer.WriteLine( "<!-- Sitemap 1.0 -->" );
             writer.WriteLine( "</HEAD><BODY>" );
             writer.WriteLine( "<UL>" );

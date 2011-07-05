@@ -31,6 +31,18 @@ namespace ChmProcessorLib
         private UserInterface ui;
         private bool XmlOutput;
 
+        /// <summary>
+        /// Encoding for input files.
+        /// If null, we will use the default (tidy documentation say latin1)
+        /// </summary>
+        public string InputEncoding = null;
+
+        /// <summary>
+        /// Encoding for output files.
+        /// If null, we will use the default (tidy documentation say ascii)
+        /// </summary>
+        public string OutputEncoding = null;
+
         public TidyParser(UserInterface ui)
         {
             this.ui = ui;
@@ -43,18 +55,28 @@ namespace ChmProcessorLib
             this.XmlOutput = xmlOutput;
         }
 
-        protected Document CommonParse()
+        /// <summary>
+        /// Configures tidy to make the conversion / repair.
+        /// </summary>
+        /// <returns>The document to make the conversion</returns>
+        protected Document ConfigureParse()
         {
             Document tdoc = new Document();
             int status = 0;
-            // Set alternative texto for IMG tags:
+            // Set alternative text for IMG tags:
             status = tdoc.SetOptValue(TidyOptionId.TidyAltText, "image");
             CheckStatus(status);
 
             if (XmlOutput)
                 status = tdoc.SetOptBool(TidyOptionId.TidyXhtmlOut, 1);
-            /*else
-                status = tdoc.SetOptBool(TidyOptionId.TidyHtmlOut, 1);*/
+            CheckStatus(status);
+
+            if(InputEncoding != null)
+                status = tdoc.SetOptValue(TidyOptionId.TidyInCharEncoding, InputEncoding);
+            CheckStatus(status);
+
+            if (OutputEncoding != null)
+                status = tdoc.SetOptValue(TidyOptionId.TidyOutCharEncoding, OutputEncoding);
             CheckStatus(status);
 
             // Modify the original file. Not working??
@@ -70,7 +92,7 @@ namespace ChmProcessorLib
             {
                 log("Parsing file " + file + "...", 2);
 
-                Document tdoc = CommonParse();
+                Document tdoc = ConfigureParse();
 
                 int status = 0;
                 status = tdoc.ParseFile(file);
@@ -92,7 +114,7 @@ namespace ChmProcessorLib
         {
             log("Parsing html...", 2);
 
-            Document tdoc = CommonParse();
+            Document tdoc = ConfigureParse();
 
             int status = 0;
             status = tdoc.ParseString(htmlText);

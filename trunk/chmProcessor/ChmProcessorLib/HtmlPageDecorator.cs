@@ -19,9 +19,9 @@ namespace ChmProcessorLib
         public UserInterface ui;
 
         /// <summary>
-        /// The encoding of the pattern HTML page
+        /// The encoding of the pattern HTML page. It can be null.
         /// </summary>
-        private Encoding encoding;
+        private Encoding inputEncoding;
 
         /// <summary>
         /// HTML code to put before the "body" tag.
@@ -37,6 +37,12 @@ namespace ChmProcessorLib
         /// Text to add as a meta keywords tag. If its empty, no tag will be added
         /// </summary>
         public string MetaKeywordsValue = "";
+
+        /// <summary>
+        /// Encoding that will be used to write the pages. It can be null.
+        /// If it is, the input encoding will be used to write the pages.
+        /// </summary>
+        public Encoding OutputEncoding;
 
         /// <summary>
         /// HTML keywords meta tag, if MetaKeywordsValue is not empty. "" otherwise.
@@ -171,7 +177,19 @@ namespace ChmProcessorLib
             // Make a copy of the body and add the header and footer:
             IHTMLElement clonedBody = AddFooterAndHeader(body);
 
-            StreamWriter writer = new StreamWriter(filePath, false, encoding);
+            StreamWriter writer;
+
+            // Determine the encoding to write the page:
+            Encoding writeEncoding = OutputEncoding;
+            if (writeEncoding == null)
+                writeEncoding = inputEncoding;
+
+            if( inputEncoding != null ) 
+                writer = new StreamWriter(filePath, false, inputEncoding);
+            else
+                // Use the default encoding.
+                writer = new StreamWriter(filePath, false);
+
             writer.WriteLine(textBeforeBody);
             string bodyText = clonedBody.outerHTML;
 
@@ -184,7 +202,35 @@ namespace ChmProcessorLib
 
             // Clean the files using Tidy
             if (AppSettings.UseTidyOverOutput)
-                new TidyParser(ui).Parse(filePath);
+            {
+                TidyParser tidy = new TidyParser(ui);
+                if (inputEncoding != null)
+                {
+                    // Use the source page encoding for input and output:
+                    string encodingName = inputEncoding.WebName;
+                    //tidy.InputEncoding = encodingName;
+                    tidy.OutputEncoding = encodingName;
+                }
+                tidy.Parse(filePath);
+            }
+        }
+
+        /// <summary>
+        /// Verify if an HTML node is a meta with the content type.
+        /// </summary>
+        /// <param name="e">Element to check</param>
+        /// <returns>True if its the meta with the content-type</returns>
+        static private bool IsContentTypeTag(IHTMLElement e)
+        {
+            // Check if its the "<META content="text/html; charset=XXX" http-equiv=Content-Type>" tag
+            bool isContentType = false;
+            if (e is IHTMLMetaElement && ((IHTMLMetaElement)e).httpEquiv != null)
+            {
+                string httpEquiv = ((IHTMLMetaElement)e).httpEquiv.Trim().ToLower();
+                if (httpEquiv == "content-type")
+                    isContentType = true;
+            }
+            return isContentType;
         }
 
         /// <summary>
@@ -199,7 +245,14 @@ namespace ChmProcessorLib
             string newHeadText = "<head>\n";
             IHTMLElementCollection headChidren = (IHTMLElementCollection)head.children;
             foreach (IHTMLElement e in headChidren)
-                newHeadText += e.outerHTML + "\n";
+            {
+                if (OutputEncoding != null && IsContentTypeTag(e) )
+                    // Replace the encoding:
+                    newHeadText += "<META content=\"text/html; charset=" + OutputEncoding.WebName + 
+                        "\" http-equiv=Content-Type>\n";
+                else
+                    newHeadText += e.outerHTML + "\n";
+            }
 
             // Add includes
             if (HeadIncludeHtmlCode != "")
@@ -225,7 +278,14 @@ namespace ChmProcessorLib
         {
 
             // Get the encoding of the pattern page:
-            encoding = Encoding.GetEncoding(((IHTMLDocument2)originalSourcePage).charset);
+            try
+            {
+                inputEncoding = Encoding.GetEncoding(((IHTMLDocument2)originalSourcePage).charset);
+            }
+            catch
+            {
+                inputEncoding = null;
+            }
 
             bool beforeBody = true; // Are we currently before or after the "body" node?
             

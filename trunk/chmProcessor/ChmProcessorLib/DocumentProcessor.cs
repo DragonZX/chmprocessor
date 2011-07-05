@@ -29,8 +29,10 @@ using System.Runtime.InteropServices;
 using System.Globalization;
 using WebIndexLib;
 
+
 namespace ChmProcessorLib
 {
+
 	/// <summary>
     /// Class to handle manipulations of a HTML / Word file to generate the help
 	/// </summary>
@@ -113,6 +115,16 @@ namespace ChmProcessorLib
         /// Handler of the user interface of the generation process. Can be null.
         /// </summary>
         public UserInterface UI;
+
+        /// <summary>
+        /// Encoding to write the help workshop project files.
+        /// </summary>
+        private Encoding helpWorkshopEncoding;
+
+        /// <summary>
+        /// Culture to put into the help workshop project file.
+        /// </summary>
+        private CultureInfo helpWorkshopCulture;
 
         /// <summary>
         /// Should we replace / remove broken links?
@@ -239,7 +251,7 @@ namespace ChmProcessorLib
 
         /// <summary>
         /// Open source files.
-        /// If they are not word, they will be converted to HTML.
+        /// If they are Word, they will be converted to HTML.
         /// </summary>
         private void OpenSourceFiles() 
         {
@@ -268,6 +280,7 @@ namespace ChmProcessorLib
                 if (CancellRequested())
                     return;
 
+                // TODO: Check if this should be removed.
                 if (AppSettings.UseTidyOverInput)
                     new TidyParser(UI).Parse(archivoFinal);
 
@@ -353,6 +366,25 @@ namespace ChmProcessorLib
             this.Project = project;
             this.ArchivosAdicionales = new ArrayList(project.ArchivosAdicionales);
             this.replaceBrokenLinks = AppSettings.ReplaceBrokenLinks;
+            try
+            {
+                this.helpWorkshopCulture = CultureInfo.GetCultureInfo(project.ChmLocaleID);
+            }
+            catch (Exception ex)
+            {
+                log(ex);
+                throw new Exception("The locale ID (LCID) " + project.ChmLocaleID + " is not found.", ex);
+            }
+
+            try
+            {
+                this.helpWorkshopEncoding = Encoding.GetEncoding(helpWorkshopCulture.TextInfo.ANSICodePage);
+            }
+            catch (Exception ex)
+            {
+                log(ex);
+                throw new Exception("The ANSI codepage " + helpWorkshopCulture.TextInfo.ANSICodePage + " is not found.", ex);
+            }
         }
 
         /// <summary>
@@ -486,25 +518,6 @@ namespace ChmProcessorLib
                 return null;
             }
         }
-
-        private string GetBodyContent(string htmlDocument, bool outputXhtml)
-        {
-            // Use tidy over the chapter, if it's needed:
-            string goodText = "";
-            if (AppSettings.UseTidyOverOutput)
-                goodText = new TidyParser(UI, outputXhtml).ParseString(htmlDocument);
-            else
-                goodText = htmlDocument;
-
-            // Extract the body content:
-            HTMLDocumentClass docClass = new HTMLDocumentClass();
-            IHTMLDocument2 iDocFirstChapter = (IHTMLDocument2)docClass;
-            object[] txtHtml = { goodText };
-            iDocFirstChapter.write(txtHtml);
-
-            // return the content of the body:
-            return iDocFirstChapter.body.innerHTML.Replace("about:blank", "").Replace("about:", "");
-        }
         
         private void GuardarDocumentos(string directory, HtmlPageDecorator decorator, NodoArbol nodo, ArrayList archivosGenerados, WebIndex indexer) 
         {
@@ -559,16 +572,6 @@ namespace ChmProcessorLib
             foreach( NodoArbol hijo in nodo.Hijos ) 
                 GuardarDocumentos( directory , decorator , hijo , archivosGenerados , indexer );
         }
-
-        /// <summary>
-        /// Run tidy over the output file, if the configuration says we must to do it.
-        /// </summary>
-        /// <param name="filePath">Path to the HTML file to repair with tidy.</param>
-        /*private void TidyOutputFile(string filePath)
-        {
-            if( AppSettings.UseTidyOverOutput )
-                new TidyParser(UI).Parse(filePath);
-        }*/
 
         private void UnificarNodos( NodoArbol nodo ) 
         {
@@ -914,9 +917,18 @@ namespace ChmProcessorLib
         {
 
             chmDecorator.ui = this.UI;
+            // use the selected encoding:
+            chmDecorator.OutputEncoding = helpWorkshopEncoding;
+
             webDecorator.ui = this.UI;
             webDecorator.MetaDescriptionValue = Project.WebDescription;
             webDecorator.MetaKeywordsValue = Project.WebKeywords;
+            // Use UTF-8:
+            //webDecorator.OutputEncoding = Encoding.UTF8;
+            // NOPE: Is failing... hell. Keep the original
+            // TODO: Is because on Replacements.cs we are loading the files as the default (UTF-8)
+            // but they are encoded with the encoding of iDoc.charset? check it
+            webDecorator.OutputEncoding = null;
 
             if (!Project.ChmHeaderFile.Equals(""))
             {
@@ -993,52 +1005,6 @@ namespace ChmProcessorLib
             if (CancellRequested())
                 return null;
 
-            /*chmDecorator = new HtmlPageDecorator();
-            chmDecorator.ui = this.UI;
-            webDecorator = new HtmlPageDecorator();
-            webDecorator.ui = this.UI;
-            webDecorator.MetaDescriptionValue = Project.WebDescription;
-            webDecorator.MetaKeywordsValue = Project.WebKeywords;
-
-            if (!Project.ChmHeaderFile.Equals("")) 
-            {
-                log("Reading chm header: " + Project.ChmHeaderFile , 2);
-                chmDecorator.HeaderHtmlFile = Project.ChmHeaderFile;
-            }
-
-            if (CancellRequested())
-                return null;
-
-            if (!Project.ChmFooterFile.Equals("")) 
-            {
-                log("Reading chm footer: " + Project.ChmFooterFile, 2);
-                chmDecorator.FooterHtmlFile = Project.ChmFooterFile;
-            }
-
-            if (CancellRequested())
-                return null;
-
-            if ( Project.GenerateWeb && !Project.WebHeaderFile.Equals(""))
-            {
-                log("Reading web header: " + Project.WebHeaderFile , 2);
-                webDecorator.HeaderHtmlFile = Project.WebHeaderFile;
-            }
-
-            if (CancellRequested())
-                return null;
-
-            if (Project.GenerateWeb && !Project.WebFooterFile.Equals(""))
-            {
-                log("Reading web footer: " + Project.WebFooterFile, 2);
-                webDecorator.FooterHtmlFile = Project.WebFooterFile;
-            }
-
-            if (Project.GenerateWeb && !Project.HeadTagFile.Equals(""))
-            {
-                log("Reading <header> include: " + Project.HeadTagFile, 2);
-                webDecorator.HeadIncludeFile = Project.HeadTagFile;
-            }*/
-
             // Preparar el directorio de destino.
             log("Creating project directory: " + Project.HelpProjectDirectory , 2);
             ArrayList listaFinalArchivos = GenerarDirDestino(Project.HelpProjectDirectory);
@@ -1053,10 +1019,6 @@ namespace ChmProcessorLib
                 return null;
 
             PrepareHtmlDecorators();
-
-            // Prepare decorators for use. Do it after extract style tags:
-            /*webDecorator.PrepareHtmlPattern((IHTMLDocument3)iDoc);
-            chmDecorator.PrepareHtmlPattern((IHTMLDocument3)iDoc);*/
 
             if (CancellRequested())
                 return null;
@@ -1134,7 +1096,8 @@ namespace ChmProcessorLib
 
             // Generar archivo con arbol de contenidos:
             log( "Generating table of contents" , 2 );
-            tree.GenerarArbolDeContenidos(Project.HelpProjectDirectory + Path.DirectorySeparatorChar + "toc-generado.hhc", Project.MaxHeaderContentTree);
+            tree.GenerarArbolDeContenidos(Project.HelpProjectDirectory + Path.DirectorySeparatorChar +
+                "toc-generado.hhc", Project.MaxHeaderContentTree, helpWorkshopEncoding );
             
             if (CancellRequested())
                 return null;
@@ -1142,7 +1105,8 @@ namespace ChmProcessorLib
             // Generar archivo con palabras clave:
             log( "Generating index" , 2 );
             Index index = tree.GenerarIndice(Project.MaxHeaderIndex);
-            index.StoreHelpIndex(Project.HelpProjectDirectory + Path.DirectorySeparatorChar + "Index-generado.hhk");
+            index.StoreHelpIndex(Project.HelpProjectDirectory + Path.DirectorySeparatorChar +
+                "Index-generado.hhk", helpWorkshopEncoding);
 
             if (CancellRequested())
                 return null;
@@ -1181,12 +1145,18 @@ namespace ChmProcessorLib
             return archivoAyuda;
         }
 
+        /// <summary>
+        /// Get a HTML safe version of a text.
+        /// </summary>
+        /// <param name="textToEnconde">Text to use on a HTML content page.</param>
+        /// <returns>The save HTML version of the text</returns>
         static public string HtmlEncode(string textToEnconde)
         {
-            return HtmlEncode(textToEnconde, true);
+            //return HtmlEncode(textToEnconde, true);
+            return HttpUtility.HtmlEncode(textToEnconde);
         }
 
-        static public string HtmlEncode(string textToEnconde, bool encodeCharactersUpper255 )
+        /*static public string HtmlEncode(string textToEnconde, bool encodeCharactersUpper255 )
         {
             char[] chars = HttpUtility.HtmlEncode(textToEnconde).ToCharArray();
             StringBuilder result = new StringBuilder(textToEnconde.Length + (int)(textToEnconde.Length * 0.1));
@@ -1201,7 +1171,7 @@ namespace ChmProcessorLib
             }
 
             return result.ToString();
-        }
+        }*/
 
         private void GeneateSitemap(string webDirectory)
         {
@@ -1361,9 +1331,11 @@ namespace ChmProcessorLib
                 if (cssFile != null)
                     File.Copy(cssFile, dirWeb + Path.DirectorySeparatorChar + Path.GetFileName(cssFile));
 
+                // ALWAYS REGENERATE THE WEB SITE: WE WILL CHANGE THE ENCODING TO UTF-8:
+
                 // Check if we can copy the generated files or we must to regenerate with other header 
                 // Copy generated chapter files:
-                if (Project.ChmHeaderFile.Equals(Project.WebHeaderFile) && 
+                /*if (Project.ChmHeaderFile.Equals(Project.WebHeaderFile) && 
                     Project.ChmFooterFile.Equals(Project.WebFooterFile) && 
                     !Project.FullTextSearch && 
                     Project.HeadTagFile.Trim() == "" )
@@ -1376,7 +1348,7 @@ namespace ChmProcessorLib
                     }
                 }
                 else
-                {
+                {*/
                     // Prepare the indexing database:
                     WebIndex indexer = null;
                     try
@@ -1399,7 +1371,7 @@ namespace ChmProcessorLib
                         if (indexer != null)
                             indexer.Disconnect();
                     }
-                }
+                //}
 
                 // Copy base files for web help:
                 /*string keywordsMeta = "", descriptionMeta = "";
@@ -1434,7 +1406,6 @@ namespace ChmProcessorLib
                     "%WEBDESCRIPTION%", "%KEYWORDS%" , "%HEADER%" , "%FOOTER%" , "%HEADINCLUDE%" };
                 string[] newValues = { textSearch , title, tree.GenerarArbolHtml(Project.MaxHeaderContentTree, "contentsTree", 
                     "contentTree"), index.GenerateWebIndex(), FirstChapterContent, 
-                    /*descriptionMeta, keywordsMeta , */
                     webDecorator.MetaDescriptionTag , webDecorator.MetaKeywordsTag ,
                     webDecorator.HeaderHtmlCode , webDecorator.FooterHtmlCode , webDecorator.HeadIncludeHtmlCode };
 
@@ -1454,13 +1425,13 @@ namespace ChmProcessorLib
                     log(ex);
                 }
 
-                replacements.CopyDirectoryReplaced(baseDir, dirWeb, extensions, AppSettings.UseTidyOverOutput, UI);
+                replacements.CopyDirectoryReplaced(baseDir, dirWeb, extensions, AppSettings.UseTidyOverOutput, UI, webDecorator.OutputEncoding);
                 if (Project.FullTextSearch)
                 {
                     // Copy full text serch files:
                     string[] aspxExtensions = { ".aspx" };
                     string dirSearchFiles = System.Windows.Forms.Application.StartupPath + Path.DirectorySeparatorChar + "searchFiles";
-                    replacements.CopyDirectoryReplaced(dirSearchFiles, dirWeb, aspxExtensions, false, UI);
+                    replacements.CopyDirectoryReplaced(dirSearchFiles, dirWeb, aspxExtensions, false, UI, webDecorator.OutputEncoding);
                 }
 
                 if (Project.GenerateSitemap)
@@ -1474,6 +1445,7 @@ namespace ChmProcessorLib
             }
         }
 
+        /*
         /// <summary>
         /// Hace un copia de un archivo a otro, reemplazando un serie de textos por otros.
         /// </summary>
@@ -1498,20 +1470,11 @@ namespace ChmProcessorLib
         {
             CopyReplaced(pathOrigen, pathDestino, new string[] { txtAReemplazar } , new string[] { nuevoTexto });
         }
-
-        static public Encoding HelpWorkshopEncoding {
-            get
-            {
-                Encoding enc = Encoding.GetEncoding("windows-1252");
-                if (enc == null)
-                    enc = Encoding.Default;
-                return enc;
-            }
-        }
+        */
 
         private void GenerarArchivoProyecto( ArrayList archivosAdicinales , string archivo , string temaInicial) 
         {
-            StreamWriter writer = new StreamWriter(archivo, false, HelpWorkshopEncoding);
+            StreamWriter writer = new StreamWriter(archivo, false, helpWorkshopEncoding);
             writer.WriteLine( "[OPTIONS]" );
             writer.WriteLine( "Compatibility=1.1 or later" );
             writer.WriteLine( "Compiled file=" + NOMBREARCHIVOAYUDA );
@@ -1521,7 +1484,8 @@ namespace ChmProcessorLib
             writer.WriteLine( "Full-text search=Yes" );
             writer.WriteLine( "Index file=Index-generado.hhk" );
             //writer.WriteLine( "Language=0xc0a Español (alfabetización internacional)" );
-            writer.WriteLine( "Language=0x0409 English (UNITED STATES)" );
+            //writer.WriteLine( "Language=0x0409 English (UNITED STATES)" );
+            writer.WriteLine("Language=0x" + Convert.ToString(helpWorkshopCulture.LCID, 16) + " " + helpWorkshopCulture.DisplayName );
             writer.WriteLine( "Title=" + Project.HelpTitle );
             writer.WriteLine( "\r\n[FILES]" );
             foreach( string archivoAdi in archivosAdicinales )
@@ -1731,7 +1695,20 @@ namespace ChmProcessorLib
             else 
             {
                 string proyecto = "\"" + Project.HelpProjectDirectory + Path.DirectorySeparatorChar + NOMBREPROYECTO + "\"";
-                ProcessStartInfo info = new ProcessStartInfo( compilerPath , proyecto );
+
+                ProcessStartInfo info;
+                if (!AppSettings.UseAppLocate)
+                    // Run the raw compiler
+                    info = new ProcessStartInfo(compilerPath, proyecto);
+                else
+                {
+                    // Run the compiler with AppLocate. Need to compile files with a 
+                    // char encoding distinct to the system codepage.
+                    // Command line example: C:\Windows\AppPatch\AppLoc.exe "C:\Program Files\HTML Help Workshop\hhc.exe" "A B C" "/L0480"
+                    string parameters = "\"" + compilerPath + "\" " + proyecto + " /L" + Convert.ToString(helpWorkshopCulture.LCID, 16);
+                    info = new ProcessStartInfo(AppSettings.AppLocatePath, parameters);
+                }
+
                 info.UseShellExecute = false;
                 info.RedirectStandardOutput = true;
                 info.CreateNoWindow = true;

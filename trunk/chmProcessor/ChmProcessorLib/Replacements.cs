@@ -96,19 +96,24 @@ namespace ChmProcessorLib
             }
         }
 
-        public void CopyReplaced(string srcPath, string dstPath)
+        public void CopyReplaced(string srcPath, string dstPath, Encoding outputEncoding)
         {
             StreamReader reader = new StreamReader(srcPath);
             string text = reader.ReadToEnd();
             reader.Close();
             foreach (ReplacementPair pair in ReplacementsList)
                 text = text.Replace(pair.ValueToReplace, pair.NewValue);
-            StreamWriter writer = new StreamWriter(dstPath);
+
+            StreamWriter writer;
+            if( outputEncoding != null )
+                writer = new StreamWriter(dstPath, false, outputEncoding);
+            else
+                writer = new StreamWriter(dstPath);
             writer.WriteLine(text);
             writer.Close();
         }
 
-        public void CopyDirectoryReplaced( string srcDirectoryPath , string dstDirectoryPath , string[] extensions , bool runTidy , UserInterface ui ) 
+        public void CopyDirectoryReplaced( string srcDirectoryPath , string dstDirectoryPath , string[] extensions , bool runTidy , UserInterface ui, Encoding outputEncoding ) 
         {
             string[] files = Directory.GetFiles(srcDirectoryPath);
             foreach (string file in files)
@@ -129,7 +134,7 @@ namespace ChmProcessorLib
                 string dstPath = dstDirectoryPath + Path.DirectorySeparatorChar + Path.GetFileName(file);
                 if (goodExtension)
                 {
-                    CopyReplaced(file, dstPath);
+                    CopyReplaced(file, dstPath, outputEncoding);
                     if (runTidy)
                         // Clean html over the destination file:
                         new TidyParser(ui).Parse(dstPath);
@@ -145,7 +150,7 @@ namespace ChmProcessorLib
                 DirectoryInfo info = new DirectoryInfo(subdir);
                 string newSubdir = dstDirectoryPath + Path.DirectorySeparatorChar + info.Name;
                 Directory.CreateDirectory(newSubdir);
-                CopyDirectoryReplaced(subdir, newSubdir, extensions, runTidy, ui);
+                CopyDirectoryReplaced(subdir, newSubdir, extensions, runTidy, ui, outputEncoding );
             }
         }
     }

@@ -50,12 +50,18 @@
             this.lnkJavaHelp = new System.Windows.Forms.LinkLabel();
             this.chkSaveRelativePaths = new System.Windows.Forms.CheckBox();
             this.chkReplaceBrokenLinks = new System.Windows.Forms.CheckBox();
+            this.chkUseAppLocate = new System.Windows.Forms.CheckBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.txtAppLocatePath = new System.Windows.Forms.TextBox();
+            this.btnSelAppLocate = new System.Windows.Forms.Button();
+            this.lnkAppLocate = new System.Windows.Forms.LinkLabel();
+            this.dlgSelectAppLocate = new System.Windows.Forms.OpenFileDialog();
             this.SuspendLayout();
             // 
             // btnCancel
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(267, 262);
+            this.btnCancel.Location = new System.Drawing.Point(282, 323);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 13;
@@ -74,7 +80,7 @@
             // 
             // btnAccept
             // 
-            this.btnAccept.Location = new System.Drawing.Point(186, 262);
+            this.btnAccept.Location = new System.Drawing.Point(201, 323);
             this.btnAccept.Name = "btnAccept";
             this.btnAccept.Size = new System.Drawing.Size(75, 23);
             this.btnAccept.TabIndex = 12;
@@ -248,13 +254,72 @@
             this.chkReplaceBrokenLinks.Text = "Remove/replace broken internal links";
             this.chkReplaceBrokenLinks.UseVisualStyleBackColor = true;
             // 
+            // chkUseAppLocate
+            // 
+            this.chkUseAppLocate.AutoSize = true;
+            this.chkUseAppLocate.Location = new System.Drawing.Point(213, 243);
+            this.chkUseAppLocate.Name = "chkUseAppLocate";
+            this.chkUseAppLocate.Size = new System.Drawing.Size(245, 17);
+            this.chkUseAppLocate.TabIndex = 17;
+            this.chkUseAppLocate.Text = "Use Microsoft AppLocate to compile CHM files";
+            this.chkUseAppLocate.UseVisualStyleBackColor = true;
+            this.chkUseAppLocate.CheckedChanged += new System.EventHandler(this.chkUseAppLocate_CheckedChanged);
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(12, 269);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(83, 13);
+            this.label6.TabIndex = 18;
+            this.label6.Text = "AppLocate path";
+            // 
+            // txtAppLocatePath
+            // 
+            this.txtAppLocatePath.Location = new System.Drawing.Point(213, 266);
+            this.txtAppLocatePath.Name = "txtAppLocatePath";
+            this.txtAppLocatePath.Size = new System.Drawing.Size(296, 20);
+            this.txtAppLocatePath.TabIndex = 19;
+            // 
+            // btnSelAppLocate
+            // 
+            this.btnSelAppLocate.Location = new System.Drawing.Point(515, 263);
+            this.btnSelAppLocate.Name = "btnSelAppLocate";
+            this.btnSelAppLocate.Size = new System.Drawing.Size(27, 23);
+            this.btnSelAppLocate.TabIndex = 20;
+            this.btnSelAppLocate.Text = "...";
+            this.btnSelAppLocate.UseVisualStyleBackColor = true;
+            this.btnSelAppLocate.Click += new System.EventHandler(this.btnSelAppLocate_Click);
+            // 
+            // lnkAppLocate
+            // 
+            this.lnkAppLocate.AutoSize = true;
+            this.lnkAppLocate.Location = new System.Drawing.Point(210, 289);
+            this.lnkAppLocate.Name = "lnkAppLocate";
+            this.lnkAppLocate.Size = new System.Drawing.Size(203, 13);
+            this.lnkAppLocate.TabIndex = 21;
+            this.lnkAppLocate.TabStop = true;
+            this.lnkAppLocate.Text = "AppLocate can be downloaded from here";
+            this.lnkAppLocate.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkAppLocate_LinkClicked);
+            // 
+            // dlgSelectAppLocate
+            // 
+            this.dlgSelectAppLocate.FileName = "AppLoc.exe";
+            this.dlgSelectAppLocate.Filter = "AppLocate executable|AppLoc.exe|All the files|*.*";
+            this.dlgSelectAppLocate.Title = "Select Help Compiler";
+            // 
             // Settings
             // 
             this.AcceptButton = this.btnAccept;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
-            this.ClientSize = new System.Drawing.Size(559, 297);
+            this.ClientSize = new System.Drawing.Size(559, 358);
+            this.Controls.Add(this.lnkAppLocate);
+            this.Controls.Add(this.btnSelAppLocate);
+            this.Controls.Add(this.txtAppLocatePath);
+            this.Controls.Add(this.label6);
+            this.Controls.Add(this.chkUseAppLocate);
             this.Controls.Add(this.chkReplaceBrokenLinks);
             this.Controls.Add(this.chkSaveRelativePaths);
             this.Controls.Add(this.lnkJavaHelp);
@@ -312,5 +377,11 @@
         private System.Windows.Forms.LinkLabel lnkJavaHelp;
         private System.Windows.Forms.CheckBox chkSaveRelativePaths;
         private System.Windows.Forms.CheckBox chkReplaceBrokenLinks;
+        private System.Windows.Forms.CheckBox chkUseAppLocate;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.TextBox txtAppLocatePath;
+        private System.Windows.Forms.Button btnSelAppLocate;
+        private System.Windows.Forms.LinkLabel lnkAppLocate;
+        private System.Windows.Forms.OpenFileDialog dlgSelectAppLocate;
     }
 }

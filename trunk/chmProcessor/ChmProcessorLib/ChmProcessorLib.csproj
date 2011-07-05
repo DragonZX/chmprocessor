@@ -149,6 +149,8 @@
     <Compile Include="ChmProjectXml.cs" />
     <Compile Include="ChmProject.cs" />
     <Compile Include="ConsoleUserInterface.cs" />
+    <Compile Include="EncodingItem.cs" />
+    <Compile Include="EncodingsList.cs" />
     <Compile Include="FileSystem.cs" />
     <Compile Include="DocumentProcessor.cs">
       <SubType>Code</SubType>
