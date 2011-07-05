@@ -1,8 +1,11 @@
 * 1.6
-- Path to files of the help project now can be stored relative to location of the project. Thanks to Jozsef Bekes for the patch
-- Added web translations to frech and dutch. Thanks to Luc Van Asch
+- Non english / spanish languages for CHM files should now work: Cyrilic has been tested and it works.
+- Added partial support to generate CHM files for languages different than the system language.
+- Path to files of the chmprocessor project now can be stored relative to the location of the project. Thanks to Jozsef Bekes for the patch.
+- Added web translations to frech and dutch. Thanks to Luc Van Asch.
 - Added field to project to add HTML code into the head tag of the generated web pages (to add google analytics code, for example)
 - Added setting to remove / repair broken internal links.
+- Removed use of tidy to generate the help, due to problems with the name encodings that it uses. Generated web sites will no longer be 100% HTML standard.
 
 * 1.5
 - Bug fixed. chmProcessor was not working on 64 bits operating systems due to AnyCPU option. Now the application runs always on 32 bit mode, needed to run Tidy. Thanks to cjervin for the info.
