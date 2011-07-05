@@ -24,6 +24,7 @@ using System.IO;
 using System.Reflection;
 using System.Diagnostics;
 using System.Xml;
+using System.Globalization;
 
 namespace ChmProcessorLib
 {
@@ -297,6 +298,11 @@ namespace ChmProcessorLib
         /// </summary>
         [FilePathAttribute]
         public String HeadTagFile = "";
+
+        /// <summary>
+        /// Locale identifier (LCID) to use to generate the CHM files.
+        /// </summary>
+        public int ChmLocaleID = CultureInfo.CurrentCulture.LCID;
 
         /// <summary>
         /// The directory where will be generated the help project.

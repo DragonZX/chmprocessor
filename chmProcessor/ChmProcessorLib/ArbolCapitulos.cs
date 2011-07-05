@@ -87,9 +87,16 @@ namespace ChmProcessorLib
             }
         }
 
-        public void GenerarArbolDeContenidos( string archivo , int NivelMaximoTOC ) 
+        /// <summary>
+        /// Saves the table of contents of this tree for a CHM project.
+        /// </summary>
+        /// <param name="filePath">Path where to store the file.</param>
+        /// <param name="MaxTOCLevel">Maximum level of deepth into the tree to save sections. =0 
+        /// will save all the sections</param>
+        /// <param name="encoding">Encoding to save the file</param>
+        public void GenerarArbolDeContenidos( string filePath , int MaxTOCLevel , Encoding encoding) 
         {
-            StreamWriter writer = new StreamWriter(archivo, false, Encoding.Default);
+            StreamWriter writer = new StreamWriter(filePath, false, encoding);
             writer.WriteLine( "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML//EN\">" );
             writer.WriteLine( "<HTML>" );
             writer.WriteLine( "<HEAD>" );
@@ -97,7 +104,7 @@ namespace ChmProcessorLib
             writer.WriteLine( "</HEAD><BODY>" );
             writer.WriteLine( "<UL>" );
             foreach( NodoArbol hijo in Raiz.Hijos ) 
-                GenerarArbolDeContenidos( writer , hijo , NivelMaximoTOC , 1 );
+                GenerarArbolDeContenidos( writer , hijo , MaxTOCLevel , 1 );
             writer.WriteLine( "</UL>" );
             writer.WriteLine( "</BODY></HTML>" );
             writer.Close();
