@@ -50,12 +50,12 @@
             this.lnkJavaHelp = new System.Windows.Forms.LinkLabel();
             this.chkSaveRelativePaths = new System.Windows.Forms.CheckBox();
             this.chkReplaceBrokenLinks = new System.Windows.Forms.CheckBox();
-            this.chkUseAppLocate = new System.Windows.Forms.CheckBox();
+            this.chkUseAppLocale = new System.Windows.Forms.CheckBox();
             this.label6 = new System.Windows.Forms.Label();
-            this.txtAppLocatePath = new System.Windows.Forms.TextBox();
+            this.txtAppLocalePath = new System.Windows.Forms.TextBox();
             this.btnSelAppLocate = new System.Windows.Forms.Button();
             this.lnkAppLocate = new System.Windows.Forms.LinkLabel();
-            this.dlgSelectAppLocate = new System.Windows.Forms.OpenFileDialog();
+            this.dlgSelectAppLocale = new System.Windows.Forms.OpenFileDialog();
             this.SuspendLayout();
             // 
             // btnCancel
@@ -254,32 +254,32 @@
             this.chkReplaceBrokenLinks.Text = "Remove/replace broken internal links";
             this.chkReplaceBrokenLinks.UseVisualStyleBackColor = true;
             // 
-            // chkUseAppLocate
+            // chkUseAppLocale
             // 
-            this.chkUseAppLocate.AutoSize = true;
-            this.chkUseAppLocate.Location = new System.Drawing.Point(213, 243);
-            this.chkUseAppLocate.Name = "chkUseAppLocate";
-            this.chkUseAppLocate.Size = new System.Drawing.Size(245, 17);
-            this.chkUseAppLocate.TabIndex = 17;
-            this.chkUseAppLocate.Text = "Use Microsoft AppLocate to compile CHM files";
-            this.chkUseAppLocate.UseVisualStyleBackColor = true;
-            this.chkUseAppLocate.CheckedChanged += new System.EventHandler(this.chkUseAppLocate_CheckedChanged);
+            this.chkUseAppLocale.AutoSize = true;
+            this.chkUseAppLocale.Location = new System.Drawing.Point(213, 243);
+            this.chkUseAppLocale.Name = "chkUseAppLocale";
+            this.chkUseAppLocale.Size = new System.Drawing.Size(244, 17);
+            this.chkUseAppLocale.TabIndex = 17;
+            this.chkUseAppLocale.Text = "Use Microsoft AppLocale to compile CHM files";
+            this.chkUseAppLocale.UseVisualStyleBackColor = true;
+            this.chkUseAppLocale.CheckedChanged += new System.EventHandler(this.chkUseAppLocate_CheckedChanged);
             // 
             // label6
             // 
             this.label6.AutoSize = true;
             this.label6.Location = new System.Drawing.Point(12, 269);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(83, 13);
+            this.label6.Size = new System.Drawing.Size(82, 13);
             this.label6.TabIndex = 18;
-            this.label6.Text = "AppLocate path";
+            this.label6.Text = "AppLocale path";
             // 
-            // txtAppLocatePath
+            // txtAppLocalePath
             // 
-            this.txtAppLocatePath.Location = new System.Drawing.Point(213, 266);
-            this.txtAppLocatePath.Name = "txtAppLocatePath";
-            this.txtAppLocatePath.Size = new System.Drawing.Size(296, 20);
-            this.txtAppLocatePath.TabIndex = 19;
+            this.txtAppLocalePath.Location = new System.Drawing.Point(213, 266);
+            this.txtAppLocalePath.Name = "txtAppLocalePath";
+            this.txtAppLocalePath.Size = new System.Drawing.Size(296, 20);
+            this.txtAppLocalePath.TabIndex = 19;
             // 
             // btnSelAppLocate
             // 
@@ -296,17 +296,17 @@
             this.lnkAppLocate.AutoSize = true;
             this.lnkAppLocate.Location = new System.Drawing.Point(210, 289);
             this.lnkAppLocate.Name = "lnkAppLocate";
-            this.lnkAppLocate.Size = new System.Drawing.Size(203, 13);
+            this.lnkAppLocate.Size = new System.Drawing.Size(202, 13);
             this.lnkAppLocate.TabIndex = 21;
             this.lnkAppLocate.TabStop = true;
-            this.lnkAppLocate.Text = "AppLocate can be downloaded from here";
+            this.lnkAppLocate.Text = "AppLocale can be downloaded from here";
             this.lnkAppLocate.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkAppLocate_LinkClicked);
             // 
-            // dlgSelectAppLocate
+            // dlgSelectAppLocale
             // 
-            this.dlgSelectAppLocate.FileName = "AppLoc.exe";
-            this.dlgSelectAppLocate.Filter = "AppLocate executable|AppLoc.exe|All the files|*.*";
-            this.dlgSelectAppLocate.Title = "Select Help Compiler";
+            this.dlgSelectAppLocale.FileName = "AppLoc.exe";
+            this.dlgSelectAppLocale.Filter = "AppLocale executable|AppLoc.exe|All the files|*.*";
+            this.dlgSelectAppLocale.Title = "Select Help Compiler";
             // 
             // Settings
             // 
@@ -317,9 +317,9 @@
             this.ClientSize = new System.Drawing.Size(559, 358);
             this.Controls.Add(this.lnkAppLocate);
             this.Controls.Add(this.btnSelAppLocate);
-            this.Controls.Add(this.txtAppLocatePath);
+            this.Controls.Add(this.txtAppLocalePath);
             this.Controls.Add(this.label6);
-            this.Controls.Add(this.chkUseAppLocate);
+            this.Controls.Add(this.chkUseAppLocale);
             this.Controls.Add(this.chkReplaceBrokenLinks);
             this.Controls.Add(this.chkSaveRelativePaths);
             this.Controls.Add(this.lnkJavaHelp);
@@ -377,11 +377,11 @@
         private System.Windows.Forms.LinkLabel lnkJavaHelp;
         private System.Windows.Forms.CheckBox chkSaveRelativePaths;
         private System.Windows.Forms.CheckBox chkReplaceBrokenLinks;
-        private System.Windows.Forms.CheckBox chkUseAppLocate;
+        private System.Windows.Forms.CheckBox chkUseAppLocale;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.TextBox txtAppLocatePath;
+        private System.Windows.Forms.TextBox txtAppLocalePath;
         private System.Windows.Forms.Button btnSelAppLocate;
         private System.Windows.Forms.LinkLabel lnkAppLocate;
-        private System.Windows.Forms.OpenFileDialog dlgSelectAppLocate;
+        private System.Windows.Forms.OpenFileDialog dlgSelectAppLocale;
     }
 }

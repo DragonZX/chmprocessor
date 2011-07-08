@@ -46,14 +46,14 @@ namespace ChmProcessorLib
         static private string REMOVEBROKENLINKS = "removebrokenlinks";
 
         /// <summary>
-        /// Key that stores if we must to use Microsoft AppLocate to run the CHM compiler
+        /// Key that stores if we must to use Microsoft AppLocale to run the CHM compiler
         /// </summary>
-        static public string USEAPPLOCATE = "useapplocate";
+        static public string USEAPPLOCALE = "useapplocale";
 
         /// <summary>
-        /// Key that stores the path to the Microsoft AppLocate
+        /// Key that stores the path to the Microsoft AppLocale
         /// </summary>
-        static public string APPLOCATEPATH = "applocatepath";
+        static public string APPLOCALEPATH = "applocalepath";
 
         /// <summary>
         /// Windows registry leaf where the application stores settings
@@ -353,32 +353,32 @@ namespace ChmProcessorLib
         }
 
         /// <summary>
-        /// Should we use Microsoft AppLocate to run the CHM compiler?
+        /// Should we use Microsoft AppLocale to run the CHM compiler?
         /// </summary>
-        static public bool UseAppLocate
+        static public bool UseAppLocale
         {
             get
             {
-                return GetBooleanValueRegistry(USEAPPLOCATE, false);
+                return GetBooleanValueRegistry(USEAPPLOCALE, false);
             }
             set
             {
-                SetBooleanValueRegistry(USEAPPLOCATE, value);
+                SetBooleanValueRegistry(USEAPPLOCALE, value);
             }
         }
 
         /// <summary>
-        /// Path to the Microsoft AppLocate exe
+        /// Path to the Microsoft AppLocale exe
         /// </summary>
-        static public string AppLocatePath
+        static public string AppLocalePath
         {
             get
             {
-                return GetStringValueRegistry(APPLOCATEPATH);
+                return GetStringValueRegistry(APPLOCALEPATH);
             }
             set
             {
-                SetStringValueRegistry(APPLOCATEPATH, value);
+                SetStringValueRegistry(APPLOCALEPATH, value);
             }
         }
     }

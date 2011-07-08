@@ -45,7 +45,7 @@ namespace ChmProcessorLib
         /// </summary>
         /// <returns></returns>
         [DllImport("shlwapi.dll", SetLastError = true)]
-        private static extern int PathRelativePathTo(StringBuilder pszPath,
+        private static extern int PathRelativePathToW(StringBuilder pszPath,
             string pszFrom, int dwAttrFrom, string pszTo, int dwAttrTo);
 
         /// <summary>
@@ -90,7 +90,7 @@ namespace ChmProcessorLib
             int toAttr = GetPathAttribute(toPath, toType);
 
             StringBuilder path = new StringBuilder(260); // MAX_PATH
-            if (PathRelativePathTo(
+            if (PathRelativePathToW(
                 path,
                 fromPath,
                 fromAttr,
