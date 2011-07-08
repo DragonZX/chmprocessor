@@ -50,8 +50,8 @@ namespace ChmProcessor
             chkTidyInput.Visible = false;       // Its not working well. Some bug with the encodings... TODO
             chtTidyOutput.Visible = false;      // By now disabled, problems with encoding names... TODO
                 
-            chkUseAppLocate.Checked = AppSettings.UseAppLocate;
-            txtAppLocatePath.Text = AppSettings.AppLocatePath;
+            chkUseAppLocale.Checked = AppSettings.UseAppLocale;
+            txtAppLocalePath.Text = AppSettings.AppLocalePath;
 
             chkUseAppLocate_CheckedChanged(null, null);
 
@@ -121,14 +121,14 @@ namespace ChmProcessor
                 }
             }
 
-            if (chkUseAppLocate.Checked && !File.Exists(txtAppLocatePath.Text))
+            if (chkUseAppLocale.Checked && !File.Exists(txtAppLocalePath.Text))
             {
                 MessageBox.Show("The selected AppLocate path does not exist");
                 return;
             }
 
-            AppSettings.UseAppLocate = chkUseAppLocate.Checked;
-            AppSettings.AppLocatePath = txtAppLocatePath.Text;
+            AppSettings.UseAppLocale = chkUseAppLocale.Checked;
+            AppSettings.AppLocalePath = txtAppLocalePath.Text;
             AppSettings.CompilerPath = txtCompilerPath.Text;
             AppSettings.UseTidyOverInput = chkTidyInput.Checked;
             AppSettings.UseTidyOverOutput = chtTidyOutput.Checked;
@@ -174,8 +174,8 @@ namespace ChmProcessor
 
         private void chkUseAppLocate_CheckedChanged(object sender, EventArgs e)
         {
-            txtAppLocatePath.Enabled = chkUseAppLocate.Checked;
-            btnSelAppLocate.Enabled = chkUseAppLocate.Checked;
+            txtAppLocalePath.Enabled = chkUseAppLocale.Checked;
+            btnSelAppLocate.Enabled = chkUseAppLocale.Checked;
         }
 
         private void lnkAppLocate_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -185,9 +185,9 @@ namespace ChmProcessor
 
         private void btnSelAppLocate_Click(object sender, EventArgs e)
         {
-            dlgSelectAppLocate.FileName = txtAppLocatePath.Text;
-            if (DialogResult.OK == dlgSelectAppLocate.ShowDialog())
-                txtAppLocatePath.Text = dlgSelectAppLocate.FileName;
+            dlgSelectAppLocale.FileName = txtAppLocalePath.Text;
+            if (DialogResult.OK == dlgSelectAppLocale.ShowDialog())
+                txtAppLocalePath.Text = dlgSelectAppLocale.FileName;
         }
 
     }

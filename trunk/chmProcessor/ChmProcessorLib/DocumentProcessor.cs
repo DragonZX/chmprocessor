@@ -1445,33 +1445,6 @@ namespace ChmProcessorLib
             }
         }
 
-        /*
-        /// <summary>
-        /// Hace un copia de un archivo a otro, reemplazando un serie de textos por otros.
-        /// </summary>
-        /// <param name="pathOrigen"></param>
-        /// <param name="pathDestino"></param>
-        /// <param name="txtAReemplazar"></param>
-        /// <param name="nuevoTexto"></param>
-        private void CopyReplaced( string pathOrigen , string pathDestino , string[] txtAReemplazar , string[] nuevoTexto ) 
-        {
-            StreamReader reader = new StreamReader( pathOrigen );
-            string texto = reader.ReadToEnd();
-            reader.Close();
-            //texto = texto.Replace( txtAReemplazar , nuevoTexto );
-            for( int i=0; i<txtAReemplazar.Length; i++ ) 
-                texto = texto.Replace( txtAReemplazar[i] , nuevoTexto[i] );
-            StreamWriter writer = new StreamWriter( pathDestino );
-            writer.WriteLine( texto );
-            writer.Close();
-        }
-
-        private void CopyReplaced(string pathOrigen, string pathDestino, string txtAReemplazar, string nuevoTexto) 
-        {
-            CopyReplaced(pathOrigen, pathDestino, new string[] { txtAReemplazar } , new string[] { nuevoTexto });
-        }
-        */
-
         private void GenerarArchivoProyecto( ArrayList archivosAdicinales , string archivo , string temaInicial) 
         {
             StreamWriter writer = new StreamWriter(archivo, false, helpWorkshopEncoding);
@@ -1697,16 +1670,16 @@ namespace ChmProcessorLib
                 string proyecto = "\"" + Project.HelpProjectDirectory + Path.DirectorySeparatorChar + NOMBREPROYECTO + "\"";
 
                 ProcessStartInfo info;
-                if (!AppSettings.UseAppLocate)
+                if (!AppSettings.UseAppLocale)
                     // Run the raw compiler
                     info = new ProcessStartInfo(compilerPath, proyecto);
                 else
                 {
-                    // Run the compiler with AppLocate. Need to compile files with a 
+                    // Run the compiler with AppLocale. Need to compile files with a 
                     // char encoding distinct to the system codepage.
                     // Command line example: C:\Windows\AppPatch\AppLoc.exe "C:\Program Files\HTML Help Workshop\hhc.exe" "A B C" "/L0480"
                     string parameters = "\"" + compilerPath + "\" " + proyecto + " /L" + Convert.ToString(helpWorkshopCulture.LCID, 16);
-                    info = new ProcessStartInfo(AppSettings.AppLocatePath, parameters);
+                    info = new ProcessStartInfo(AppSettings.AppLocalePath, parameters);
                 }
 
                 info.UseShellExecute = false;
