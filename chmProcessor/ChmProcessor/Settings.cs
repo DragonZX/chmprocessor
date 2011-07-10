@@ -48,7 +48,7 @@ namespace ChmProcessor
             chkReplaceBrokenLinks.Checked = AppSettings.ReplaceBrokenLinks;
 
             chkTidyInput.Visible = false;       // Its not working well. Some bug with the encodings... TODO
-            chtTidyOutput.Visible = false;      // By now disabled, problems with encoding names... TODO
+            //chtTidyOutput.Visible = false;      // By now disabled, problems with encoding names... TODO
                 
             chkUseAppLocale.Checked = AppSettings.UseAppLocale;
             txtAppLocalePath.Text = AppSettings.AppLocalePath;

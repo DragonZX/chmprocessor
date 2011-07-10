@@ -45,6 +45,11 @@ namespace ChmProcessorLib
         public Encoding OutputEncoding;
 
         /// <summary>
+        /// Shou
+        /// </summary>
+        public Boolean UseTidy;
+
+        /// <summary>
         /// HTML keywords meta tag, if MetaKeywordsValue is not empty. "" otherwise.
         /// </summary>
         public string MetaKeywordsTag
@@ -184,8 +189,8 @@ namespace ChmProcessorLib
             if (writeEncoding == null)
                 writeEncoding = inputEncoding;
 
-            if( inputEncoding != null ) 
-                writer = new StreamWriter(filePath, false, inputEncoding);
+            if (writeEncoding != null)
+                writer = new StreamWriter(filePath, false, writeEncoding);
             else
                 // Use the default encoding.
                 writer = new StreamWriter(filePath, false);
@@ -200,19 +205,13 @@ namespace ChmProcessorLib
             writer.WriteLine(textAfterBody);
             writer.Close();
 
-            // Clean the files using Tidy
-            if (AppSettings.UseTidyOverOutput)
+            // Clean the files using Tidy, only if it was written with UTF-8
+            if (AppSettings.UseTidyOverOutput && writeEncoding == Encoding.UTF8)
             {
-                TidyParser tidy = new TidyParser(ui);
-                if (inputEncoding != null)
-                {
-                    // Use the source page encoding for input and output:
-                    string encodingName = inputEncoding.WebName;
-                    //tidy.InputEncoding = encodingName;
-                    tidy.OutputEncoding = encodingName;
-                }
+                TidyParser tidy = new TidyParser(ui, TidyParser.UTF8);
                 tidy.Parse(filePath);
             }
+
         }
 
         /// <summary>

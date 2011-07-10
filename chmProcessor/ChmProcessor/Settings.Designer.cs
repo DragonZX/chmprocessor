@@ -155,9 +155,9 @@
             this.chtTidyOutput.AutoSize = true;
             this.chtTidyOutput.Location = new System.Drawing.Point(213, 81);
             this.chtTidyOutput.Name = "chtTidyOutput";
-            this.chtTidyOutput.Size = new System.Drawing.Size(203, 17);
+            this.chtTidyOutput.Size = new System.Drawing.Size(188, 17);
             this.chtTidyOutput.TabIndex = 5;
-            this.chtTidyOutput.Text = "Use Tidy over the splitted HTML files.";
+            this.chtTidyOutput.Text = "Use Tidy over the split HTML files.";
             this.chtTidyOutput.UseVisualStyleBackColor = true;
             // 
             // label4
