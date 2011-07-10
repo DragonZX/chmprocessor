@@ -45,9 +45,11 @@ namespace ChmProcessorLib
         public Encoding OutputEncoding;
 
         /// <summary>
-        /// Shou
+        /// Should we execute tidy over the written files?
+        /// Only will be executed if this is true, AppSettings.UseTidyOverOutput is true 
+        /// AND the efective output encoding is UTF-8.
         /// </summary>
-        public Boolean UseTidy;
+        public bool UseTidy;
 
         /// <summary>
         /// HTML keywords meta tag, if MetaKeywordsValue is not empty. "" otherwise.
@@ -206,7 +208,7 @@ namespace ChmProcessorLib
             writer.Close();
 
             // Clean the files using Tidy, only if it was written with UTF-8
-            if (AppSettings.UseTidyOverOutput && writeEncoding == Encoding.UTF8)
+            if (AppSettings.UseTidyOverOutput && writeEncoding == Encoding.UTF8 && UseTidy )
             {
                 TidyParser tidy = new TidyParser(ui, TidyParser.UTF8);
                 tidy.Parse(filePath);

@@ -929,6 +929,7 @@ namespace ChmProcessorLib
             webDecorator.MetaDescriptionValue = Project.WebDescription;
             webDecorator.MetaKeywordsValue = Project.WebKeywords;
             webDecorator.OutputEncoding = Encoding.UTF8;
+            webDecorator.UseTidy = true;
 
             if (!Project.ChmHeaderFile.Equals(""))
             {
@@ -1292,8 +1293,8 @@ namespace ChmProcessorLib
 
             Process proceso = Process.Start(info);
             while (!proceso.WaitForExit(1000))
-                logStream(proceso.StandardOutput);
-            logStream(proceso.StandardOutput);
+                LogStream(proceso.StandardOutput, ConsoleUserInterface.INFO);
+            LogStream(proceso.StandardOutput, ConsoleUserInterface.INFO);
         }
 
         /// <summary>
@@ -1612,14 +1613,21 @@ namespace ChmProcessorLib
             return subtreesList;
         }
 
-        private void logStream( StreamReader reader ) 
+        /// <summary>
+        /// Logs the content of a stream
+        /// </summary>
+        /// <param name="reader">Log with the content to read.</param>
+        /// <param name="level">Level of the stream</param>
+        private void LogStream(StreamReader reader, int logLevel) 
         {
-            string linea = reader.ReadLine();
+            /*string linea = reader.ReadLine();
             while( linea != null ) 
             {
                 log(linea, ConsoleUserInterface.INFO);
                 linea = reader.ReadLine();
-            }
+            }*/
+            if (UI != null)
+                UI.LogStream(reader, logLevel);
         }
 
         /// <summary>
@@ -1653,9 +1661,9 @@ namespace ChmProcessorLib
                 info.RedirectStandardOutput = true;
                 info.CreateNoWindow = true;
                 Process proceso = Process.Start( info );
-                while( ! proceso.WaitForExit( 1000 ) ) 
-                    logStream( proceso.StandardOutput );
-                logStream( proceso.StandardOutput );
+                while( ! proceso.WaitForExit( 1000 ) )
+                    LogStream(proceso.StandardOutput, ConsoleUserInterface.INFO);
+                LogStream(proceso.StandardOutput, ConsoleUserInterface.INFO);
 
                 string archivoAyudaOrigen = Project.HelpProjectDirectory + Path.DirectorySeparatorChar + NOMBREARCHIVOAYUDA;
                 if( File.Exists( archivoAyudaOrigen ) ) 
