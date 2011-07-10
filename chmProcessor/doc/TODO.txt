@@ -4,4 +4,6 @@
 - If pdfcreator hangs up, if the user press cancel, exit inmediatelly. Add a referente to the user interface to the PdfPrinter class and check if the process was cancelled.
 - Remove tidy references
 - AppSettings should not have a bunch of static members. make two static functions, to save and load from the registry, and make non-static the other members.
-
+- Call to web help with topic=xxx option is not working on firefox. Check it on chrome.
+- Change translation text files to the standard for .NET bundles.
+- Move all the HTML / word load stuff to other class.
