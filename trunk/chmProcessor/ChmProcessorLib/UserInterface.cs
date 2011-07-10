@@ -25,6 +25,7 @@ namespace ChmProcessorLib
     /// </summary>
     public interface UserInterface
     {
+
         /// <summary>
         /// Notifies to the generation process that the user wants to cancel the generation process.
         /// </summary>
@@ -35,6 +36,8 @@ namespace ChmProcessorLib
         /// Called by the generation process to add a text to the log.
         /// </summary>
         /// <param name="text">Text to log</param>
+        /// <param name="level">Level of the message. 1 for errors / warnings, 2 for information, 3
+        /// for debug messages</param>
         void log(string text, int level);
 
         /// <summary>

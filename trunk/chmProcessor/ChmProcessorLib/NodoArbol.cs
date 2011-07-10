@@ -319,13 +319,6 @@ namespace ChmProcessorLib
         {
             get
             {
-                /*string name = "";
-                if (Nodo != null)
-                    name = Nodo.innerText;
-                else
-                    name = "Inicio";*/
-
-                //String entry = "<tocitem text=\"" + name + "\" target=\"" + JavaHelpTarget + "\"";
                 String entry = "<tocitem text=\"" + EncodedName + "\" target=\"" + JavaHelpTarget + "\"";
                 if (Hijos.Count == 0)
                     entry += " />";
@@ -342,11 +335,6 @@ namespace ChmProcessorLib
         {
             get
             {
-                /*string name = "";
-                if (Nodo != null)
-                    name = Nodo.innerText;
-                else
-                    name = "Inicio";*/
                 return EncodedName;
             }
         }

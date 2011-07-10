@@ -30,9 +30,24 @@ namespace ChmProcessorLib
     {
 
         /// <summary>
+        /// Code for error / warning messages.
+        /// </summary>
+        public static int ERRORWARNING = 1;
+
+        /// <summary>
+        /// Code for information messages.
+        /// </summary>
+        public static int INFO = 2;
+
+        /// <summary>
+        /// Code for debug messages.
+        /// </summary>
+        public static int DEBUG = 3;
+
+        /// <summary>
         /// Maximum log level to write the log on the console.
         /// </summary>
-        public int LogLevel = 3;
+        public int LogLevel = INFO;
 
         /// <summary>
         /// Checks if the user has requested to cancel.

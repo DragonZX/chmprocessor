@@ -81,10 +81,10 @@ namespace ChmProcessorLib
                 reader = new StreamReader(file);
                 while (!reader.EndOfStream)
                 {
-                    string valueToReplace = reader.ReadLine();
+                    string valueToReplace = reader.ReadLine().Trim();
                     if ( !valueToReplace.Trim().Equals("") && !reader.EndOfStream)
                     {
-                        string replacedValue = reader.ReadLine();
+                        string replacedValue = reader.ReadLine().Trim();
                         ReplacementsList.Add(new ReplacementPair("%" + valueToReplace + "%", replacedValue));
                     }
                 }
@@ -118,26 +118,34 @@ namespace ChmProcessorLib
             string[] files = Directory.GetFiles(srcDirectoryPath);
             foreach (string file in files)
             {
-                string extension = Path.GetExtension(file.ToLower());
+
                 bool goodExtension = false;
+
+                string extension = Path.GetExtension(file.ToLower());
                 if (extensions == null)
-                    goodExtension = true;
+                    goodExtension = false;
                 else
                 {
+                    // Remove the point:
+                    extension = extension.Substring(1);
+
                     foreach (string ext in extensions)
+                    {
                         if (ext.ToLower().Equals(extension))
                         {
                             goodExtension = true;
                             break;
                         }
+                    }
                 }
+
                 string dstPath = dstDirectoryPath + Path.DirectorySeparatorChar + Path.GetFileName(file);
                 if (goodExtension)
                 {
                     CopyReplaced(file, dstPath, outputEncoding);
-                    if (runTidy)
+                    /*if (runTidy)
                         // Clean html over the destination file:
-                        new TidyParser(ui).Parse(dstPath);
+                        new TidyParser(ui, TidyParser.UTF8).Parse(dstPath);*/
                 }
                 else
                     File.Copy(file, dstPath);

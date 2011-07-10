@@ -246,17 +246,20 @@ namespace ChmProcessorLib
             }
         }
 
+        /// <summary>
+        /// True if we should use tidy to clean / repair the generated HTML help content files.
+        /// </summary>
         static public bool UseTidyOverOutput
         {
             get
             {
-                //return GetBooleanValueRegistry(USETIDYOVEROUTPUT, true);
-                return false;
+                return GetBooleanValueRegistry(USETIDYOVEROUTPUT, true);
+                //return false;
             }
 
             set
             {
-                //SetBooleanValueRegistry(USETIDYOVEROUTPUT, value);
+                SetBooleanValueRegistry(USETIDYOVEROUTPUT, value);
             }
         }
 

@@ -28,31 +28,71 @@ namespace ChmProcessorLib
     /// </summary>
     public class TidyParser
     {
+        /// <summary>
+        /// Tidy encoding name for UTF-8
+        /// </summary>
+        public static string UTF8 = "utf8";
+
+        /// <summary>
+        /// User interface where to write the messages. If null, no messages will be written.
+        /// </summary>
         private UserInterface ui;
+
+        /// <summary>
+        /// True if tidy should write the output as XHTML. If false, HTML will be written.
+        /// </summary>
         private bool XmlOutput;
 
         /// <summary>
         /// Encoding for input files.
+        /// Tidy encoding names are not equal to .NET encoding names. .NET uses IANA names and Tidy uses custom names.
+        /// Tidy documentation says this encoding names as example: raw, ascii, latin0, latin1, utf8, iso2022, mac, win1252, ibm858, utf16le, utf16be, utf16, big5, shiftjis
+        /// Here the Tidy name is used, not the IANA name.
         /// If null, we will use the default (tidy documentation say latin1)
         /// </summary>
         public string InputEncoding = null;
 
         /// <summary>
         /// Encoding for output files.
-        /// If null, we will use the default (tidy documentation say ascii)
+        /// Tidy encoding names are not equal to .NET encoding names. .NET uses IANA names and Tidy uses custom names.
+        /// Tidy documentation says this encoding names as example: raw, ascii, latin0, latin1, utf8, iso2022, mac, win1252, ibm858, utf16le, utf16be, utf16, big5, shiftjis
+        /// Here the Tidy name is used, not the IANA name.
+        /// If null, we will use the default (tidy documentations says ascii)
         /// </summary>
         public string OutputEncoding = null;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="ui">Object to output the tidy messages. It can be null, and no messages will be written.</param>
         public TidyParser(UserInterface ui)
         {
             this.ui = ui;
             this.XmlOutput = false;
         }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="ui">Object to output the tidy messages. It can be null, and no messages will be written.</param>
+        /// <param name="xmlOutput">True if the output should be written with XHTML format</param>
         public TidyParser(UserInterface ui, bool xmlOutput)
         {
             this.ui = ui;
             this.XmlOutput = xmlOutput;
+        }
+
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="ui">Object to output the tidy messages. It can be null, and no messages will be written.</param>
+        /// <param name="outputEncoding">Tidy encoding name to write the output. If its null, the default 
+        /// encoding (ASCII) will be used</param>
+        public TidyParser(UserInterface ui, string outputEncoding)
+        {
+            this.ui = ui;
+            this.OutputEncoding = outputEncoding;
         }
 
         /// <summary>
@@ -71,6 +111,7 @@ namespace ChmProcessorLib
                 status = tdoc.SetOptBool(TidyOptionId.TidyXhtmlOut, 1);
             CheckStatus(status);
 
+            
             if(InputEncoding != null)
                 status = tdoc.SetOptValue(TidyOptionId.TidyInCharEncoding, InputEncoding);
             CheckStatus(status);
@@ -78,11 +119,7 @@ namespace ChmProcessorLib
             if (OutputEncoding != null)
                 status = tdoc.SetOptValue(TidyOptionId.TidyOutCharEncoding, OutputEncoding);
             CheckStatus(status);
-
-            // Modify the original file. Not working??
-            //tdoc.SetOptValue(TidyOptionId.TidyWriteBack, "yes");
-            //CheckStatus(status);
-
+            
             return tdoc;
         }
 
