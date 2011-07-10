@@ -2,8 +2,11 @@
 - Remove temporal file with joined word docs.
 - Remove compile warnings about UComIStream
 - If pdfcreator hangs up, if the user press cancel, exit inmediatelly. Add a referente to the user interface to the PdfPrinter class and check if the process was cancelled.
-- Remove tidy references
+- Remove tidy DLL references
 - AppSettings should not have a bunch of static members. make two static functions, to save and load from the registry, and make non-static the other members.
 - Call to web help with topic=xxx option is not working on firefox. Check it on chrome.
 - Change translation text files to the standard for .NET bundles.
 - Move all the HTML / word load stuff to other class.
+- Add a new level log on ConsoleUserInterface with a value WARNING. Change the current level ERRORWARNING to ERROR. Review all log generation to choose between both.
+- Add option at settings window to set the level log.
+- When a file is referenced by a link from a Word document, replace the link to the local path of the file into the CHM.

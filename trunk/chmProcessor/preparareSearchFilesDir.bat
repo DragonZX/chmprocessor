@@ -1,3 +1,4 @@
+MKDIR searchFiles
 MKDIR searchFiles\Bin
 COPY WebFullTextSearch\Bin searchFiles\bin
 COPY WebFullTextSearch\search.aspx searchFiles
