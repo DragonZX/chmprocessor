@@ -143,9 +143,9 @@ namespace ChmProcessorLib
                 if (goodExtension)
                 {
                     CopyReplaced(file, dstPath, outputEncoding);
-                    /*if (runTidy)
+                    if (runTidy)
                         // Clean html over the destination file:
-                        new TidyParser(ui, TidyParser.UTF8).Parse(dstPath);*/
+                        new TidyParser(ui, TidyParser.UTF8).Parse(dstPath);
                 }
                 else
                     File.Copy(file, dstPath);

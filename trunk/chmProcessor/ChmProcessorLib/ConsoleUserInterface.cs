@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
 
 namespace ChmProcessorLib
 {
@@ -100,5 +101,30 @@ namespace ChmProcessorLib
             Console.WriteLine(exception.ToString());
         }
 
+        /// <summary>
+        /// Writes the content of a stream to the user interface.
+        /// </summary>
+        /// <param name="ui">User interface where to write the stream content</param>
+        /// <param name="reader">The stream to write</param>
+        /// <param name="logLevel">The log level for the log messages</param>
+        static public void LogStream(UserInterface ui, StreamReader reader, int logLevel)
+        {
+            string linea = reader.ReadLine();
+            while (linea != null)
+            {
+                ui.log(linea, logLevel);
+                linea = reader.ReadLine();
+            }
+        }
+
+        /// <summary>
+        /// Writes the content of a stream to the user interface.
+        /// </summary>
+        /// <param name="reader">The stream to write</param>
+        /// <param name="logLevel">The log level for the log messages</param>
+        public void LogStream(StreamReader reader, int logLevel)
+        {
+            LogStream(this, reader, logLevel);
+        }
     }
 }

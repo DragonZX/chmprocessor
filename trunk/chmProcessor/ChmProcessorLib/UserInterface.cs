@@ -17,6 +17,7 @@
  */
 
 using System;
+using System.IO;
 
 namespace ChmProcessorLib
 {
@@ -46,5 +47,11 @@ namespace ChmProcessorLib
         /// <param name="text">Exception to log</param>
         void log(Exception exception);
 
+        /// <summary>
+        /// Logs the content of a stream
+        /// </summary>
+        /// <param name="reader">Log with the content to read.</param>
+        /// <param name="level">Level of the stream</param>
+        void LogStream(StreamReader reader, int level);
     }
 }
