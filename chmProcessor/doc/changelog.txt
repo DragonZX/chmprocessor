@@ -1,11 +1,13 @@
 * 1.6
-- Non english / spanish languages for CHM files should now work: Cyrilic has been tested and it works.
-- Added partial support to generate CHM files for languages different than the system language.
+- Non western character sets (Cyrillic, chinese, japanese, etc) for CHM files now should work: Cyrilic has been tested and it seems to works. I need feedback about this. Please, say me if it works.
+- Added partial support to generate CHM files for languages different than the local system language.
 - Path to files of the chmprocessor project now can be stored relative to the location of the project. Thanks to Jozsef Bekes for the patch.
 - Added web translations to frech and dutch. Thanks to Luc Van Asch.
 - Added field to project to add HTML code into the head tag of the generated web pages (to add google analytics code, for example)
 - Added setting to remove / repair broken internal links.
-- Removed use of tidy to generate the help, due to problems with the name encodings that it uses. Generated web sites will no longer be 100% HTML standard.
+- Tidy.dll (v2003) is no more used. Instead, tidy.exe v2009 is used now. This solves issues fixing html encoded with utf-8. 
+- Any-cpu is used again. This means that it will work as 64 bits process on 64 bits operating systems.
+
 
 * 1.5
 - Bug fixed. chmProcessor was not working on 64 bits operating systems due to AnyCPU option. Now the application runs always on 32 bit mode, needed to run Tidy. Thanks to cjervin for the info.
