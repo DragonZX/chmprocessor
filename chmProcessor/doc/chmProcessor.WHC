@@ -1,30 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Configuracion xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <SourceFiles>
-    <string>C:\Users\toni\Documents\REPOSITORIO\chmprocessor\trunk\chmProcessor\doc\chmProcessor.doc</string>
+    <string>.\chmProcessor.doc</string>
   </SourceFiles>
   <Compilar>true</Compilar>
-  <DirectorioDestino>C:\Users\toni\Documents\REPOSITORIO\chmprocessor\trunk\chmProcessor\doc\chmProcessor-project</DirectorioDestino>
+  <DirectorioDestino>.\chmProcessor-project</DirectorioDestino>
   <HtmlCabecera />
-  <HtmlPie>C:\Users\toni\Documents\REPOSITORIO\chmprocessor\trunk\chmProcessor\doc\footer.htm</HtmlPie>
+  <HtmlPie>.\footer.htm</HtmlPie>
   <TituloAyuda>chmProcessor. A Html / Word converter to Compiled HTML Help (CHM)</TituloAyuda>
   <NivelCorte>0</NivelCorte>
   <GenerarWeb>true</GenerarWeb>
   <ArchivosAdicionales>
-    <string>C:\Users\toni\Documents\REPOSITORIO\chmprocessor\trunk\chmProcessor\doc\changelog.txt</string>
+    <string>.\changelog.txt</string>
   </ArchivosAdicionales>
   <AbrirProyecto>false</AbrirProyecto>
-  <DirectorioWeb>C:\Users\toni\Documents\REPOSITORIO\chmprocessor\trunk\chmProcessor\doc\web</DirectorioWeb>
+  <DirectorioWeb>.\web</DirectorioWeb>
   <NivelArbolContenidos>0</NivelArbolContenidos>
   <NivelTemasIndice>0</NivelTemasIndice>
-  <ArchivoAyuda>C:\Users\toni\Documents\REPOSITORIO\chmprocessor\trunk\chmProcessor\doc\chmProcessor.chm</ArchivoAyuda>
+  <ArchivoAyuda>.\chmProcessor.chm</ArchivoAyuda>
   <CommandLine />
   <GeneratePdf>true</GeneratePdf>
-  <PdfPath>C:\Users\toni\Documents\REPOSITORIO\chmprocessor\trunk\chmProcessor\doc\web\chmProcessorDocumentation.pdf</PdfPath>
+  <PdfPath>.\web\chmProcessorDocumentation.pdf</PdfPath>
   <WebKeywords>word compiled help doc chm conversion converter translator java help javahelp word2chm doc2chm </WebKeywords>
   <WebDescription>chmProcessor. A tool to convert Word documents to Compiled Help (CHM) / Java Help files</WebDescription>
   <WebHeaderFile />
-  <WebFooterFile>C:\Users\toni\Documents\REPOSITORIO\chmprocessor\trunk\chmProcessor\doc\footer-web.htm</WebFooterFile>
+  <WebFooterFile>.\footer-web.htm</WebFooterFile>
   <GenerateSitemap>true</GenerateSitemap>
   <WebBase>http://chmprocessor.sourceforge.net</WebBase>
   <ChangeFrequency>monthly</ChangeFrequency>
@@ -33,9 +33,9 @@
   <FullTextSearch>false</FullTextSearch>
   <PdfGeneration>PdfCreator</PdfGeneration>
   <GenerateXps>false</GenerateXps>
-  <XpsPath>C:\Users\toni\Documents\REPOSITORIO\chmprocessor\trunk\chmProcessor\doc\web\chmProcessorDocumentation.xps</XpsPath>
+  <XpsPath>.\web\chmProcessorDocumentation.xps</XpsPath>
   <GenerateJavaHelp>false</GenerateJavaHelp>
-  <JavaHelpPath>C:\Users\toni\Documents\REPOSITORIO\chmprocessor\trunk\chmProcessor\doc\web\chmProcessorDocumentation.jar</JavaHelpPath>
-  <HeadTagFile>C:\Users\toni\Documents\REPOSITORIO\chmprocessor\trunk\chmProcessor\doc\headInclude.htm</HeadTagFile>
+  <JavaHelpPath>.\web\chmProcessorDocumentation.jar</JavaHelpPath>
+  <HeadTagFile>.\headInclude.htm</HeadTagFile>
   <ChmLocaleID>3082</ChmLocaleID>
 </Configuracion>
