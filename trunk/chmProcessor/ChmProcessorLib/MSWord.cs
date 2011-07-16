@@ -42,6 +42,11 @@ namespace ChmProcessorLib
         /// </summary>
         public static string[] HTMLEXTENSIONS = { "htm", "html" };
 
+        /// <summary>
+        /// File extensions for ASP.NET files
+        /// </summary>
+        public static string[] ASPXEXTENSIONS = { "aspx" };
+
         private Application wordApp = null;
         private bool isNewApp = false;
 
