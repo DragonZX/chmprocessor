@@ -69,13 +69,33 @@ namespace ChmProcessor
         /// <param name="exception">The exception</param>
         private void Message(string text, Exception exception)
         {
-            if (outputQuiet)
+
+            Console.WriteLine(text);
+            Console.WriteLine(exception.ToString());
+
+            /*if (outputQuiet)
             {
+                // Write error to console
                 Console.WriteLine(text);
                 Console.WriteLine(exception.ToString());
             }
-            else
-                new ExceptionMessageBox(text, exception).Show();
+            else*/
+
+            if( !outputQuiet )
+            {
+                try
+                {
+                    // Show dialog with error details
+                    new ExceptionMessageBox(text, exception).Show();
+                }
+                catch (Exception ex2)
+                {
+                    // Error showing error dialog...
+                    Console.WriteLine("Error opening exception dialog:");
+                    Console.WriteLine(ex2.ToString());
+                }
+            }
+
         }
 
         /// <summary>

@@ -1,3 +1,4 @@
+- Generated HTML is not including the <!DOCTYPE> tag
 - Change documentation. Think about documentate the chmprocessorlib for external use.
 - Remove temporal file with joined word docs.
 - Remove compile warnings about UComIStream
