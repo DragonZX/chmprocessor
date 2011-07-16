@@ -1397,9 +1397,8 @@ namespace ChmProcessorLib
                 if (Project.FullTextSearch)
                 {
                     // Copy full text serch files:
-                    string[] aspxExtensions = { ".aspx" };
                     string dirSearchFiles = System.Windows.Forms.Application.StartupPath + Path.DirectorySeparatorChar + "searchFiles";
-                    replacements.CopyDirectoryReplaced(dirSearchFiles, dirWeb, aspxExtensions, false, UI, webDecorator.OutputEncoding);
+                    replacements.CopyDirectoryReplaced(dirSearchFiles, dirWeb, MSWord.ASPXEXTENSIONS, false, UI, webDecorator.OutputEncoding);
                 }
 
                 if (Project.GenerateSitemap)
