@@ -3,7 +3,7 @@ BUGS
 
 - PathRelativePathTo breaks unicode file names? check it
 - Call to web help with topic=xxx option is not working on firefox. Check it on chrome.
-- Generated HTML is not including the <!DOCTYPE> tag
+- JavaHelp is not opening the start page. Check why.
 
 IMPROVMENTS
 ------------------
