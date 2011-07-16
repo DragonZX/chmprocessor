@@ -27,10 +27,8 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "WebFullTextSearch", "WebFul
 		Release.AspNetCompiler.ForceOverwrite = "true"
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
-		VWDPort = "49174"
+		VWDPort = "49175"
 	EndProjectSection
-EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "chmProcessorSetup", "ChmProcessorSetup\ChmProcessorSetup.vdproj", "{4AAE8FAE-3F26-4E07-88B2-12E8B129FA90}"
 EndProject
 Global
 	GlobalSection(SubversionScc) = preSolution
@@ -102,22 +100,6 @@ Global
 		{64504A5B-D21A-45AC-B1BD-2A6E0752DC1B}.Release|Mixed Platforms.ActiveCfg = Debug|.NET
 		{64504A5B-D21A-45AC-B1BD-2A6E0752DC1B}.Release|Mixed Platforms.Build.0 = Debug|.NET
 		{64504A5B-D21A-45AC-B1BD-2A6E0752DC1B}.Release|x86.ActiveCfg = Debug|.NET
-		{4AAE8FAE-3F26-4E07-88B2-12E8B129FA90}.Debug|.NET.ActiveCfg = Debug
-		{4AAE8FAE-3F26-4E07-88B2-12E8B129FA90}.Debug|.NET.Build.0 = Debug
-		{4AAE8FAE-3F26-4E07-88B2-12E8B129FA90}.Debug|Any CPU.ActiveCfg = Debug
-		{4AAE8FAE-3F26-4E07-88B2-12E8B129FA90}.Debug|Any CPU.Build.0 = Debug
-		{4AAE8FAE-3F26-4E07-88B2-12E8B129FA90}.Debug|Mixed Platforms.ActiveCfg = Debug
-		{4AAE8FAE-3F26-4E07-88B2-12E8B129FA90}.Debug|Mixed Platforms.Build.0 = Debug
-		{4AAE8FAE-3F26-4E07-88B2-12E8B129FA90}.Debug|x86.ActiveCfg = Debug
-		{4AAE8FAE-3F26-4E07-88B2-12E8B129FA90}.Debug|x86.Build.0 = Debug
-		{4AAE8FAE-3F26-4E07-88B2-12E8B129FA90}.Release|.NET.ActiveCfg = Release
-		{4AAE8FAE-3F26-4E07-88B2-12E8B129FA90}.Release|.NET.Build.0 = Release
-		{4AAE8FAE-3F26-4E07-88B2-12E8B129FA90}.Release|Any CPU.ActiveCfg = Release
-		{4AAE8FAE-3F26-4E07-88B2-12E8B129FA90}.Release|Any CPU.Build.0 = Release
-		{4AAE8FAE-3F26-4E07-88B2-12E8B129FA90}.Release|Mixed Platforms.ActiveCfg = Release
-		{4AAE8FAE-3F26-4E07-88B2-12E8B129FA90}.Release|Mixed Platforms.Build.0 = Release
-		{4AAE8FAE-3F26-4E07-88B2-12E8B129FA90}.Release|x86.ActiveCfg = Release
-		{4AAE8FAE-3F26-4E07-88B2-12E8B129FA90}.Release|x86.Build.0 = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
