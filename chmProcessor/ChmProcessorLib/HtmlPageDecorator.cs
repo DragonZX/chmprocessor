@@ -211,6 +211,7 @@ namespace ChmProcessorLib
             if (AppSettings.UseTidyOverOutput && writeEncoding == Encoding.UTF8 && UseTidy )
             {
                 TidyParser tidy = new TidyParser(ui, TidyParser.UTF8);
+                tidy.DocType = TidyParser.LOOSE;
                 tidy.Parse(filePath);
             }
 

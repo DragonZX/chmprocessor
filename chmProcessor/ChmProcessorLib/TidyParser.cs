@@ -47,6 +47,11 @@ namespace ChmProcessorLib
         public static string UTF8 = "utf8";
 
         /// <summary>
+        /// Tidy name for loose HTML DOCTYPE
+        /// </summary>
+        public static string LOOSE = "loose";
+
+        /// <summary>
         /// User interface where to write the messages. If null, no messages will be written.
         /// </summary>
         private UserInterface ui;
@@ -66,14 +71,22 @@ namespace ChmProcessorLib
         public string Encoding = null;
 
         /// <summary>
+        /// Kind of doctype to put at the HTML document. 
+        /// By default is "loose" (transactional)
+        /// If null, the default will be used.
+        /// See http://tidy.sourceforge.net/docs/quickref.html#doctype
+        /// </summary>
+        public string DocType = LOOSE;
+
+        /// <summary>
         /// Standard output for tidy execution
         /// </summary>
-        private string StandardOutput;
+        private string StandardOutput = "";
 
         /// <summary>
         /// Standard error output for tidy execution
         /// </summary>
-        private string StandardError;
+        private string StandardError = "";
 
         /// <summary>
         /// Constructor
@@ -114,33 +127,13 @@ namespace ChmProcessorLib
         /// <returns>The command line with the options configured</returns>
         protected string ConfigureParse()
         {
-            /*
-            Document tdoc = new Document();
-            int status = 0;
-            // Set alternative text for IMG tags:
-            status = tdoc.SetOptValue(TidyOptionId.TidyAltText, "image");
-            CheckStatus(status);
-
-            if (XmlOutput)
-                status = tdoc.SetOptBool(TidyOptionId.TidyXhtmlOut, 1);
-            CheckStatus(status);
-
-            
-            if(InputEncoding != null)
-                status = tdoc.SetOptValue(TidyOptionId.TidyInCharEncoding, InputEncoding);
-            CheckStatus(status);
-
-            if (OutputEncoding != null)
-                status = tdoc.SetOptValue(TidyOptionId.TidyOutCharEncoding, OutputEncoding);
-            CheckStatus(status);
-            
-            return tdoc;*/
-
             string commandLine = "--alt-text image";
             if (Encoding != null)
                 commandLine += " -" + Encoding;
             if (XmlOutput)
                 commandLine += " -asxml";
+            if (DocType != null)
+                commandLine += " --doctype " + DocType;
             return commandLine;
         }
 
@@ -183,6 +176,7 @@ namespace ChmProcessorLib
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardError = true;
             process.StartInfo.CreateNoWindow = true;
+            // Callbacks to read the standard / error output:
             process.ErrorDataReceived += new DataReceivedEventHandler(ErrorReceivedEventHandler);
             process.OutputDataReceived += new DataReceivedEventHandler(OutputReceivedEventHandler);
             process.Start();
@@ -199,12 +193,6 @@ namespace ChmProcessorLib
             }
 
             // Wait for end of execution:
-            /*if (!process.WaitForExit(60 * 1000))
-            {
-                try { process.Kill(); }
-                catch { }
-                throw new Exception("Tidy hang up");
-            }*/
             process.WaitForExit();
 
             // Check the exit code:
@@ -233,19 +221,6 @@ namespace ChmProcessorLib
             try
             {
                 log("Parsing file " + file + "...", 2);
-
-                /*Document tdoc = ConfigureParse();
-
-                int status = 0;
-                status = tdoc.ParseFile(file);
-                CheckStatus(status);
-
-                status = tdoc.CleanAndRepair();
-                CheckStatus(status);
-
-                status = tdoc.SaveFile(file);
-                CheckStatus(status);*/
-
                 string parameters = ConfigureParse();
                 // Set the file path to repair:
                 parameters += " -modify \"" + file + "\"";
@@ -261,30 +236,10 @@ namespace ChmProcessorLib
         public string ParseString(string htmlText)
         {
             log("Parsing html...", 2);
-
-            /*Document tdoc = ConfigureParse();
-
-            int status = 0;
-            status = tdoc.ParseString(htmlText);
-            CheckStatus(status);
-
-            status = tdoc.CleanAndRepair();
-            CheckStatus(status);
-
-            string cleanHtml = tdoc.SaveString();
-            CheckStatus(status);
-
-            return cleanHtml;*/
-
             string parameters = ConfigureParse();
             MemoryStream ms = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(htmlText));
             return ExecuteTidy(parameters,new StreamReader(ms));
         }
-
-        /*private void CheckStatus(int status) {
-            if (status < 0)
-                throw new Exception("Error runing Tidy.NET: " + status);
-        }*/
 
         private void log(string text, int level)
         {

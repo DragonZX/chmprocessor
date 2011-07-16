@@ -334,6 +334,9 @@ namespace ChmProcessor
         /// <param name="text">Text to write</param>
         private void InternalLog(string text)
         {
+            if (text != null)
+                text = text.Replace("\n", "\r\n");
+
             txtLog.AppendText(text + "\r\n");
             Console.WriteLine(text);
         }
