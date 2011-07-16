@@ -19,8 +19,7 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>ChmProcessor</RootNamespace>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
-    <StartupObject>
-    </StartupObject>
+    <StartupObject>ChmProcessor.CommandLineMode</StartupObject>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <UpgradeBackupLocation>
