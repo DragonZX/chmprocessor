@@ -11,3 +11,4 @@
 - Add a new level log on ConsoleUserInterface with a value WARNING. Change the current level ERRORWARNING to ERROR. Review all log generation to choose between both.
 - Add option at settings window to set the level log.
 - When a file is referenced by a link from a Word document, replace the link to the local path of the file into the CHM.
+- PathRelativePathTo breaks unicode file names?
