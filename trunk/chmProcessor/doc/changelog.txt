@@ -6,7 +6,6 @@
 - Added field to project to add HTML code into the head tag of the generated web pages (to add google analytics code, for example)
 - Added setting to remove / repair broken internal links.
 - Tidy.dll (v2003) is no more used. Instead, tidy.exe v2009 is used now. This solves issues fixing html encoded with utf-8. 
-- Any-cpu is used again. This means that it will work as 64 bits process on 64 bits operating systems.
 
 
 * 1.5
