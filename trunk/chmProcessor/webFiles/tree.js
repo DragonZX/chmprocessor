@@ -158,7 +158,8 @@ contentTree.seachLinkByTitle = function( strTitle ) {
 // Search a link into the tree by his href:
 contentTree.seachLinkByHref = function( strHref ) {
 	for (var i=0; i<contentTree.links.length; i++) {
-	    var aux = unescape( contentTree.links[i].href );
+	    //var aux = unescape( contentTree.links[i].href );
+	    var aux = contentTree.links[i].href;
         if( aux == strHref || endsWith( aux , "/" + strHref ) )
 			return contentTree.links[i];
     }
@@ -168,8 +169,9 @@ contentTree.seachLinkByHref = function( strHref ) {
 contentTree.seachLinkByFileTitle = function( strFile ) {
 	for (var i=0; i<contentTree.links.length; i++) {
 	
-	    var aux = getPageTitle( unescape( contentTree.links[i].href ) );
-	        
+	    //var aux = getPageTitle( unescape( contentTree.links[i].href ) );
+	    var aux = getPageTitle( contentTree.links[i].href );
+	    
         if( aux == strFile )
 			return contentTree.links[i];
         else {
