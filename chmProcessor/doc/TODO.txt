@@ -1,8 +1,7 @@
 BUGS
 ------------------
 
-- PathRelativePathTo breaks unicode file names? check it
-- Call to web help with topic=xxx option is not working on firefox. Check it on chrome.
+- Call to web help with topic=xxx option is not working on firefox. Check it on chrome. USE decodeuricomponent instead of unescape
 - JavaHelp is not opening the start page. Check why.
 
 IMPROVMENTS

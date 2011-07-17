@@ -7,6 +7,15 @@ Miscelaneous functions.
 
 *************************************/
 
+function safeUnescape( text ) {
+    try {
+        return decodeURIComponent(text);
+    }
+    catch( ex ) {
+        return unescape(text);
+    }
+}
+
 function getURLParam( url , strParamName ){
 
 	var strReturn = "";
@@ -22,7 +31,9 @@ function getURLParam( url , strParamName ){
 			}
 		}
 	}
-	return unescape(strReturn);
+	//return unescape(strReturn);
+	//return decodeURIComponent(strReturn);
+	return safeUnescape(strReturn);
 }
 
 function getURLParamCurrentWindow( strParamName ){
