@@ -69,7 +69,6 @@ namespace ChmProcessorLib
             eFile
         }
 
-
         /// <summary>
         /// Get the relative path from one file/directory to other.
         /// Thanks to Jozsef Bekes for the patch.
@@ -99,7 +98,16 @@ namespace ChmProcessorLib
             {
                 throw new ArgumentException("Paths must have a common prefix");
             }
-            return path.ToString();
+
+            string filename = path.ToString();
+
+            // TODO: Check whats happening with unicode...
+            // "xxxxx.htm" (where xxxxx is "vodka" translated to russian) is returning "?????.htm", 
+            // and PathRelativePathToW (unicode version) is not working....
+            if( filename.Contains("?") )
+                filename = toPath;
+
+            return filename;
         }
 
         /// <summary>
