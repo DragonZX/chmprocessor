@@ -17,4 +17,5 @@ IMPROVMENTS
 - Move all the HTML / word load stuff to other class.
 - Add a new level log on ConsoleUserInterface with a value WARNING. Change the current level ERRORWARNING to ERROR. Review all log generation to choose between both.
 - Add option at settings window to set the level log.
+- Change html file selections on the main window, to allow to select *.html files too. Now only allows to select *.htm files.
 
