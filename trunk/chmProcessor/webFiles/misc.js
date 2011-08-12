@@ -1,4 +1,4 @@
-/************************************
+ï»¿/************************************
 (C) Toni Bennasar 2007
 http://chmprocessor.sf.net
 Under GPL license.
@@ -88,41 +88,41 @@ function getPageTitle( url ) {
         return url;
 }
 
-// Convert a strin to another in lowercase and without strange characters (á,â,ä, etc.)
+// Convert a strin to another in lowercase and without strange characters (Ã¡,Ã¢,Ã¤, etc.)
 function normalizeString( str ) {
     var lower = str.toLowerCase();
     var result = "";
     for( var i=0; i<lower.length; i++ ) {
         var c = lower.charAt(i);
         switch( c ) {
-            case 'á':
-            case 'à':
-            case 'ä':
-            case 'â':
+            case 'Ã¡':
+            case 'Ã ':
+            case 'Ã¤':
+            case 'Ã¢':
                 c = 'a';
                 break;
-            case 'é':
-            case 'è':
-            case 'ë':
-            case 'ê':
+            case 'Ã©':
+            case 'Ã¨':
+            case 'Ã«':
+            case 'Ãª':
                 c = 'e';
                 break;
-            case 'í':
-            case 'ì':
-            case 'ï':
-            case 'î':
+            case 'Ã­':
+            case 'Ã¬':
+            case 'Ã¯':
+            case 'Ã®':
                 c = 'i';
                 break;
-            case 'ó':
-            case 'ò':
-            case 'ö':
-            case 'ô':
+            case 'Ã³':
+            case 'Ã²':
+            case 'Ã¶':
+            case 'Ã´':
                 c = 'o';
                 break;
-            case 'ú':
-            case 'ù':
-            case 'ü':
-            case 'û':
+            case 'Ãº':
+            case 'Ã¹':
+            case 'Ã¼':
+            case 'Ã»':
                 c = 'u';
                 break;
         }
