@@ -5,6 +5,7 @@ BUGS
 - JavaHelp is not opening the start page. Check why.
 - Topics tab on web help: When a title starts with spaces, the list is not working well: Check if we must to make a trim of the titles text.
 - Bug with topics wiht firefox 4, topic "Añadir un pedido sin propuesta de pedido", "URL http://soporte.lsisa.com/AYUDA/VISORAYUDAGWT/gxalmac/index.html?topic=A%F1adir%20un%20pedido%20sin%20propuesta%20de%20pedido"
+- Web help is not working with internet explorer 6
 
 IMPROVMENTS
 ------------------
