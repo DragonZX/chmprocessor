@@ -145,7 +145,7 @@ namespace ChmProcessorLib
         public List<string> ArchivosAdicionales = new List<string>();
 
         /// <summary>
-        /// Only applies if Compile = true.
+        /// Only applies if Compile = false.
         /// If OpenProject is true, after the generation, the help project will be 
         /// opened through Windows shell.
         /// </summary>
@@ -469,7 +469,7 @@ namespace ChmProcessorLib
         /// path of the project file.
         /// Author is Jozsef Bekes.
         /// </summary>
-        /// <param name="filePath">Path to the project fil.</param>
+        /// <param name="filePath">Path to the project file.</param>
         private void MakePathsRelative(string filePath)
         {
             // Calculate absolute paths
