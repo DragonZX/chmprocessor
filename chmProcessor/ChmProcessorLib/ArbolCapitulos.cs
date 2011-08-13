@@ -30,6 +30,13 @@ namespace ChmProcessorLib
 	/// </summary>
     public class ArbolCapitulos
     {
+
+        /// <summary>
+        /// Default title for the start of the help content (start of the document out of any section,
+        /// entire help content on a single page, etc)
+        /// </summary>
+        static public String DEFAULTTILE = "Help content";
+
         /// <summary>
         /// Ultimo nodo insertado en el arbol.
         /// </summary>
@@ -182,7 +189,7 @@ namespace ChmProcessorLib
                 if( nodo.Nodo != null )
                     nombre = nodo.Nodo.innerText;
                 else
-                    nombre = "Inicio";
+                    nombre = DEFAULTTILE;
                 texto = "<li><a href=\"" + nodo.Href ;
                 texto += "\">" + DocumentProcessor.HtmlEncode( nombre ) + "</a>";
             }
