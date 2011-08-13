@@ -142,7 +142,7 @@ namespace ChmProcessorLib
                     if (!node.Href.Equals("")) 
                         return node.JavaHelpTarget;
                 }
-                return "Inicio";
+                return ArbolCapitulos.DEFAULTTILE;
             }
         }
 

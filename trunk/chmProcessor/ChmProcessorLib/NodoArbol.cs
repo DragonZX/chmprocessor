@@ -233,26 +233,10 @@ namespace ChmProcessorLib
                         name = name.Trim();
                 }
                 else
-                    name = "Inicio";
+                    name = ArbolCapitulos.DEFAULTTILE;
                 return name;
             }
         }
-
-        /*
-        /// <summary>
-        /// Title that should appear for this section. Its not HTML encoded safe.
-        /// </summary>
-        public string Title
-        {
-            get
-            {
-                if (Nodo != null)
-                    return Nodo.innerText;
-                else
-                    return "Inicio";
-            }
-        }
-        */
 
         /// <summary>
         /// The HTML encoded title of this chapter / section.
@@ -273,7 +257,7 @@ namespace ChmProcessorLib
                 if( Nodo != null )
                     nombre = Nodo.innerText;
                 else
-                    nombre = "Inicio";
+                    nombre = ArbolCapitulos.DEFAULTTILE;
 
                 string texto = "<LI> <OBJECT type=\"text/sitemap\">\n" +
                     "     <param name=\"Name\" value=\"" + 
