@@ -39,7 +39,7 @@ namespace ChmProcessor
 	{
 
         /// <summary>
-        /// Windows registry where are stored last open lines:
+        /// Windows registry where are stored recently open files
         /// </summary>
         static private string LASTFILESKEY = "ultimosArchivos";
 
@@ -266,18 +266,7 @@ namespace ChmProcessor
             }
             else {
                 // Check if the file is a source file instead a project file:
-                bool sourceFile = false;
-                string lowerFile = filePath.ToLower();
-                foreach( string extension in MSWord.WORDEXTENSIONS ) {
-                    if (lowerFile.EndsWith("." + extension))
-                    {
-                        sourceFile = true;
-                        break;
-                    }
-                }
-                if (lowerFile.EndsWith(".htm") || lowerFile.EndsWith(".html"))
-                    sourceFile = true;
-                if (sourceFile)
+                if (MSWord.IsHtmlDocument(filePath) || MSWord.ItIsWordDocument(filePath) )
                 {
                     //txtArchivo.Text = archivo;
                     lstSourceFiles.Items.Add(filePath);
@@ -1887,13 +1876,13 @@ namespace ChmProcessor
         }
 
         /// <summary>
-        /// Button to choose a HTML file pressed.
+        /// Button to choose a HTML file.
         /// </summary>
         private void btnChooseHtmlFile_Click(object sender, System.EventArgs e)
         {
             OpenFileDialog dialog = new OpenFileDialog();
             //dialog.FileName = txtArchivo.Text;
-            dialog.Filter = "HTML Files (*.HTM)|*.htm|All the files (*.*)|*.*";
+            dialog.Filter = "HTML Files|" + GetHtmlExtensionsForFileDialog() + "|All files|*.*";
             dialog.FilterIndex = 1;
             dialog.RestoreDirectory = true;
             if (dialog.ShowDialog() == DialogResult.OK) 
@@ -1915,7 +1904,7 @@ namespace ChmProcessor
         {
             OpenFileDialog dialogo = new OpenFileDialog();
             //dialogo.FileName = txtArchivo.Text;
-            dialogo.Filter = "Todos los archivos (*.*)|*.*" ;
+            dialogo.Filter = "All files (*.*)|*.*" ;
             dialogo.FilterIndex = 1 ;
             dialogo.RestoreDirectory = true ;
             dialogo.Multiselect = true;
@@ -2207,7 +2196,6 @@ namespace ChmProcessor
 
         private void miAcercaDe_Click(object sender, System.EventArgs e)
         {
-            //MessageBox.Show("Html / Word converter to Compiled HTML Help v1.0\n(C) 2007 Toni Bennasar" , "About..." );
             About acercaDe = new About();
             acercaDe.ShowDialog();
         }
@@ -2469,14 +2457,30 @@ namespace ChmProcessor
         #region Source files handling
 
         /// <summary>
+        /// Return the extensions string to use as filter for HTML files on a Open/SaveFileDialog
+        /// </summary>
+        static private String GetHtmlExtensionsForFileDialog()
+        {
+            String extensions = "";
+            foreach (string extension in MSWord.HTMLEXTENSIONS)
+            {
+                if (extensions != "")
+                    extensions += ";";
+                extensions += "*." + extension;
+            }
+            return extensions;
+        }
+
+        /// <summary>
         /// Button to add a source file to the project pressed.
         /// </summary>
         private void btnAddSrcFile_Click(object sender, EventArgs e)
         {
             OpenFileDialog openDialog = new OpenFileDialog();
-            openDialog.Filter = "HTML Files /Word Files |*.htm;*.html";
+            openDialog.Filter = "HTML Files /Word Files |" + GetHtmlExtensionsForFileDialog();
             foreach (string extension in MSWord.WORDEXTENSIONS)
                 openDialog.Filter += ";*." + extension;
+
             //openDialog.Filter += "|All the files (*.*)|*.*";
             openDialog.FilterIndex = 1;
             openDialog.RestoreDirectory = false;
@@ -2584,13 +2588,13 @@ namespace ChmProcessor
         private void lstSourceFiles_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left && e.Clicks == 2)
-                openSelectedSourceFiles();
+                OpenSelectedSourceFiles();
         }
 
         /// <summary>
         /// Open with Windows shell the seleted files
         /// </summary>
-        private void openSelectedSourceFiles()
+        private void OpenSelectedSourceFiles()
         {
             foreach( String file in lstSourceFiles.SelectedItems )
                 OpenGeneralFile(file);
@@ -2603,7 +2607,7 @@ namespace ChmProcessor
         /// <param name="e"></param>
         private void btnOpenSrcFiles_Click(object sender, EventArgs e)
         {
-            openSelectedSourceFiles();
+            OpenSelectedSourceFiles();
         }
 
         #endregion
