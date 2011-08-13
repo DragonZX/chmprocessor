@@ -566,7 +566,8 @@ namespace ChmProcessorLib
 
                         if (indexer != null)
                             // Store the document at the full text search index:
-                            indexer.AddPage(nodo.Archivo, nodo.Title, nodo.body);
+                            //indexer.AddPage(nodo.Archivo, nodo.Title, nodo.body);
+                            indexer.AddPage(nodo.Archivo, nodo.Name, nodo.body);
                             
                     }
                 }

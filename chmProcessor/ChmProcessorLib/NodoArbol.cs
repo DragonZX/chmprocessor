@@ -217,30 +217,28 @@ namespace ChmProcessorLib
             Hijos.Add( nodo );
         }
 
+        /// <summary>
+        ///  The text title of the section. Its not HTML encoded safe.
+        /// </summary>
         public String Name 
         {
             get 
             {
                 string name = "";
-                if( Nodo != null )
+                if (Nodo != null)
+                {
                     name = Nodo.innerText;
+                    if (name != null)
+                        /// Remove spaces for the right ordering on the topics list.
+                        name = name.Trim();
+                }
                 else
                     name = "Inicio";
                 return name;
             }
         }
 
-        /// <summary>
-        /// The HTML encoded title of this chapter / section.
-        /// </summary>
-        public string EncodedName 
-        {
-            get 
-            {
-                return DocumentProcessor.HtmlEncode( Name );
-            }
-        }
-
+        /*
         /// <summary>
         /// Title that should appear for this section. Its not HTML encoded safe.
         /// </summary>
@@ -252,6 +250,18 @@ namespace ChmProcessorLib
                     return Nodo.innerText;
                 else
                     return "Inicio";
+            }
+        }
+        */
+
+        /// <summary>
+        /// The HTML encoded title of this chapter / section.
+        /// </summary>
+        public string EncodedName 
+        {
+            get 
+            {
+                return DocumentProcessor.HtmlEncode( Name );
             }
         }
 
