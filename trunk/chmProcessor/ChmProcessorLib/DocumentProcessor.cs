@@ -553,7 +553,7 @@ namespace ChmProcessorLib
 
                         // Save the section, adding header, footers, etc:
                         string filePath = directory + Path.DirectorySeparatorChar + nodo.Archivo;
-                        decorator.ProcessAndSavePage(nodo.body, filePath);
+                        decorator.ProcessAndSavePage(nodo.body, filePath, nodo.Name);
 
                         if (FirstChapterContent == null)
                         {
