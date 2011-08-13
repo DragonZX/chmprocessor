@@ -31,6 +31,11 @@ namespace ChmProcessorLib
     {
 
         /// <summary>
+        /// Text pattern to replace on the "textBeforeBody" field by the title tag of the page.
+        /// </summary>
+        static private String TITLETAG = "<%TITLE%>";
+
+        /// <summary>
         /// User interface to log messages. Can be null
         /// </summary>
         public UserInterface ui;
@@ -196,7 +201,8 @@ namespace ChmProcessorLib
         /// <param name="body">"body" tag to write into the html file</param>
         /// <param name="filePath">Path where to write the HTML file</param>
         /// <param name="UI">User interface of the application</param>
-        public void ProcessAndSavePage(IHTMLElement body, string filePath)
+        /// <param name="title">Text to put into the title tag of the page</param>
+        public void ProcessAndSavePage(IHTMLElement body, string filePath, string title)
         {
             // Make a copy of the body and add the header and footer:
             IHTMLElement clonedBody = AddFooterAndHeader(body);
@@ -214,7 +220,7 @@ namespace ChmProcessorLib
                 // Use the default encoding.
                 writer = new StreamWriter(filePath, false);
 
-            writer.WriteLine(textBeforeBody);
+            writer.WriteLine( textBeforeBody.Replace(TITLETAG, "<title>" + title + "</title>") );
             string bodyText = clonedBody.outerHTML;
 
             // Seems to be a bug that puts "about:blank" on links. Remove them:
@@ -265,15 +271,18 @@ namespace ChmProcessorLib
             IHTMLElementCollection headChidren = (IHTMLElementCollection)head.children;
             foreach (IHTMLElement e in headChidren)
             {
-                if (OutputEncoding != null && IsContentTypeTag(e) )
+                if (OutputEncoding != null && IsContentTypeTag(e))
                     // Replace the encoding:
-                    newHeadText += "<META content=\"text/html; charset=" + OutputEncoding.WebName + 
+                    newHeadText += "<META content=\"text/html; charset=" + OutputEncoding.WebName +
                         "\" http-equiv=Content-Type>\n";
+                else if (e is IHTMLTitleElement)
+                    // Is the title. We will replace it after.
+                    newHeadText += TITLETAG + "\n";
                 else
                     newHeadText += e.outerHTML + "\n";
             }
 
-            // Add includes
+            // Add head includes
             if (HeadIncludeHtmlCode != "")
                 newHeadText += HeadIncludeHtmlCode + "\n";
 
