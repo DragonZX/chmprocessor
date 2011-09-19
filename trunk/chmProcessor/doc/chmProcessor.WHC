@@ -12,6 +12,7 @@
   <GenerarWeb>true</GenerarWeb>
   <ArchivosAdicionales>
     <string>.\changelog.txt</string>
+    <string>.\LSI.jpg</string>
   </ArchivosAdicionales>
   <AbrirProyecto>false</AbrirProyecto>
   <DirectorioWeb>.\web</DirectorioWeb>
@@ -37,5 +38,5 @@
   <GenerateJavaHelp>false</GenerateJavaHelp>
   <JavaHelpPath>.\web\chmProcessorDocumentation.jar</JavaHelpPath>
   <HeadTagFile>.\headInclude.htm</HeadTagFile>
-  <ChmLocaleID>3082</ChmLocaleID>
+  <ChmLocaleID>9</ChmLocaleID>
 </Configuracion>
