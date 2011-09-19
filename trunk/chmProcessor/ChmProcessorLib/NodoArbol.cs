@@ -171,23 +171,24 @@ namespace ChmProcessorLib
         }
 
         /// <summary>
-        /// Constructor del nodo
+        /// Tree section node constructor
         /// </summary>
-        /// <param name="padre">Nodo padre en el arbol de capitulos. Nulo si es la raiz</param>
-        /// <param name="nodo">Nodo HTML header correspondiente. Nulo si es la raiz</param>
-        public NodoArbol(NodoArbol padre, IHTMLElement nodo) 
+        /// <param name="parent">Parent section of the section to create. null if the node to create is the root section.</param>
+        /// <param name="node">HTML header tag for this section</param>
+        /// <param name="ui">Application log. It can be null</param>
+        public NodoArbol(NodoArbol parent, IHTMLElement node, UserInterface ui) 
         {
-            this.Padre = padre;
-            this.Nodo = nodo;
+            this.Padre = parent;
+            this.Nodo = node;
             Hijos = new ArrayList();
-            Nivel = NivelNodo( nodo );
+            Nivel = NivelNodo( node );
             Archivo = "";
                 
             // Guardar la lista de los todos las referencias de este nodo ( nodos <A> con la propiedad "name")
             listaANames = new ArrayList();
-            if( nodo != null ) 
+            if( node != null ) 
             {
-                IHTMLElementCollection col = (IHTMLElementCollection) nodo.children;
+                IHTMLElementCollection col = (IHTMLElementCollection) node.children;
                 foreach( IHTMLElement hijo in col ) 
                 {
                     if (hijo is IHTMLAnchorElement)
@@ -196,7 +197,11 @@ namespace ChmProcessorLib
                         // The anchors to this will be replace too after.
                         //listaANames.Add( ((IHTMLAnchorElement)hijo).name.Replace( " " , "" ) );
                         string processedName = ToSafeFilename( ((IHTMLAnchorElement)hijo).name );
-                        listaANames.Add(processedName);
+                        if (processedName == null || processedName.Trim() == "")
+                            // It seems on HTML 5 and XHTML <a id="foo"> is used...
+                            processedName = ToSafeFilename( hijo.id );
+                        if( processedName != null && processedName.Trim() != "" )
+                            listaANames.Add(processedName);
                     }
                 }
                 if( listaANames.Count == 0 ) 
@@ -205,8 +210,20 @@ namespace ChmProcessorLib
                     int numero = UltimoNumeroAname++;
                     string nombreNodo = "NODO" + numero.ToString().Trim();
                     string tagA = "<a name=\"" + nombreNodo + "\">";
-                    nodo.insertAdjacentHTML( "afterBegin" , tagA );
-                    listaANames.Add( nombreNodo );
+                    try
+                    {
+                        node.insertAdjacentHTML("afterBegin", tagA);
+                        listaANames.Add(nombreNodo);
+                    }
+                    catch (Exception ex)
+                    {
+                        if( ui != null )
+                            ui.log( new Exception("There was an error trying to add the tag " + 
+                                tagA + " to the node " + node.outerHTML + " (wrong HTML syntax?). If " + 
+                                "the source document is HTML, try to add manually an <a> tag manually. " + 
+                                "The application needs a node of this kind on each section title " + 
+                                "to make links to point it", ex ) );
+                    }
                 }
             }
         }

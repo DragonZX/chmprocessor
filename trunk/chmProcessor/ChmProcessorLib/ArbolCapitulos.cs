@@ -47,25 +47,32 @@ namespace ChmProcessorLib
 
         public ArbolCapitulos()
         {
-            Raiz = new NodoArbol( null , null );
+            Raiz = new NodoArbol( null , null , null );
             Raiz.Nivel = 0;
         }
 
-        public void InsertarNodo( IHTMLElement nodo ) 
+        /// <summary>
+        /// Adds a section to the section tree.
+        /// The section will be added as child of the last section inserted with a level
+        /// higher than then section
+        /// </summary>
+        /// <param name="nodo">HTML header tag with the title of the section</param>
+        /// <param name="ui">Application log. It can be null</param>
+        public void InsertarNodo( IHTMLElement node , UserInterface ui ) 
         {
             // Ignorar cabeceras vacias (saltos de linea,etc. ) :
-            if( !DocumentProcessor.EsHeader( nodo ) )
+            if( !DocumentProcessor.EsHeader( node ) )
                 return;
 
-            int nivel = NodoArbol.NivelNodo( nodo );
+            int nivel = NodoArbol.NivelNodo( node );
             if( ultimoInsertado == null || nivel == 1 ) 
             {
-                ultimoInsertado = new NodoArbol( null, nodo );
+                ultimoInsertado = new NodoArbol( null, node , ui );
                 Raiz.NuevoHijo( ultimoInsertado );
             }
             else 
             {
-                NodoArbol nuevoNodo = new NodoArbol( ultimoInsertado, nodo );
+                NodoArbol nuevoNodo = new NodoArbol( ultimoInsertado, node , ui );
                 if( ultimoInsertado.Nivel < nivel )
                     ultimoInsertado.Hijos.Add( nuevoNodo );
                 else 
@@ -234,23 +241,35 @@ namespace ChmProcessorLib
                 AsignarNombreArchivos( hijo , ref Cnt , nivelCorte );
         }
 
-        public void AnalizarDocumentoRecursivo( IHTMLElement raiz ) 
+        /// <summary>
+        /// Make a recursive seach of all HTML header nodes into the document.
+        /// </summary>
+        /// <param name="currentNode">Current HTML node on the recursive search</param>
+        /// <param name="ui">The application log. It can be null.</param>
+        private void AnalizarDocumentoRecursivo( IHTMLElement currentNode , UserInterface ui ) 
         {
-            if( raiz is IHTMLHeaderElement )
-                InsertarNodo( raiz );
-            IHTMLElementCollection col = (IHTMLElementCollection) raiz.children;
-            foreach( IHTMLElement hijo in col ) 
-                AnalizarDocumentoRecursivo( hijo );
+            if( currentNode is IHTMLHeaderElement )
+                InsertarNodo( currentNode , ui );
+
+            IHTMLElementCollection col = (IHTMLElementCollection) currentNode.children;
+            foreach( IHTMLElement hijo in col )
+                AnalizarDocumentoRecursivo(hijo, ui);
         }
 
-        public void AnalizarDocumento( int nivelCorte , IHTMLElement raiz ) 
+        /// <summary>
+        /// Builds the sections tree of the document.
+        /// </summary>
+        /// <param name="cutLevel">HTML Header level that will contain an entire HTML page</param>
+        /// <param name="root">Root of the HTML document</param>
+        /// <param name="ui">The application log. it can be null.</param>
+        public void AnalizarDocumento( int cutLevel , IHTMLElement root , UserInterface ui) 
         {
             // Reservar el primer nodo para el contenido que venga sin titulo1, (portada,etc).
-            NodoArbol sinSeccion = new NodoArbol( this.Raiz , null );
+            NodoArbol sinSeccion = new NodoArbol( this.Raiz , null , ui);
             this.Raiz.Hijos.Add( sinSeccion );
 
             // Analizar que nodos de headers se encuentran en el documento
-            AnalizarDocumentoRecursivo( raiz );
+            AnalizarDocumentoRecursivo( root , ui );
 
             // Por defecto, todos los nodos al documento por defecto. El resto
             // ya ira cogiendo el valor de su archivo:
@@ -258,8 +277,8 @@ namespace ChmProcessorLib
 
             // Guardar en cada nodo en que archivo se habra guardado el nodo:
             int Cnt = 2;
-            foreach( NodoArbol hijo in this.Raiz.Hijos ) 
-                AsignarNombreArchivos( hijo , ref Cnt , nivelCorte );
+            foreach( NodoArbol hijo in this.Raiz.Hijos )
+                AsignarNombreArchivos(hijo, ref Cnt, cutLevel);
         }
 
         private void ListaArchivosGenerados( ArrayList lista , NodoArbol nodo ) 
