@@ -579,28 +579,36 @@ namespace ChmProcessorLib
 
         private void UnificarNodos( NodoArbol nodo ) 
         {
-            if( nodo.Nodo != null && nodo.Nodo.innerText != null && nodo.body != null ) 
+            try
             {
-                // Nodo con cuerpo:
-
-                if( nodo.Nodo.innerText.Trim().Equals( nodo.body.innerText.Trim() ) && 
-                    nodo.Hijos.Count > 0 ) 
+                if (nodo.Nodo != null && nodo.Nodo.innerText != null && nodo.body != null)
                 {
-                    // Nodo vacio y con hijos 
-                    NodoArbol hijo = (NodoArbol) nodo.Hijos[0];
-                    if( hijo.body != null ) 
+                    // Nodo con cuerpo:
+
+                    if (nodo.Nodo.innerText.Trim().Equals(nodo.body.innerText.Trim()) &&
+                        nodo.Hijos.Count > 0)
                     {
-                        // El hijo tiene cuerpo: Unificarlos.
-                        nodo.body.insertAdjacentHTML("beforeEnd" , hijo.body.innerHTML);
-                        hijo.body = null;
-                        //hijo.GuardadoEn(nodo.Archivo);
-                        hijo.ReplaceFile(nodo.Archivo);
+                        // Nodo vacio y con hijos 
+                        NodoArbol hijo = (NodoArbol)nodo.Hijos[0];
+                        if (hijo.body != null)
+                        {
+                            // El hijo tiene cuerpo: Unificarlos.
+                            nodo.body.insertAdjacentHTML("beforeEnd", hijo.body.innerHTML);
+                            hijo.body = null;
+                            //hijo.GuardadoEn(nodo.Archivo);
+                            hijo.ReplaceFile(nodo.Archivo);
+                        }
                     }
                 }
-            }
 
-            foreach( NodoArbol hijo in nodo.Hijos ) 
-                UnificarNodos( hijo );
+                foreach (NodoArbol hijo in nodo.Hijos)
+                    UnificarNodos(hijo);
+            }
+            catch (Exception ex)
+            {
+                log( new Exception( "There was some problem when we tried to join the empty section " +
+                    nodo.Name + " with their children", ex ) );
+            }
         }
 
         private ArrayList GuardarDocumentos(string directory, HtmlPageDecorator decorator, WebIndex indexer) 
@@ -1028,8 +1036,7 @@ namespace ChmProcessorLib
             // Build the tree structure of chapters.
             log("Searching sections", ConsoleUserInterface.INFO);
             tree = new ArbolCapitulos();
-            //arbol.AnalizarDocumento( this.nivelCorte , iDoc.body );
-            tree.AnalizarDocumento( Project.CutLevel, iDoc.body);
+            tree.AnalizarDocumento( Project.CutLevel, iDoc.body , this.UI );
 
             if (CancellRequested())
                 return null;
