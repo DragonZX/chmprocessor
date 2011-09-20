@@ -17,10 +17,9 @@
  */
 
 using System;
-using mshtml;
 using System.Collections;
 using System.IO;
-using System.Web;
+using mshtml;
 
 namespace ChmProcessorLib
 {
@@ -171,6 +170,32 @@ namespace ChmProcessorLib
         }
 
         /// <summary>
+        /// Adds a "a name="nodeName" tag as child of a node.
+        /// </summary>
+        /// <param name="node">Parent node where to add the a tag.</param>
+        /// <param name="ui">Application log. It can be null.</param>
+        /// <param name="nodeName">Value of the "name" attribute of the "a" tag added</param>
+        static private void AddARefTagToNode( IHTMLElement node, UserInterface ui , string nodeName ) {
+
+            try
+            {
+                IHTMLDocument2 doc = (IHTMLDocument2)node.document;
+                IHTMLAnchorElement aTagElement = (IHTMLAnchorElement) doc.createElement("<A NAME='" + nodeName + "'></A>");
+                ((IHTMLDOMNode)node).appendChild( (IHTMLDOMNode)aTagElement );
+
+            }
+            catch (Exception ex)
+            {
+                if (ui != null)
+                    ui.log(new Exception("There was an error trying to add the tag <a name=\"" +
+                        nodeName + "\" /> to the node " + node.outerHTML + " (wrong HTML syntax?). If " +
+                        "the source document is HTML, try to add manually an <a> tag manually. " +
+                        "The application needs a node of this kind on each section title " +
+                        "to make links to point it", ex));
+            }
+        }
+
+        /// <summary>
         /// Tree section node constructor
         /// </summary>
         /// <param name="parent">Parent section of the section to create. null if the node to create is the root section.</param>
@@ -208,22 +233,13 @@ namespace ChmProcessorLib
                 {
                     // Si no tiene ningun nombre, darle uno artificial:
                     int numero = UltimoNumeroAname++;
+                    // Mm...
+                    // This is failing on UTF-16 / persian charset. Try to change the encoding to
+                    // the document encoding...
                     string nombreNodo = "NODO" + numero.ToString().Trim();
-                    string tagA = "<a name=\"" + nombreNodo + "\">";
-                    try
-                    {
-                        node.insertAdjacentHTML("afterBegin", tagA);
-                        listaANames.Add(nombreNodo);
-                    }
-                    catch (Exception ex)
-                    {
-                        if( ui != null )
-                            ui.log( new Exception("There was an error trying to add the tag " + 
-                                tagA + " to the node " + node.outerHTML + " (wrong HTML syntax?). If " + 
-                                "the source document is HTML, try to add manually an <a> tag manually. " + 
-                                "The application needs a node of this kind on each section title " + 
-                                "to make links to point it", ex ) );
-                    }
+                    //string nombreNodo = "a" + numero.ToString().Trim();
+                    AddARefTagToNode(node, ui, nombreNodo);
+                    listaANames.Add(nombreNodo);
                 }
             }
         }
