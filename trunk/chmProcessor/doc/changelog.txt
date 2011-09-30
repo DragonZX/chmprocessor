@@ -1,3 +1,10 @@
+
+* 1.6.2
+- Now Microsoft.mshtml.dll is distributed with the application.
+
+* 1.6.1
+- Solved bug adding <a> tags on titles.
+
 * 1.6
 - Non western character sets (Cyrillic, chinese, japanese, etc) for CHM files now should work: Cyrilic has been tested and it seems to works. I need feedback about this. Please, say me if it works.
 - Added partial support to generate CHM files for languages different than the local system language.
