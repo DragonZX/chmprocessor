@@ -1736,7 +1736,12 @@ namespace ChmProcessor
                 }
                 if (chkJavaHelp.Checked && !File.Exists(AppSettings.JarPath))
                 {
-                    MessageBox.Show("The path to the Sun JDK is not set or does not exist. Please, go to the menu File > Settings... and put the path to the compiler. If you dont have it, the link to download it is there.");
+                    MessageBox.Show("The path to the Sun JDK (" + AppSettings.JarPath + ") is not set or does not exist. Please, go to the menu File > Settings... and put the path. If you dont have it, the link to download it is there.");
+                    return;
+                }
+                if (chkJavaHelp.Checked && !File.Exists(AppSettings.JavaHelpIndexerPath))
+                {
+                    MessageBox.Show("The path to the JavaHelp (" + AppSettings.JavaHelpIndexerPath + ") is not set or does not exist. Please, go to the menu File > Settings... and put the path. If you dont have it, the link to download it is there.");
                     return;
                 }
 

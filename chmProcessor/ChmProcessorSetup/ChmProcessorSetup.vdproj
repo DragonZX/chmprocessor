@@ -322,7 +322,19 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_C28A06F8E95E494499408E457724180B"
+        "OwnerKey" = "8:_ADA6546AE8F097B38316B6AC2AF09C51"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_24AED08A01D37076C550185072D3C9CB"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_40EAF55E64251C1B4E9CDB805DB06F5A"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -340,19 +352,13 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_C28A06F8E95E494499408E457724180B"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_A34E8F500489AC39BA3A27B74857373A"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_ADA6546AE8F097B38316B6AC2AF09C51"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_24AED08A01D37076C550185072D3C9CB"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -371,12 +377,6 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_EDEADF9626BFBB3CE2DAB0BD297AB60F"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_40EAF55E64251C1B4E9CDB805DB06F5A"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -1169,7 +1169,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:ChmProcessorLib, Version=1.6.4290.34543, Culture=neutral, processorArchitecture=x86"
+            "AssemblyAsmDisplayName" = "8:ChmProcessorLib, Version=1.6.4459.16913, Culture=neutral, processorArchitecture=x86"
                 "ScatterAssemblies"
                 {
                     "_ADA6546AE8F097B38316B6AC2AF09C51"
@@ -1570,14 +1570,14 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:chmProcessor"
-        "ProductCode" = "8:{D9914E57-8ECF-4A78-B199-6F76C57FD35D}"
-        "PackageCode" = "8:{FDF0C081-CD22-4207-BB6C-E16AB4F0A39C}"
+        "ProductCode" = "8:{E7131EB6-7E8C-4BD0-AA54-9A5D0B133E8C}"
+        "PackageCode" = "8:{BD51FA12-5559-4287-89B7-9148542F8ECD}"
         "UpgradeCode" = "8:{4B15581B-7387-47B1-9642-75A7B1E52B30}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:1.6.2"
+        "ProductVersion" = "8:1.6.3"
         "Manufacturer" = "8:ToniBSoft"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://chmprocessor.sf.net"
