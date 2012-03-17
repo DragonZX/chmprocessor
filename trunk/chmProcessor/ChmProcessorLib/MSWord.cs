@@ -47,7 +47,14 @@ namespace ChmProcessorLib
         /// </summary>
         public static string[] ASPXEXTENSIONS = { "aspx" };
 
+        /// <summary>
+        /// Reference to word application
+        /// </summary>
         private Application wordApp = null;
+
+        /// <summary>
+        /// Have we started a new instance of word, or we are using an existing instance?
+        /// </summary>
         private bool isNewApp = false;
 
         private bool disposed = false;
@@ -80,8 +87,13 @@ namespace ChmProcessorLib
             return false;
         }
 
+        /// <summary>
+        /// Constructor
+        /// Initializes a MSWord instance
+        /// </summary>
         public MSWord() 
         {
+
             // Check if Word is registered in the ROT.
             try
             {
@@ -100,9 +112,10 @@ namespace ChmProcessorLib
                     wordApp = new ApplicationClass();
                     isNewApp = true;
                 }
-                catch
+                catch(Exception ex) 
                 {
                     wordApp = null;
+                    throw new Exception("MS Word cannot be openened. Is it installed?", ex);
                 }
             }
         }
