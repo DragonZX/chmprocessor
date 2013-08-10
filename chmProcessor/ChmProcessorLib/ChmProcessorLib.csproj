@@ -154,6 +154,7 @@
     <Compile Include="ChmProjectXml.cs" />
     <Compile Include="ChmProject.cs" />
     <Compile Include="ConsoleUserInterface.cs" />
+    <Compile Include="DocumentStructure\ChmDocumentParser.cs" />
     <Compile Include="FileSystem.cs" />
     <Compile Include="DocumentProcessor.cs">
       <SubType>Code</SubType>

@@ -30,14 +30,14 @@ namespace ChmProcessorLib.DocumentStructure
     {
         /// <summary>
         /// Header tag (h1,h2...) for this node.
-        /// It will be null for the root node.
+        /// It will be null for the root node AND the initial part of the document without any title.
         /// TODO: This member should be private
         /// </summary>
         public IHTMLElement HeaderTag;
 
         /// <summary>
-        /// Name of the html file name of where this node will be stored, after the 
-        /// document will be splitted.
+        /// Name, without the directory, of the html file name of where this node will be stored, 
+        /// after the document will be splitted.
         /// Until the document is not splitted, it will be null.
         /// </summary>
         public string DestinationFileName;
@@ -171,7 +171,12 @@ namespace ChmProcessorLib.DocumentStructure
             return ToSafeFilename( nombre );
         }
 
-        static public int NivelNodo( IHTMLElement nodo ) 
+        /// <summary>
+        /// Returns the level number for a header tag (H1, H2, etc)
+        /// </summary>
+        /// <param name="nodo">HTML tag to check</param>
+        /// <returns>The header tag level. 1 if its null</returns>
+        static public int HeaderTagLevel( IHTMLElement nodo ) 
         {
             if( nodo == null )
                 return 1;
@@ -216,7 +221,7 @@ namespace ChmProcessorLib.DocumentStructure
             this.Parent = parent;
             this.HeaderTag = node;
             Children = new List<ChmDocumentNode>();
-            HeaderLevel = NivelNodo( node );
+            HeaderLevel = HeaderTagLevel( node );
             DestinationFileName = "";
                 
             // Guardar la lista de los todos las referencias de este nodo ( nodos <A> con la propiedad "name")
@@ -243,11 +248,7 @@ namespace ChmProcessorLib.DocumentStructure
                 {
                     // Si no tiene ningun nombre, darle uno artificial:
                     int numero = LatestCustomAnchorNumber++;
-                    // Mm...
-                    // This is failing on UTF-16 / persian charset. Try to change the encoding to
-                    // the document encoding...
                     string nombreNodo = "NODO" + numero.ToString().Trim();
-                    //string nombreNodo = "a" + numero.ToString().Trim();
                     AddARefTagToNode(node, ui, nombreNodo);
                     AnchorNames.Add(nombreNodo);
                 }
@@ -370,8 +371,8 @@ namespace ChmProcessorLib.DocumentStructure
         #endregion
 
         /// <summary>
-        /// Relative URL for this section
-        /// Destino de un href para hacer referencia a este capitulo. P.ej. "aa.htm#xxx"
+        /// Relative URL for this section. 
+        /// As example "achilipu.htm#anchorname"
         /// </summary>
         public string Href 
         {

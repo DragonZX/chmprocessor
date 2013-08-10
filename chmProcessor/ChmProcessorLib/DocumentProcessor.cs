@@ -455,7 +455,7 @@ namespace ChmProcessorLib
                             // A internal link.
                             // Replace it to point to the right splitted file.
                             string safeRef = ChmDocumentNode.ToSafeFilename(href.Substring(1));
-                            ChmDocumentNode nodoArbol = tree.Raiz.BuscarEnlace(safeRef);
+                            ChmDocumentNode nodoArbol = tree.RootNode.BuscarEnlace(safeRef);
                             if (nodoArbol != null)
                                 link.href = nodoArbol.DestinationFileName + "#" + safeRef;
                             else
@@ -614,12 +614,12 @@ namespace ChmProcessorLib
         private ArrayList GuardarDocumentos(string directory, HtmlPageDecorator decorator, WebIndex indexer) 
         {
             // Intentar unificar nodos que quedarian vacios, con solo el titulo de la seccion:
-            foreach( ChmDocumentNode nodo in tree.Raiz.Children ) 
+            foreach( ChmDocumentNode nodo in tree.RootNode.Children ) 
                 UnificarNodos( nodo );
 
             // Recorrer el arbol en busca de nodos con cuerpo
             ArrayList archivosGenerados = new ArrayList();
-            foreach (ChmDocumentNode nodo in tree.Raiz.Children)
+            foreach (ChmDocumentNode nodo in tree.RootNode.Children)
                 GuardarDocumentos(directory, decorator, nodo, archivosGenerados, indexer);
 
             return archivosGenerados;
@@ -631,14 +631,14 @@ namespace ChmProcessorLib
             ChmDocumentNode nodeToStore;
             if( sectionHeader == null )
                 // If no section was found, its the first section of the document:
-                nodeToStore = (ChmDocumentNode) tree.Raiz.Children[0];
+                nodeToStore = (ChmDocumentNode) tree.RootNode.Children[0];
             else 
             {
                 string aName = "";
                 IHTMLAnchorElement a = BuscarNodoA( sectionHeader );
                 if( a != null && a.name != null )
                     aName = ChmDocumentNode.ToSafeFilename( a.name );
-                nodeToStore = tree.Raiz.BuscarNodo( sectionHeader , aName );
+                nodeToStore = tree.RootNode.BuscarNodo( sectionHeader , aName );
             }
 
             if (nodeToStore == null)
@@ -1091,14 +1091,14 @@ namespace ChmProcessorLib
             string archivo1 = Project.HelpProjectDirectory + Path.DirectorySeparatorChar + "1.htm";
             if( ! File.Exists( archivo1) ) 
             {
-                tree.Raiz.DestinationFileName = "";
-                tree.Raiz.Children.RemoveAt(0);
+                tree.RootNode.DestinationFileName = "";
+                tree.RootNode.Children.RemoveAt(0);
             }
 
             // Obtener el nombre del primer archivo generado:
             string primero = "";
-            if( tree.Raiz.Children.Count > 0 )
-                primero = ((ChmDocumentNode) tree.Raiz.Children[0]).DestinationFileName;
+            if( tree.RootNode.Children.Count > 0 )
+                primero = ((ChmDocumentNode) tree.RootNode.Children[0]).DestinationFileName;
 
             if (CancellRequested())
                 return null;
