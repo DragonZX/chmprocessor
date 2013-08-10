@@ -43,13 +43,34 @@ namespace ChmProcessorLib.DocumentStructure
         /// </summary>
         private ChmDocumentNode ultimoInsertado;
 
-        // TODO: This should be a private member
-        public ChmDocumentNode Raiz;
+        /// <summary>
+        /// THE html document
+        /// </summary>
+        private IHTMLDocument2 IDoc;
 
+        /// <summary>
+        /// The root node for the document.
+        /// TODO: This should be a private member
+        /// </summary>
+        public ChmDocumentNode RootNode;
+
+        /// <summary>
+        /// Constructor
+        /// TODO: Remove this constructor
+        /// </summary>
         public ChmDocument()
         {
-            Raiz = new ChmDocumentNode( null , null , null );
-            Raiz.HeaderLevel = 0;
+            RootNode = new ChmDocumentNode( null , null , null );
+            RootNode.HeaderLevel = 0;
+        }
+
+        /// <summary>
+        /// Constructor
+        /// <param name="iDoc">The document to parse</param>
+        /// </summary>
+        public ChmDocument(IHTMLDocument2 iDoc) : this()
+        {
+            IDoc = iDoc;
         }
 
         /// <summary>
@@ -65,11 +86,11 @@ namespace ChmProcessorLib.DocumentStructure
             if( !DocumentProcessor.EsHeader( node ) )
                 return;
 
-            int nivel = ChmDocumentNode.NivelNodo( node );
+            int nivel = ChmDocumentNode.HeaderTagLevel( node );
             if( ultimoInsertado == null || nivel == 1 ) 
             {
                 ultimoInsertado = new ChmDocumentNode( null, node , ui );
-                Raiz.AddChild( ultimoInsertado );
+                RootNode.AddChild( ultimoInsertado );
             }
             else 
             {
@@ -79,7 +100,7 @@ namespace ChmProcessorLib.DocumentStructure
                 else 
                 {
                     ChmDocumentNode actual = ultimoInsertado.Parent;
-                    while( actual != Raiz && actual.HeaderLevel >= nivel )
+                    while( actual != RootNode && actual.HeaderLevel >= nivel )
                         actual = actual.Parent;
                     actual.AddChild( nuevoNodo );
                 }
@@ -118,7 +139,7 @@ namespace ChmProcessorLib.DocumentStructure
             writer.WriteLine( "<!-- Sitemap 1.0 -->" );
             writer.WriteLine( "</HEAD><BODY>" );
             writer.WriteLine( "<UL>" );
-            foreach( ChmDocumentNode hijo in Raiz.Children ) 
+            foreach( ChmDocumentNode hijo in RootNode.Children ) 
                 GenerarArbolDeContenidos( writer , hijo , MaxTOCLevel , 1 );
             writer.WriteLine( "</UL>" );
             writer.WriteLine( "</BODY></HTML>" );
@@ -159,7 +180,7 @@ namespace ChmProcessorLib.DocumentStructure
                 "PUBLIC \"-//Sun Microsystems Inc.//DTD JavaHelp TOC Version 2.0//EN\"\n" +
                 "\"http://java.sun.com/products/javahelp/toc_2_0.dtd\">");
             writer.WriteLine("<toc version=\"2.0\">");
-            foreach (ChmDocumentNode child in Raiz.Children)
+            foreach (ChmDocumentNode child in RootNode.Children)
                 GenerateJavaHelpTOC(writer, child, maxLevelTOC, 1);
             writer.WriteLine("</toc>");
             writer.Close();
@@ -181,7 +202,7 @@ namespace ChmProcessorLib.DocumentStructure
         public ChmDocumentIndex GenerarIndice( int NivelMaximoIndice ) 
         {
             ChmDocumentIndex index = new ChmDocumentIndex();
-            foreach( ChmDocumentNode hijo in Raiz.Children ) 
+            foreach( ChmDocumentNode hijo in RootNode.Children ) 
                 GenerarIndice( index , hijo , NivelMaximoIndice , 1 );
             return index;
         }
@@ -229,7 +250,7 @@ namespace ChmProcessorLib.DocumentStructure
                 texto += " class=\"" + classId + "\"";
             texto += ">\n";
 
-            foreach( ChmDocumentNode hijo in Raiz.Children ) 
+            foreach( ChmDocumentNode hijo in RootNode.Children ) 
                 texto += GenerarArbolHtml( hijo , NivelMaximoTOC , 1 ) + "\n";
             texto += "</ul>\n";
             return texto;
@@ -268,19 +289,19 @@ namespace ChmProcessorLib.DocumentStructure
         public void AnalizarDocumento( int cutLevel , IHTMLElement root , UserInterface ui) 
         {
             // Reservar el primer nodo para el contenido que venga sin titulo1, (portada,etc).
-            ChmDocumentNode sinSeccion = new ChmDocumentNode( this.Raiz , null , ui);
-            this.Raiz.Children.Add( sinSeccion );
+            ChmDocumentNode sinSeccion = new ChmDocumentNode( this.RootNode , null , ui);
+            this.RootNode.Children.Add( sinSeccion );
 
             // Analizar que nodos de headers se encuentran en el documento
             AnalizarDocumentoRecursivo( root , ui );
 
             // Por defecto, todos los nodos al documento por defecto. El resto
             // ya ira cogiendo el valor de su archivo:
-            this.Raiz.StoredAt( "1.htm" );
+            this.RootNode.StoredAt( "1.htm" );
 
             // Guardar en cada nodo en que archivo se habra guardado el nodo:
             int Cnt = 2;
-            foreach( ChmDocumentNode hijo in this.Raiz.Children )
+            foreach( ChmDocumentNode hijo in this.RootNode.Children )
                 AsignarNombreArchivos(hijo, ref Cnt, cutLevel);
         }
 
@@ -299,7 +320,7 @@ namespace ChmProcessorLib.DocumentStructure
         public ArrayList ListaArchivosGenerados() 
         {
             ArrayList lista = new ArrayList();
-            ListaArchivosGenerados( lista , this.Raiz );
+            ListaArchivosGenerados( lista , this.RootNode );
             return lista;
         }
 
@@ -312,7 +333,7 @@ namespace ChmProcessorLib.DocumentStructure
         /// found.</returns>
         public ChmDocumentNode SearchBySectionTitle(string sectionTitle)
         {
-            return Raiz.SearchBySectionTitle(sectionTitle);
+            return RootNode.SearchBySectionTitle(sectionTitle);
         }
     }
 }
