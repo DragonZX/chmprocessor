@@ -1,4 +1,8 @@
 
+* 1.6.3
+- Wrong Microsoft.mshtml.dll was distributed with 1.6.2. Now should be the right (the PIA dll)
+- Added warning messages for javahelp and word installations not found.
+
 * 1.6.2
 - Now Microsoft.mshtml.dll is distributed with the application.
 

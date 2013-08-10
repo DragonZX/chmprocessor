@@ -17,33 +17,19 @@
  */
 
 using System;
-using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using ChmProcessorLib.DocumentStructure;
 
-namespace ChmProcessorLib
+namespace ChmProcessorLib.DocumentStructure
 {
 	/// <summary>
-	/// Topics index of the help
+	/// Topics index of the document.
+    /// Its just a plain list of the tree nodes of the document.
 	/// </summary>
-	public class Index
+	public class ChmDocumentIndex : List<ChmDocumentNode>
 	{
-
-        ArrayList entriesList;
-
-        private class Entry 
-        {
-        }
-
-		public Index()
-		{
-            entriesList = new ArrayList();
-		}
-
-        public void AddNode( NodoArbol node ) 
-        {
-            entriesList.Add( node );
-        }
 
         /// <summary>
         /// Generate a HTML select tag, with the topics index of the help.
@@ -51,13 +37,13 @@ namespace ChmProcessorLib
         /// <returns>The select tag with the topics.</returns>
         public string GenerateWebIndex() 
         {
-            entriesList.Sort();
+            Sort();
             string index = "<select id=\"topicsList\" style=\"width:100%;\" size=\"20\" onclick=\"topicOnClick();\" ondblclick=\"topicSelected();\" >\n";
-            foreach (NodoArbol node in entriesList)
+            foreach (ChmDocumentNode node in this)
             {
                 string href = node.Href;
                 if( !href.Equals("") )
-                    index += "<option value=\"" + node.Href + "\">" + node.EncodedName + "</option>\n";
+                    index += "<option value=\"" + node.Href + "\">" + node.HtmlEncodedTitle + "</option>\n";
             }
             index += "</select>\n";
             return index;
@@ -74,11 +60,10 @@ namespace ChmProcessorLib
             writer.WriteLine( "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML//EN\">" );
             writer.WriteLine( "<HTML>" );
             writer.WriteLine( "<HEAD>" );
-            //writer.WriteLine("<HEAD>");
             writer.WriteLine( "<!-- Sitemap 1.0 -->" );
             writer.WriteLine( "</HEAD><BODY>" );
             writer.WriteLine( "<UL>" );
-            foreach (NodoArbol node in entriesList)
+            foreach (ChmDocumentNode node in this)
             {
                 if (!node.Href.Equals(""))
                     writer.WriteLine(node.EntradaArbolContenidos);
@@ -100,7 +85,7 @@ namespace ChmProcessorLib
                 "PUBLIC \"-//Sun Microsystems Inc.//DTD JavaHelp Index Version 1.0//EN\"\n" +
                 "\"http://java.sun.com/products/javahelp/index_2_0.dtd\">");
             writer.WriteLine("<index version=\"2.0\">");
-            foreach (NodoArbol node in entriesList)
+            foreach (ChmDocumentNode node in this)
             {
                 if (!node.Href.Equals(""))
                     writer.WriteLine(node.JavaHelpIndexEntry);
@@ -121,7 +106,7 @@ namespace ChmProcessorLib
                 "PUBLIC \"-//Sun Microsystems Inc.//DTD JavaHelp Map Version 1.0//EN\"\n" +
                 "\"http://java.sun.com/products/javahelp/map_1_0.dtd\">");
             writer.WriteLine("<map version=\"1.0\">");
-            foreach (NodoArbol node in entriesList)
+            foreach (ChmDocumentNode node in this)
             {
                 if (!node.Href.Equals(""))
                     writer.WriteLine(node.JavaHelpMapEntry);
@@ -137,12 +122,12 @@ namespace ChmProcessorLib
         {
             get
             {
-                foreach (NodoArbol node in entriesList)
+                foreach (ChmDocumentNode node in this)
                 {
                     if (!node.Href.Equals("")) 
                         return node.JavaHelpTarget;
                 }
-                return ArbolCapitulos.DEFAULTTILE;
+                return ChmDocument.DEFAULTTILE;
             }
         }
 

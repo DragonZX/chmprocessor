@@ -23,12 +23,13 @@ using System.Collections;
 using System.Web;
 using System.Text;
 
-namespace ChmProcessorLib
+namespace ChmProcessorLib.DocumentStructure
 {
 	/// <summary>
-	/// Estructura de arbol de los capitulos dentro de un documento.
+	/// Structured version of a HTML document.
+    /// It stores the document itself, and the document sections tree
 	/// </summary>
-    public class ArbolCapitulos
+    public class ChmDocument
     {
 
         /// <summary>
@@ -40,15 +41,15 @@ namespace ChmProcessorLib
         /// <summary>
         /// Ultimo nodo insertado en el arbol.
         /// </summary>
-        private NodoArbol ultimoInsertado;
+        private ChmDocumentNode ultimoInsertado;
 
         // TODO: This should be a private member
-        public NodoArbol Raiz;
+        public ChmDocumentNode Raiz;
 
-        public ArbolCapitulos()
+        public ChmDocument()
         {
-            Raiz = new NodoArbol( null , null , null );
-            Raiz.Nivel = 0;
+            Raiz = new ChmDocumentNode( null , null , null );
+            Raiz.HeaderLevel = 0;
         }
 
         /// <summary>
@@ -64,38 +65,38 @@ namespace ChmProcessorLib
             if( !DocumentProcessor.EsHeader( node ) )
                 return;
 
-            int nivel = NodoArbol.NivelNodo( node );
+            int nivel = ChmDocumentNode.NivelNodo( node );
             if( ultimoInsertado == null || nivel == 1 ) 
             {
-                ultimoInsertado = new NodoArbol( null, node , ui );
-                Raiz.NuevoHijo( ultimoInsertado );
+                ultimoInsertado = new ChmDocumentNode( null, node , ui );
+                Raiz.AddChild( ultimoInsertado );
             }
             else 
             {
-                NodoArbol nuevoNodo = new NodoArbol( ultimoInsertado, node , ui );
-                if( ultimoInsertado.Nivel < nivel )
-                    ultimoInsertado.Hijos.Add( nuevoNodo );
+                ChmDocumentNode nuevoNodo = new ChmDocumentNode( ultimoInsertado, node , ui );
+                if( ultimoInsertado.HeaderLevel < nivel )
+                    ultimoInsertado.Children.Add( nuevoNodo );
                 else 
                 {
-                    NodoArbol actual = ultimoInsertado.Padre;
-                    while( actual != Raiz && actual.Nivel >= nivel )
-                        actual = actual.Padre;
-                    actual.NuevoHijo( nuevoNodo );
+                    ChmDocumentNode actual = ultimoInsertado.Parent;
+                    while( actual != Raiz && actual.HeaderLevel >= nivel )
+                        actual = actual.Parent;
+                    actual.AddChild( nuevoNodo );
                 }
                 ultimoInsertado = nuevoNodo;
             }
         }
 
-        protected void GenerarArbolDeContenidos( StreamWriter writer , NodoArbol nodo , int NivelMaximoTOC , int nivel ) 
+        protected void GenerarArbolDeContenidos( StreamWriter writer , ChmDocumentNode nodo , int NivelMaximoTOC , int nivel ) 
         {
             if( NivelMaximoTOC != 0 && nivel > NivelMaximoTOC )
                 return;
 
             writer.WriteLine( nodo.EntradaArbolContenidos );
-            if( nodo.Hijos.Count > 0 ) 
+            if( nodo.Children.Count > 0 ) 
             {
                 writer.WriteLine( "<UL>" );
-                foreach( NodoArbol hijo in nodo.Hijos ) 
+                foreach( ChmDocumentNode hijo in nodo.Children ) 
                     GenerarArbolDeContenidos( writer , hijo , NivelMaximoTOC , nivel + 1 );
                 writer.WriteLine( "</UL>" );
             }
@@ -117,7 +118,7 @@ namespace ChmProcessorLib
             writer.WriteLine( "<!-- Sitemap 1.0 -->" );
             writer.WriteLine( "</HEAD><BODY>" );
             writer.WriteLine( "<UL>" );
-            foreach( NodoArbol hijo in Raiz.Hijos ) 
+            foreach( ChmDocumentNode hijo in Raiz.Children ) 
                 GenerarArbolDeContenidos( writer , hijo , MaxTOCLevel , 1 );
             writer.WriteLine( "</UL>" );
             writer.WriteLine( "</BODY></HTML>" );
@@ -131,17 +132,17 @@ namespace ChmProcessorLib
         /// <param name="currentNode">Node to process now</param>
         /// <param name="currentLevel">Current deep level of the node into the document tree</param>
         /// <param name="maxLevelTOC">Maximum deep level into the tree to generate the TOC.</param>
-        public void GenerateJavaHelpTOC(StreamWriter writer, NodoArbol currentNode, int maxLevelTOC, int currentLevel)
+        public void GenerateJavaHelpTOC(StreamWriter writer, ChmDocumentNode currentNode, int maxLevelTOC, int currentLevel)
         {
             if (maxLevelTOC != 0 && currentLevel > maxLevelTOC)
                 return;
 
-            if( currentNode.Nodo != null ) 
+            if( currentNode.HeaderTag != null ) 
                 writer.WriteLine(currentNode.JavaHelpTOCEntry);
-            foreach (NodoArbol child in currentNode.Hijos)
+            foreach (ChmDocumentNode child in currentNode.Children)
                 GenerateJavaHelpTOC(writer, child, maxLevelTOC, currentLevel + 1);
 
-            if (currentNode.Nodo != null && currentNode.Hijos.Count > 0)
+            if (currentNode.HeaderTag != null && currentNode.Children.Count > 0)
                 writer.WriteLine("</tocitem>");
         }
 
@@ -158,32 +159,34 @@ namespace ChmProcessorLib
                 "PUBLIC \"-//Sun Microsystems Inc.//DTD JavaHelp TOC Version 2.0//EN\"\n" +
                 "\"http://java.sun.com/products/javahelp/toc_2_0.dtd\">");
             writer.WriteLine("<toc version=\"2.0\">");
-            foreach (NodoArbol child in Raiz.Hijos)
+            foreach (ChmDocumentNode child in Raiz.Children)
                 GenerateJavaHelpTOC(writer, child, maxLevelTOC, 1);
             writer.WriteLine("</toc>");
             writer.Close();
         }
 
-        public void GenerarIndice( Index index , NodoArbol nodo , int NivelMaximoIndice , int nivel ) 
+        // TODO: Move this function to ChmDocumentIndex class
+        public void GenerarIndice( ChmDocumentIndex index , ChmDocumentNode nodo , int NivelMaximoIndice , int nivel ) 
         {
             if( NivelMaximoIndice != 0 && nivel > NivelMaximoIndice )
                 return;
 
-            index.AddNode( nodo );
+            index.Add( nodo );
             //writer.WriteLine( nodo.EntradaArbolContenidos );
-            foreach( NodoArbol hijo in nodo.Hijos ) 
-                GenerarIndice( index , /*writer ,*/ hijo , NivelMaximoIndice , nivel + 1 );
+            foreach( ChmDocumentNode hijo in nodo.Children ) 
+                GenerarIndice( index , hijo , NivelMaximoIndice , nivel + 1 );
         }
 
-        public Index GenerarIndice( int NivelMaximoIndice ) 
+        // TODO: Move this function to ChmDocumentIndex class
+        public ChmDocumentIndex GenerarIndice( int NivelMaximoIndice ) 
         {
-            Index index = new Index();
-            foreach( NodoArbol hijo in Raiz.Hijos ) 
+            ChmDocumentIndex index = new ChmDocumentIndex();
+            foreach( ChmDocumentNode hijo in Raiz.Children ) 
                 GenerarIndice( index , hijo , NivelMaximoIndice , 1 );
             return index;
         }
 
-        private string GenerarArbolHtml( NodoArbol nodo , int NivelMaximoTOC , int nivel ) 
+        private string GenerarArbolHtml( ChmDocumentNode nodo , int NivelMaximoTOC , int nivel ) 
         {
             if( NivelMaximoTOC != 0 && nivel > NivelMaximoTOC )
                 return "";
@@ -193,20 +196,20 @@ namespace ChmProcessorLib
             {
                 // Verificar el nodo inicial, que puede no tener titulo:
                 string nombre = "";
-                if( nodo.Nodo != null )
-                    nombre = nodo.Nodo.innerText;
+                if( nodo.HeaderTag != null )
+                    nombre = nodo.HeaderTag.innerText;
                 else
                     nombre = DEFAULTTILE;
                 texto = "<li><a href=\"" + nodo.Href ;
                 texto += "\">" + DocumentProcessor.HtmlEncode( nombre ) + "</a>";
             }
 
-            if( nodo.Hijos.Count > 0 ) 
+            if( nodo.Children.Count > 0 ) 
             {
                 if( NivelMaximoTOC == 0 || nivel < NivelMaximoTOC ) 
                 {
                     texto += "\n<ul>\n";
-                    foreach( NodoArbol hijo in nodo.Hijos ) 
+                    foreach( ChmDocumentNode hijo in nodo.Children ) 
                         texto += GenerarArbolHtml( hijo , NivelMaximoTOC , nivel + 1 ) + "\n";
                     texto += "</ul>";
                 }
@@ -226,18 +229,18 @@ namespace ChmProcessorLib
                 texto += " class=\"" + classId + "\"";
             texto += ">\n";
 
-            foreach( NodoArbol hijo in Raiz.Hijos ) 
+            foreach( ChmDocumentNode hijo in Raiz.Children ) 
                 texto += GenerarArbolHtml( hijo , NivelMaximoTOC , 1 ) + "\n";
             texto += "</ul>\n";
             return texto;
         }
 
-        private void AsignarNombreArchivos( NodoArbol nodo , ref int Cnt , int nivelCorte ) 
+        private void AsignarNombreArchivos( ChmDocumentNode nodo , ref int Cnt , int nivelCorte ) 
         {
-            if( nodo.Nodo != null && DocumentProcessor.IsCutHeader( nivelCorte , nodo.Nodo ) ) 
+            if( nodo.HeaderTag != null && DocumentProcessor.IsCutHeader( nivelCorte , nodo.HeaderTag ) ) 
                 nodo.StoredAt( nodo.NombreArchivo( Cnt++ ) );
 
-            foreach( NodoArbol hijo in nodo.Hijos ) 
+            foreach( ChmDocumentNode hijo in nodo.Children ) 
                 AsignarNombreArchivos( hijo , ref Cnt , nivelCorte );
         }
 
@@ -265,8 +268,8 @@ namespace ChmProcessorLib
         public void AnalizarDocumento( int cutLevel , IHTMLElement root , UserInterface ui) 
         {
             // Reservar el primer nodo para el contenido que venga sin titulo1, (portada,etc).
-            NodoArbol sinSeccion = new NodoArbol( this.Raiz , null , ui);
-            this.Raiz.Hijos.Add( sinSeccion );
+            ChmDocumentNode sinSeccion = new ChmDocumentNode( this.Raiz , null , ui);
+            this.Raiz.Children.Add( sinSeccion );
 
             // Analizar que nodos de headers se encuentran en el documento
             AnalizarDocumentoRecursivo( root , ui );
@@ -277,15 +280,15 @@ namespace ChmProcessorLib
 
             // Guardar en cada nodo en que archivo se habra guardado el nodo:
             int Cnt = 2;
-            foreach( NodoArbol hijo in this.Raiz.Hijos )
+            foreach( ChmDocumentNode hijo in this.Raiz.Children )
                 AsignarNombreArchivos(hijo, ref Cnt, cutLevel);
         }
 
-        private void ListaArchivosGenerados( ArrayList lista , NodoArbol nodo ) 
+        private void ListaArchivosGenerados( ArrayList lista , ChmDocumentNode nodo ) 
         {
-            if( !nodo.Archivo.Equals("") && !lista.Contains(nodo.Archivo) )
-                lista.Add( nodo.Archivo);
-            foreach( NodoArbol hijo in nodo.Hijos )
+            if( !nodo.DestinationFileName.Equals("") && !lista.Contains(nodo.DestinationFileName) )
+                lista.Add( nodo.DestinationFileName);
+            foreach( ChmDocumentNode hijo in nodo.Children )
                 ListaArchivosGenerados( lista , hijo );
         }
 
@@ -307,7 +310,7 @@ namespace ChmProcessorLib
         /// <param name="sectionTitle">The section title to seach</param>
         /// <returns>The first section of the document with that title. null if no section was
         /// found.</returns>
-        public NodoArbol SearchBySectionTitle(string sectionTitle)
+        public ChmDocumentNode SearchBySectionTitle(string sectionTitle)
         {
             return Raiz.SearchBySectionTitle(sectionTitle);
         }
