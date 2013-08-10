@@ -17,92 +17,102 @@
  */
 
 using System;
-using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using mshtml;
 
-namespace ChmProcessorLib
+namespace ChmProcessorLib.DocumentStructure
 {
     /// <summary>
-    /// Descripcion de un nodo del arbol de capitulos.
+    /// The referente to a section (a H1, H2, etc tag) of the HTML document.
     /// </summary>
-    public class NodoArbol : IComparable
+    public class ChmDocumentNode : IComparable
     {
         /// <summary>
-        /// Nodo del documento del que ha salido este. ojo puede ser null.
+        /// Header tag (h1,h2...) for this node.
+        /// It will be null for the root node.
+        /// TODO: This member should be private
         /// </summary>
-        public IHTMLElement Nodo;
+        public IHTMLElement HeaderTag;
 
         /// <summary>
-        /// Archivo final al que va la seccion tras trocear el documento.
+        /// Name of the html file name of where this node will be stored, after the 
+        /// document will be splitted.
+        /// Until the document is not splitted, it will be null.
         /// </summary>
-        public string Archivo;
+        public string DestinationFileName;
 
         /// <summary>
-        /// Secciones internas de este capitulo.
+        /// Children nodes of this node (subsections)
         /// </summary>
-        public ArrayList Hijos;
+        public List<ChmDocumentNode> Children;
 
         /// <summary>
-        /// El nodo padre
+        /// The parent node of this. It will be null for the root node.
         /// </summary>
-        public NodoArbol Padre;
+        public ChmDocumentNode Parent;
 
         /// <summary>
-        /// El nivel del header (H1 -> 1 , H2 -> 2, etc )
+        /// The node header level (H1 -> 1 , H2 -> 2, etc ).
+        /// Will be zero for the root
         /// </summary>
-        public int Nivel;
+        public int HeaderLevel;
 
         /// <summary>
-        /// La lista de nombres con que se puede hacer referencia a este nodo
+        /// Anchor names (a name="thisisthename" tags) that can be used to reference this node.
         /// </summary>
-        private ArrayList listaANames;
+        private List<string> AnchorNames;
 
         /// <summary>
-        /// Contador del ultimo numero dado a un tag A name="NODOxxxx" , donde la xxx es el
-        /// numero. Se usa para asignar un nombre a los nodos que no lo tienen.
+        /// Used when we need to create a custom anchor for a node. It happens when the node
+        /// does not have any anchor on the HTML document.
+        /// In this case we create a custom anchor with name "NODOxxxx" where xxxx is a number.
+        /// This number is get from this counter.
         /// </summary>
-        private static int UltimoNumeroAname = 0;
+        private static int LatestCustomAnchorNumber = 0;
 
         /// <summary>
-        /// El nombre del identificador del tag A (a name="xxx") que se usa
-        /// para enlazar con este nodo. Puede ser nulo. Tener en cuenta
-        /// que no incluye el nombre del archivo (Archivo)
+        /// The main anchor name (a name="mainname" tag) for this node.
+        /// Its the first name of the AnchorNames list. 
+        /// It will be an empty string for the root node.
         /// </summary>
-        public string aNamePrincipal 
+        public string MainAnchorName 
         {
             get 
             {
-                if( listaANames.Count > 0 )
-                    return (string)listaANames[0];
-                else
-                    return "";
+                if( AnchorNames.Count > 0 )
+                    return AnchorNames[0];
+                return string.Empty;
             }
         }
 
         /// <summary>
-        /// Cuerpo de lo que sera este capitulo
+        /// If this node will be the root for a splitted part of the original HTML document,
+        /// this is the HTML body tag for this part. Otherwise, it will be null.
         /// </summary>
-        public IHTMLElement body;
+        public IHTMLElement SplittedPartBody;
 
         /// <summary>
-        /// List with all the names contained into the body of this node. Those names are the "name" property
+        /// If SplittedPartBody is not null, this is the list with all the anchor names contained into the body of 
+        /// this node. Those names are the "name" property
         /// of the tag A (a name="foo"). They are used to change internal links into the document.
+        /// If SplittedPartBody is null, this will be null too.
         /// </summary>
-        private ArrayList listOfContainedANames;
+        private List<string> DescendantAnchorNames;
 
         /// <summary>
         /// Builds the member listOfContainedANames, with all the A name tags contained into the body member.
+        /// TODO: Probably this should be private
         /// </summary>
         public void BuildListOfContainedANames()
         {
-            if (listOfContainedANames == null)
-                listOfContainedANames = new ArrayList();
+            if (DescendantAnchorNames == null)
+                DescendantAnchorNames = new List<string>();
             else
-                listOfContainedANames.Clear();
+                DescendantAnchorNames.Clear();
 
-            if (body != null)
-                BuildListOfContainedANames(body);
+            if (SplittedPartBody != null)
+                BuildListOfContainedANames(SplittedPartBody);
         }
 
         /// <summary>
@@ -115,7 +125,7 @@ namespace ChmProcessorLib
             {
                 IHTMLAnchorElement link = (IHTMLAnchorElement)e;
                 if (link.name != null)
-                    listOfContainedANames.Add(link.name);
+                    DescendantAnchorNames.Add(link.name);
             }
             // Do recursive search
             IHTMLElementCollection col = (IHTMLElementCollection)e.children;
@@ -154,10 +164,10 @@ namespace ChmProcessorLib
         public string NombreArchivo( int NumSeccion ) 
         {
             string nombre;
-            if( Nodo == null )
+            if( HeaderTag == null )
                 nombre = NumSeccion + ".htm";
             else
-                nombre = NumSeccion + "_" + Nodo.innerText.Trim() + ".htm";
+                nombre = NumSeccion + "_" + HeaderTag.innerText.Trim() + ".htm";
             return ToSafeFilename( nombre );
         }
 
@@ -201,16 +211,16 @@ namespace ChmProcessorLib
         /// <param name="parent">Parent section of the section to create. null if the node to create is the root section.</param>
         /// <param name="node">HTML header tag for this section</param>
         /// <param name="ui">Application log. It can be null</param>
-        public NodoArbol(NodoArbol parent, IHTMLElement node, UserInterface ui) 
+        public ChmDocumentNode(ChmDocumentNode parent, IHTMLElement node, UserInterface ui) 
         {
-            this.Padre = parent;
-            this.Nodo = node;
-            Hijos = new ArrayList();
-            Nivel = NivelNodo( node );
-            Archivo = "";
+            this.Parent = parent;
+            this.HeaderTag = node;
+            Children = new List<ChmDocumentNode>();
+            HeaderLevel = NivelNodo( node );
+            DestinationFileName = "";
                 
             // Guardar la lista de los todos las referencias de este nodo ( nodos <A> con la propiedad "name")
-            listaANames = new ArrayList();
+            AnchorNames = new List<string>();
             if( node != null ) 
             {
                 IHTMLElementCollection col = (IHTMLElementCollection) node.children;
@@ -226,59 +236,63 @@ namespace ChmProcessorLib
                             // It seems on HTML 5 and XHTML <a id="foo"> is used...
                             processedName = ToSafeFilename( hijo.id );
                         if( processedName != null && processedName.Trim() != "" )
-                            listaANames.Add(processedName);
+                            AnchorNames.Add(processedName);
                     }
                 }
-                if( listaANames.Count == 0 ) 
+                if( AnchorNames.Count == 0 ) 
                 {
                     // Si no tiene ningun nombre, darle uno artificial:
-                    int numero = UltimoNumeroAname++;
+                    int numero = LatestCustomAnchorNumber++;
                     // Mm...
                     // This is failing on UTF-16 / persian charset. Try to change the encoding to
                     // the document encoding...
                     string nombreNodo = "NODO" + numero.ToString().Trim();
                     //string nombreNodo = "a" + numero.ToString().Trim();
                     AddARefTagToNode(node, ui, nombreNodo);
-                    listaANames.Add(nombreNodo);
+                    AnchorNames.Add(nombreNodo);
                 }
             }
         }
 
-        public void NuevoHijo( NodoArbol nodo ) 
+        /// <summary>
+        /// Appends a child to this node
+        /// </summary>
+        /// <param name="node">Child node to add</param>
+        public void AddChild( ChmDocumentNode node ) 
         {
-            nodo.Padre = this;
-            Hijos.Add( nodo );
+            node.Parent = this;
+            Children.Add( node );
         }
 
         /// <summary>
-        ///  The text title of the section. Its not HTML encoded safe.
+        ///  The plain text title of the section. Its not HTML encoded.
         /// </summary>
-        public String Name 
+        public String Title 
         {
             get 
             {
                 string name = "";
-                if (Nodo != null)
+                if (HeaderTag != null)
                 {
-                    name = Nodo.innerText;
+                    name = HeaderTag.innerText;
                     if (name != null)
                         /// Remove spaces for the right ordering on the topics list.
                         name = name.Trim();
                 }
                 else
-                    name = ArbolCapitulos.DEFAULTTILE;
+                    name = ChmDocument.DEFAULTTILE;
                 return name;
             }
         }
 
         /// <summary>
-        /// The HTML encoded title of this chapter / section.
+        /// The HTML encoded title of this node
         /// </summary>
-        public string EncodedName 
+        public string HtmlEncodedTitle 
         {
             get 
             {
-                return DocumentProcessor.HtmlEncode( Name );
+                return DocumentProcessor.HtmlEncode( Title );
             }
         }
 
@@ -287,15 +301,14 @@ namespace ChmProcessorLib
             get 
             {
                 string nombre = "";
-                if( Nodo != null )
-                    nombre = Nodo.innerText;
+                if( HeaderTag != null )
+                    nombre = HeaderTag.innerText;
                 else
-                    nombre = ArbolCapitulos.DEFAULTTILE;
+                    nombre = ChmDocument.DEFAULTTILE;
 
                 string texto = "<LI> <OBJECT type=\"text/sitemap\">\n" +
                     "     <param name=\"Name\" value=\"" + 
-                    //DocumentProcessor.HtmlEncode( nombre , false ) + 
-                    this.EncodedName + 
+                    this.HtmlEncodedTitle + 
                     "\">\n" + 
                     "     <param name=\"Local\" value=\"" +  Href;
                 texto += "\">\n" + "     </OBJECT>\n";
@@ -312,14 +325,7 @@ namespace ChmProcessorLib
         {
             get
             {
-                /*string name = "";
-                if (Nodo != null)
-                    name = Nodo.innerText;
-                else
-                    name = "Start";*/
-
-                //return "<indexitem text=\"" + name + "\" target=\"" + JavaHelpTarget + "\" />";
-                return "<indexitem text=\"" + EncodedName + "\" target=\"" + JavaHelpTarget + "\" />";
+                return "<indexitem text=\"" + HtmlEncodedTitle + "\" target=\"" + JavaHelpTarget + "\" />";
             }
         }
 
@@ -330,11 +336,6 @@ namespace ChmProcessorLib
         {
             get
             {
-                /*string name = "";
-                if (Nodo != null)
-                    name = Nodo.innerText;
-                else
-                    name = "Start";*/
                 return "<mapID target=\"" + JavaHelpTarget + "\" url=\"" + Href + "\" />";
             }
         }
@@ -346,8 +347,8 @@ namespace ChmProcessorLib
         {
             get
             {
-                String entry = "<tocitem text=\"" + EncodedName + "\" target=\"" + JavaHelpTarget + "\"";
-                if (Hijos.Count == 0)
+                String entry = "<tocitem text=\"" + HtmlEncodedTitle + "\" target=\"" + JavaHelpTarget + "\"";
+                if (Children.Count == 0)
                     entry += " />";
                 else
                     entry += ">";
@@ -362,13 +363,14 @@ namespace ChmProcessorLib
         {
             get
             {
-                return EncodedName;
+                return HtmlEncodedTitle;
             }
         }
 
         #endregion
 
         /// <summary>
+        /// Relative URL for this section
         /// Destino de un href para hacer referencia a este capitulo. P.ej. "aa.htm#xxx"
         /// </summary>
         public string Href 
@@ -376,11 +378,11 @@ namespace ChmProcessorLib
             get 
             {
                 string enlace = "";
-                if( Nodo != null ) 
+                if( HeaderTag != null ) 
                 {
-                    enlace = DocumentProcessor.HtmlEncode( Path.GetFileName( Archivo ) );
-                    if( ! aNamePrincipal.Equals("") )
-                        enlace += "#" + aNamePrincipal;
+                    enlace = DocumentProcessor.HtmlEncode( Path.GetFileName( DestinationFileName ) );
+                    if( ! MainAnchorName.Equals("") )
+                        enlace += "#" + MainAnchorName;
                 }
                 return enlace;
             }
@@ -395,11 +397,11 @@ namespace ChmProcessorLib
             get 
             {
                 string enlace = "";
-                if( Nodo != null ) 
+                if( HeaderTag != null ) 
                 {
-                    enlace = Path.GetFileName( Archivo );
-                    if( ! aNamePrincipal.Equals("") )
-                        enlace += "#" + aNamePrincipal;
+                    enlace = Path.GetFileName( DestinationFileName );
+                    if( ! MainAnchorName.Equals("") )
+                        enlace += "#" + MainAnchorName;
                 }
                 return enlace;
             }
@@ -412,7 +414,7 @@ namespace ChmProcessorLib
         {
             get 
             {
-                return "<a href=\"" + Href + "\">" + EncodedName + "</a>";
+                return "<a href=\"" + Href + "\">" + HtmlEncodedTitle + "</a>";
             }
         }
 
@@ -421,15 +423,15 @@ namespace ChmProcessorLib
         /// </summary>
         /// <param name="aName">name del tag A a buscar</param>
         /// <returns>El nodo encontrado con este name. null si no se encuentra</returns>
-        public NodoArbol BuscarEnlace( string aName ) 
+        public ChmDocumentNode BuscarEnlace( string aName ) 
         {
-            if( this.listaANames.Contains( aName ) || ( this.listOfContainedANames != null && this.listOfContainedANames.Contains( aName ) ) )
+            if( this.AnchorNames.Contains( aName ) || ( this.DescendantAnchorNames != null && this.DescendantAnchorNames.Contains( aName ) ) )
                 return this;
             else
             {
-                foreach( NodoArbol hijo in Hijos ) 
+                foreach( ChmDocumentNode hijo in Children ) 
                 {
-                    NodoArbol resultado = hijo.BuscarEnlace( aName );
+                    ChmDocumentNode resultado = hijo.BuscarEnlace( aName );
                     if( resultado != null )
                         return resultado;
                 }
@@ -442,31 +444,31 @@ namespace ChmProcessorLib
         /// </summary>
         /// <param name="element">El nodo HTML a buscar</param>
         /// <returns>El nodo que lo contiene. Null, si no se encontro.</returns>
-        public NodoArbol BuscarNodo( IHTMLElement element , string aNameElement ) 
+        public ChmDocumentNode BuscarNodo( IHTMLElement element , string aNameElement ) 
         {
 
             // Mirar si es el mismo nodo:
-            if( this.Nodo != null && element != null ) 
+            if( this.HeaderTag != null && element != null ) 
             {
 
                 if( ! aNameElement.Equals("") ) 
                 {
-                    if( this.listaANames.Contains( aNameElement ) )
+                    if( this.AnchorNames.Contains( aNameElement ) )
                         return this;
                 }
                 else 
                 {
                     // Para evitar el error del about:blank en los src de las imagenes:
-                    string t1 = Nodo.outerHTML.Replace("about:blank" , "" ).Replace("about:" , "" );
+                    string t1 = HeaderTag.outerHTML.Replace("about:blank" , "" ).Replace("about:" , "" );
                     string t2 = element.outerHTML.Replace("about:blank" , "" ).Replace("about:" , "" );
                     if( t1.Equals(t2) )
                         return this;
                 }
             }
             // Sino , buscar en los hijos:
-            foreach( NodoArbol hijo in Hijos ) 
+            foreach( ChmDocumentNode hijo in Children ) 
             {
-                NodoArbol resultado = hijo.BuscarNodo( element , aNameElement );
+                ChmDocumentNode resultado = hijo.BuscarNodo( element , aNameElement );
                 if( resultado != null )
                     return resultado;
             }
@@ -479,8 +481,8 @@ namespace ChmProcessorLib
         /// <param name="filename">Name of the HTML file where this section will be stored</param>
         public void StoredAt( string filename ) 
         {
-            this.Archivo = filename;
-            foreach( NodoArbol hijo in Hijos ) 
+            this.DestinationFileName = filename;
+            foreach( ChmDocumentNode hijo in Children ) 
                 hijo.StoredAt( filename );
         }
 
@@ -490,7 +492,7 @@ namespace ChmProcessorLib
         /// <param name="newFile">Name of the new file where its stored</param>
         public void ReplaceFile(string newFile)
         {
-            ReplaceFile(Archivo, newFile);
+            ReplaceFile(DestinationFileName, newFile);
         }
 
         /// <summary>
@@ -500,9 +502,9 @@ namespace ChmProcessorLib
         /// <param name="newFile">Name of the new file where its stored</param>
         private void ReplaceFile(string oldFile, string newFile)
         {
-            if (Archivo != null && Archivo.Equals(oldFile))
-                Archivo = newFile;
-            foreach (NodoArbol child in Hijos)
+            if (DestinationFileName != null && DestinationFileName.Equals(oldFile))
+                DestinationFileName = newFile;
+            foreach (ChmDocumentNode child in Children)
                 child.ReplaceFile(oldFile, newFile);
         }
 
@@ -513,13 +515,13 @@ namespace ChmProcessorLib
         /// <param name="sectionTitle">The section title to seach</param>
         /// <returns>The first section of the document with that title. null if no section was
         /// found.</returns>
-        public NodoArbol SearchBySectionTitle(string sectionTitle)
+        public ChmDocumentNode SearchBySectionTitle(string sectionTitle)
         {
-            if (this.Name.ToLower() == sectionTitle.ToLower())
+            if (this.Title.ToLower() == sectionTitle.ToLower())
                 return this;
-            foreach (NodoArbol child in Hijos)
+            foreach (ChmDocumentNode child in Children)
             {
-                NodoArbol result = child.SearchBySectionTitle(sectionTitle);
+                ChmDocumentNode result = child.SearchBySectionTitle(sectionTitle);
                 if (result != null)
                     return result;
             }
@@ -530,10 +532,10 @@ namespace ChmProcessorLib
 
         public int CompareTo(object obj)
         {
-            if( ! ( obj is NodoArbol ) )
+            if( ! ( obj is ChmDocumentNode ) )
                 return 0;
-            NodoArbol nodo = (NodoArbol) obj;
-            return String.CompareOrdinal( Name.ToLower() , nodo.Name.ToLower() );
+            ChmDocumentNode nodo = (ChmDocumentNode) obj;
+            return String.CompareOrdinal( Title.ToLower() , nodo.Title.ToLower() );
         }
 
         #endregion

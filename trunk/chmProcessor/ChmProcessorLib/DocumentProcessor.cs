@@ -28,7 +28,7 @@ using System.Web;
 using System.Runtime.InteropServices;
 using System.Globalization;
 using WebIndexLib;
-
+using ChmProcessorLib.DocumentStructure;
 
 namespace ChmProcessorLib
 {
@@ -63,7 +63,7 @@ namespace ChmProcessorLib
         /// <summary>
         /// HTML title nodes (H1,H2,etc) tree.
         /// </summary>
-        private ArbolCapitulos tree;
+        private ChmDocument tree;
 
         /// <summary>
         /// Decorator for pages for the generated CHM 
@@ -243,7 +243,7 @@ namespace ChmProcessorLib
             // Rename the file to a save name. If there is spaces, for example, 
             // links to embedded images into the document are not found.
             //string finalFile = dirHtml + Path.DirectorySeparatorChar + nombreArchivo + ".htm";
-            string finalFile = dirHtml + Path.DirectorySeparatorChar + NodoArbol.ToSafeFilename(nombreArchivo) + ".htm";
+            string finalFile = dirHtml + Path.DirectorySeparatorChar + ChmDocumentNode.ToSafeFilename(nombreArchivo) + ".htm";
 
             msWord.SaveWordToHtml(MainSourceFile, finalFile);
             return finalFile;
@@ -404,7 +404,7 @@ namespace ChmProcessorLib
                 // Get the text of the link
                 string linkText = ((IHTMLElement)link).innerText.Trim();
                 // Seach a title with the same text of the link:
-                NodoArbol destinationTitle = tree.SearchBySectionTitle(linkText);
+                ChmDocumentNode destinationTitle = tree.SearchBySectionTitle(linkText);
                 if (destinationTitle != null)
                     // Replace the original internal broken link with this:
                     link.href = destinationTitle.Href;
@@ -454,10 +454,10 @@ namespace ChmProcessorLib
                         {
                             // A internal link.
                             // Replace it to point to the right splitted file.
-                            string safeRef = NodoArbol.ToSafeFilename(href.Substring(1));
-                            NodoArbol nodoArbol = tree.Raiz.BuscarEnlace(safeRef);
+                            string safeRef = ChmDocumentNode.ToSafeFilename(href.Substring(1));
+                            ChmDocumentNode nodoArbol = tree.Raiz.BuscarEnlace(safeRef);
                             if (nodoArbol != null)
-                                link.href = nodoArbol.Archivo + "#" + safeRef;
+                                link.href = nodoArbol.DestinationFileName + "#" + safeRef;
                             else
                             {
                                 // Broken link.
@@ -481,7 +481,7 @@ namespace ChmProcessorLib
                     else if (link.name != null)
                     {
                         // A HTML "boomark", the destination of a link.
-                        string safeName = NodoArbol.ToSafeFilename(link.name);
+                        string safeName = ChmDocumentNode.ToSafeFilename(link.name);
                         if (!link.name.Equals(safeName))
                         {
                             // Word bug? i have found names with space characters and other bad things. 
@@ -522,13 +522,13 @@ namespace ChmProcessorLib
             }
         }
         
-        private void GuardarDocumentos(string directory, HtmlPageDecorator decorator, NodoArbol nodo, ArrayList archivosGenerados, WebIndex indexer) 
+        private void GuardarDocumentos(string directory, HtmlPageDecorator decorator, ChmDocumentNode nodo, ArrayList archivosGenerados, WebIndex indexer) 
         {
-            if( nodo.body != null ) 
+            if( nodo.SplittedPartBody != null ) 
             {
                 string texto = "";
-                if( nodo.body.innerText != null )
-                    texto = nodo.body.innerText.Trim();
+                if( nodo.SplittedPartBody.innerText != null )
+                    texto = nodo.SplittedPartBody.innerText.Trim();
 
                 if( !texto.Equals("") ) 
                 {
@@ -536,7 +536,7 @@ namespace ChmProcessorLib
                     string titulo = "";
                     IHTMLElement seccion = null;
 
-                    seccion = SearchFirstCutNode( nodo.body );
+                    seccion = SearchFirstCutNode( nodo.SplittedPartBody );
                     if( seccion != null && seccion.innerText != null ) 
                     {
                         titulo = seccion.innerText.Trim() ;
@@ -547,19 +547,19 @@ namespace ChmProcessorLib
                     if( guardar ) 
                     {
                         // hacer un preproceso de TODOS los nodos del cuerpo:
-                        IHTMLElementCollection col = (IHTMLElementCollection)nodo.body.children;
+                        IHTMLElementCollection col = (IHTMLElementCollection)nodo.SplittedPartBody.children;
                         foreach( IHTMLElement nodoBody in col ) 
                             PreprocessHtmlNode( nodoBody , null);
 
                         // Save the section, adding header, footers, etc:
-                        string filePath = directory + Path.DirectorySeparatorChar + nodo.Archivo;
-                        decorator.ProcessAndSavePage(nodo.body, filePath, nodo.Name);
+                        string filePath = directory + Path.DirectorySeparatorChar + nodo.DestinationFileName;
+                        decorator.ProcessAndSavePage(nodo.SplittedPartBody, filePath, nodo.Title);
 
                         if (FirstChapterContent == null)
                         {
                             // This is the first chapter of the document. Store it clean, because
                             // we will need after.
-                            FirstChapterContent = nodo.body.innerHTML.Replace("about:blank", "").Replace("about:", "");
+                            FirstChapterContent = nodo.SplittedPartBody.innerHTML.Replace("about:blank", "").Replace("about:", "");
                         }
 
                         archivosGenerados.Add(filePath);
@@ -567,59 +567,59 @@ namespace ChmProcessorLib
                         if (indexer != null)
                             // Store the document at the full text search index:
                             //indexer.AddPage(nodo.Archivo, nodo.Title, nodo.body);
-                            indexer.AddPage(nodo.Archivo, nodo.Name, nodo.body);
+                            indexer.AddPage(nodo.DestinationFileName, nodo.Title, nodo.SplittedPartBody);
                             
                     }
                 }
             }
 
-            foreach( NodoArbol hijo in nodo.Hijos ) 
+            foreach( ChmDocumentNode hijo in nodo.Children ) 
                 GuardarDocumentos( directory , decorator , hijo , archivosGenerados , indexer );
         }
 
-        private void UnificarNodos( NodoArbol nodo ) 
+        private void UnificarNodos( ChmDocumentNode nodo ) 
         {
             try
             {
-                if (nodo.Nodo != null && nodo.Nodo.innerText != null && nodo.body != null)
+                if (nodo.HeaderTag != null && nodo.HeaderTag.innerText != null && nodo.SplittedPartBody != null)
                 {
                     // Nodo con cuerpo:
 
-                    if (nodo.Nodo.innerText.Trim().Equals(nodo.body.innerText.Trim()) &&
-                        nodo.Hijos.Count > 0)
+                    if (nodo.HeaderTag.innerText.Trim().Equals(nodo.SplittedPartBody.innerText.Trim()) &&
+                        nodo.Children.Count > 0)
                     {
                         // Nodo vacio y con hijos 
-                        NodoArbol hijo = (NodoArbol)nodo.Hijos[0];
-                        if (hijo.body != null)
+                        ChmDocumentNode hijo = (ChmDocumentNode)nodo.Children[0];
+                        if (hijo.SplittedPartBody != null)
                         {
                             // El hijo tiene cuerpo: Unificarlos.
-                            nodo.body.insertAdjacentHTML("beforeEnd", hijo.body.innerHTML);
-                            hijo.body = null;
+                            nodo.SplittedPartBody.insertAdjacentHTML("beforeEnd", hijo.SplittedPartBody.innerHTML);
+                            hijo.SplittedPartBody = null;
                             //hijo.GuardadoEn(nodo.Archivo);
-                            hijo.ReplaceFile(nodo.Archivo);
+                            hijo.ReplaceFile(nodo.DestinationFileName);
                         }
                     }
                 }
 
-                foreach (NodoArbol hijo in nodo.Hijos)
+                foreach (ChmDocumentNode hijo in nodo.Children)
                     UnificarNodos(hijo);
             }
             catch (Exception ex)
             {
                 log( new Exception( "There was some problem when we tried to join the empty section " +
-                    nodo.Name + " with their children", ex ) );
+                    nodo.Title + " with their children", ex ) );
             }
         }
 
         private ArrayList GuardarDocumentos(string directory, HtmlPageDecorator decorator, WebIndex indexer) 
         {
             // Intentar unificar nodos que quedarian vacios, con solo el titulo de la seccion:
-            foreach( NodoArbol nodo in tree.Raiz.Hijos ) 
+            foreach( ChmDocumentNode nodo in tree.Raiz.Children ) 
                 UnificarNodos( nodo );
 
             // Recorrer el arbol en busca de nodos con cuerpo
             ArrayList archivosGenerados = new ArrayList();
-            foreach (NodoArbol nodo in tree.Raiz.Hijos)
+            foreach (ChmDocumentNode nodo in tree.Raiz.Children)
                 GuardarDocumentos(directory, decorator, nodo, archivosGenerados, indexer);
 
             return archivosGenerados;
@@ -628,16 +628,16 @@ namespace ChmProcessorLib
         private void GuardarParte( IHTMLElement nuevoBody ) 
         {
             IHTMLElement sectionHeader = SearchFirstCutNode( nuevoBody );
-            NodoArbol nodeToStore;
+            ChmDocumentNode nodeToStore;
             if( sectionHeader == null )
                 // If no section was found, its the first section of the document:
-                nodeToStore = (NodoArbol) tree.Raiz.Hijos[0];
+                nodeToStore = (ChmDocumentNode) tree.Raiz.Children[0];
             else 
             {
                 string aName = "";
                 IHTMLAnchorElement a = BuscarNodoA( sectionHeader );
                 if( a != null && a.name != null )
-                    aName = NodoArbol.ToSafeFilename( a.name );
+                    aName = ChmDocumentNode.ToSafeFilename( a.name );
                 nodeToStore = tree.Raiz.BuscarNodo( sectionHeader , aName );
             }
 
@@ -653,7 +653,7 @@ namespace ChmProcessorLib
             }
             else
             {
-                nodeToStore.body = nuevoBody;
+                nodeToStore.SplittedPartBody = nuevoBody;
                 nodeToStore.BuildListOfContainedANames();  // Store the A name's tags of the body.
             }
         }
@@ -1035,7 +1035,7 @@ namespace ChmProcessorLib
 
             // Build the tree structure of chapters.
             log("Searching sections", ConsoleUserInterface.INFO);
-            tree = new ArbolCapitulos();
+            tree = new ChmDocument();
             tree.AnalizarDocumento( Project.CutLevel, iDoc.body , this.UI );
 
             if (CancellRequested())
@@ -1091,14 +1091,14 @@ namespace ChmProcessorLib
             string archivo1 = Project.HelpProjectDirectory + Path.DirectorySeparatorChar + "1.htm";
             if( ! File.Exists( archivo1) ) 
             {
-                tree.Raiz.Archivo = "";
-                tree.Raiz.Hijos.RemoveAt(0);
+                tree.Raiz.DestinationFileName = "";
+                tree.Raiz.Children.RemoveAt(0);
             }
 
             // Obtener el nombre del primer archivo generado:
             string primero = "";
-            if( tree.Raiz.Hijos.Count > 0 )
-                primero = ((NodoArbol) tree.Raiz.Hijos[0]).Archivo;
+            if( tree.Raiz.Children.Count > 0 )
+                primero = ((ChmDocumentNode) tree.Raiz.Children[0]).DestinationFileName;
 
             if (CancellRequested())
                 return null;
@@ -1113,7 +1113,7 @@ namespace ChmProcessorLib
 
             // Generar archivo con palabras clave:
             log("Generating index", ConsoleUserInterface.INFO);
-            Index index = tree.GenerarIndice(Project.MaxHeaderIndex);
+            ChmDocumentIndex index = tree.GenerarIndice(Project.MaxHeaderIndex);
             index.StoreHelpIndex(Project.HelpProjectDirectory + Path.DirectorySeparatorChar +
                 "Index-generado.hhk", helpWorkshopEncoding);
 
@@ -1212,7 +1212,7 @@ namespace ChmProcessorLib
         /// </summary>
         /// <param name="dirJavaHelp">Directory where to generate the help.hs file</param>
         /// <param name="index">Index of topics of the document</param>
-        void GenerateJavaHelpSetFile(String dirJavaHelp, Index index)
+        void GenerateJavaHelpSetFile(String dirJavaHelp, ChmDocumentIndex index)
         {
             // TODO: Translate the labels with web translation files:
             StreamWriter writer = new StreamWriter( dirJavaHelp + Path.DirectorySeparatorChar + "help.hs" ,
@@ -1239,7 +1239,7 @@ namespace ChmProcessorLib
         /// <param name="index">List of topics of the document.</param>
         /// <param name="cssFile">CSS file of the document, if it was generated.</param>
         /// </summary>
-        private void GenerateJavaHelp(ArrayList generatedFiles, Index index, string cssFile)
+        private void GenerateJavaHelp(ArrayList generatedFiles, ChmDocumentIndex index, string cssFile)
         {
             
             // Create a temporal directy to generate the javahelp files:
@@ -1311,7 +1311,7 @@ namespace ChmProcessorLib
         /// <param name="archivosGenerados">List of all files of the help content.</param>
         /// <param name="index">Index help information</param>
         /// <param name="cssFile">File that contains extracted CSS styles</param>
-        private void GenerateWebSite( ArrayList archivosGenerados, Index index, string cssFile ) 
+        private void GenerateWebSite( ArrayList archivosGenerados, ChmDocumentIndex index, string cssFile ) 
         {
             try
             {
@@ -1627,12 +1627,6 @@ namespace ChmProcessorLib
         /// <param name="level">Level of the stream</param>
         private void LogStream(StreamReader reader, int logLevel) 
         {
-            /*string linea = reader.ReadLine();
-            while( linea != null ) 
-            {
-                log(linea, ConsoleUserInterface.INFO);
-                linea = reader.ReadLine();
-            }*/
             if (UI != null)
                 UI.LogStream(reader, logLevel);
         }
@@ -1666,18 +1660,24 @@ namespace ChmProcessorLib
 
                 info.UseShellExecute = false;
                 info.RedirectStandardOutput = true;
+                info.RedirectStandardError = true;
                 info.CreateNoWindow = true;
                 Process proceso = Process.Start( info );
                 while( ! proceso.WaitForExit( 1000 ) )
                     LogStream(proceso.StandardOutput, ConsoleUserInterface.INFO);
                 LogStream(proceso.StandardOutput, ConsoleUserInterface.INFO);
+                LogStream(proceso.StandardError, ConsoleUserInterface.ERRORWARNING);
 
                 string archivoAyudaOrigen = Project.HelpProjectDirectory + Path.DirectorySeparatorChar + NOMBREARCHIVOAYUDA;
-                if( File.Exists( archivoAyudaOrigen ) ) 
-                    // Copy the file frrom the temporally directory to the gift by the user
-                    File.Copy( archivoAyudaOrigen , helpFile , true );
-                else 
-                    throw new Exception("Some error happened with the compilation. Try to generate the help project");
+                if (File.Exists(archivoAyudaOrigen))
+                    // Copy the file from the temporally directory to the gift by the user
+                    File.Copy(archivoAyudaOrigen, helpFile, true);
+                else
+                {
+                    //throw new Exception("Some error happened with the compilation. Try to generate the help project");
+                    throw new Exception("After compiling, the file " + archivoAyudaOrigen + " was not found. Some error happened with the compilation. Try to generate the help project manually");
+
+                }
             }
         }
     }

@@ -114,6 +114,10 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="HtmlAgilityPack, Version=1.4.6.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\libraries\HtmlAgilityPack.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.mshtml, Version=7.0.3300.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\libraries\Microsoft.mshtml.dll</HintPath>
@@ -141,7 +145,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ArbolCapitulos.cs">
+    <Compile Include="DocumentStructure\ChmDocument.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="AssemblyInfo.cs">
@@ -155,13 +159,13 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="HtmlPageDecorator.cs" />
-    <Compile Include="Index.cs">
+    <Compile Include="DocumentStructure\ChmDocumentIndex.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="MSWord.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="NodoArbol.cs">
+    <Compile Include="DocumentStructure\ChmDocumentNode.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="PdfPrinter.cs" />
