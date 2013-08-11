@@ -19,7 +19,7 @@
 using System;
 using System.IO;
 using mshtml;
-using System.Collections;
+using System.Collections.Generic;
 using System.Web;
 using System.Text;
 
@@ -50,15 +50,19 @@ namespace ChmProcessorLib.DocumentStructure
         private ChmDocumentNode ultimoInsertado;
 
         /// <summary>
-        /// THE html document
+        /// The original html document
         /// </summary>
         public IHTMLDocument2 IDoc;
 
         /// <summary>
         /// The root node for the document.
-        /// TODO: This should be a private member
         /// </summary>
         public ChmDocumentNode RootNode;
+
+        /// <summary>
+        /// The document index
+        /// </summary>
+        public ChmDocumentIndex Index;
 
         /// <summary>
         /// Constructor
@@ -193,7 +197,7 @@ namespace ChmProcessorLib.DocumentStructure
         }
 
         // TODO: Move this function to ChmDocumentIndex class
-        public void GenerarIndice( ChmDocumentIndex index , ChmDocumentNode nodo , int NivelMaximoIndice , int nivel ) 
+        /*public void GenerarIndice( ChmDocumentIndex index , ChmDocumentNode nodo , int NivelMaximoIndice , int nivel ) 
         {
             if( NivelMaximoIndice != 0 && nivel > NivelMaximoIndice )
                 return;
@@ -202,16 +206,16 @@ namespace ChmProcessorLib.DocumentStructure
             //writer.WriteLine( nodo.EntradaArbolContenidos );
             foreach( ChmDocumentNode hijo in nodo.Children ) 
                 GenerarIndice( index , hijo , NivelMaximoIndice , nivel + 1 );
-        }
+        }*/
 
         // TODO: Move this function to ChmDocumentIndex class
-        public ChmDocumentIndex GenerarIndice( int NivelMaximoIndice ) 
+        /*public ChmDocumentIndex GenerarIndice( int NivelMaximoIndice ) 
         {
             ChmDocumentIndex index = new ChmDocumentIndex();
             foreach( ChmDocumentNode hijo in RootNode.Children ) 
                 GenerarIndice( index , hijo , NivelMaximoIndice , 1 );
             return index;
-        }
+        }*/
 
         private string GenerarArbolHtml( ChmDocumentNode nodo , int NivelMaximoTOC , int nivel ) 
         {
@@ -262,56 +266,7 @@ namespace ChmProcessorLib.DocumentStructure
             return texto;
         }
 
-        /*private void AsignarNombreArchivos( ChmDocumentNode nodo , ref int Cnt , int nivelCorte ) 
-        {
-            if( nodo.HeaderTag != null && DocumentProcessor.IsCutHeader( nivelCorte , nodo.HeaderTag ) ) 
-                nodo.StoredAt( nodo.NombreArchivo( Cnt++ ) );
-
-            foreach( ChmDocumentNode hijo in nodo.Children ) 
-                AsignarNombreArchivos( hijo , ref Cnt , nivelCorte );
-        }*/
-
-        /// <summary>
-        /// Make a recursive seach of all HTML header nodes into the document.
-        /// </summary>
-        /// <param name="currentNode">Current HTML node on the recursive search</param>
-        /// <param name="ui">The application log. It can be null.</param>
-        /*private void AnalizarDocumentoRecursivo( IHTMLElement currentNode , UserInterface ui ) 
-        {
-            if( currentNode is IHTMLHeaderElement )
-                InsertarNodo( currentNode , ui );
-
-            IHTMLElementCollection col = (IHTMLElementCollection) currentNode.children;
-            foreach( IHTMLElement hijo in col )
-                AnalizarDocumentoRecursivo(hijo, ui);
-        }*/
-
-        /// <summary>
-        /// Builds the sections tree of the document.
-        /// </summary>
-        /// <param name="cutLevel">HTML Header level that will contain an entire HTML page</param>
-        /// <param name="root">Root of the HTML document</param>
-        /// <param name="ui">The application log. it can be null.</param>
-        /*public void AnalizarDocumento( int cutLevel , IHTMLElement root , UserInterface ui) 
-        {
-            // Reservar el primer nodo para el contenido que venga sin titulo1, (portada,etc).
-            ChmDocumentNode sinSeccion = new ChmDocumentNode( this.RootNode , null , ui);
-            this.RootNode.Children.Add( sinSeccion );
-
-            // Analizar que nodos de headers se encuentran en el documento
-            AnalizarDocumentoRecursivo( root , ui );
-
-            // Por defecto, todos los nodos al documento por defecto. El resto
-            // ya ira cogiendo el valor de su archivo:
-            this.RootNode.StoredAt( "1.htm" );
-
-            // Guardar en cada nodo en que archivo se habra guardado el nodo:
-            int Cnt = 2;
-            foreach( ChmDocumentNode hijo in this.RootNode.Children )
-                AsignarNombreArchivos(hijo, ref Cnt, cutLevel);
-        }*/
-
-        private void ListaArchivosGenerados( ArrayList lista , ChmDocumentNode nodo ) 
+        private void ListaArchivosGenerados(List<string> lista, ChmDocumentNode nodo) 
         {
             if( !nodo.DestinationFileName.Equals("") && !lista.Contains(nodo.DestinationFileName) )
                 lista.Add( nodo.DestinationFileName);
@@ -323,9 +278,9 @@ namespace ChmProcessorLib.DocumentStructure
         /// Obtiene la lista de archivos HTML que se generaran.
         /// </summary>
         /// <returns>Lista de strings con los nombres de los archivos generados.</returns>
-        public ArrayList ListaArchivosGenerados() 
+        public List<string> ListaArchivosGenerados() 
         {
-            ArrayList lista = new ArrayList();
+            List<string> lista = new List<string>();
             ListaArchivosGenerados( lista , this.RootNode );
             return lista;
         }

@@ -79,6 +79,17 @@ namespace ChmProcessorLib.DocumentStructure
             // TODO: This method content and all descendants are pure crap: Make a rewrite
             SplitContent();
 
+            if (UI.CancellRequested())
+                return null;
+
+            // Join empty nodes:
+            UI.log("Joining empty document sections", ConsoleUserInterface.INFO);
+            JoinEmptyNodes();
+
+            // Create the document index
+            UI.log("Creating document index", ConsoleUserInterface.INFO);
+            CreateDocumentIndex();
+
             return Document;
         }
 
@@ -358,6 +369,9 @@ namespace ChmProcessorLib.DocumentStructure
             return subtreesList;
         }
 
+        /// <summary>
+        /// Splits the HTML document body and assigns each part to a node of the document tree.
+        /// </summary>
         private void SplitContent()
         {
             // newBody is the <body> tag of the current splitted part 
@@ -394,5 +408,80 @@ namespace ChmProcessorLib.DocumentStructure
             }
             GuardarParte(newBody);
         }
+
+        /// <summary>
+        /// Makes a recursive search on the document to join empty nodes (node with a title and without 
+        /// any other content) with other nodes with content
+        /// <param name="nodo">Current node on the recursive search to check</param>
+        /// </summary>
+        private void JoinEmptyNodes(ChmDocumentNode nodo)
+        {
+            try
+            {
+                if (UI.CancellRequested())
+                    return;
+
+                if (nodo.HeaderTag != null && nodo.HeaderTag.innerText != null && nodo.SplittedPartBody != null)
+                {
+                    // Nodo con cuerpo:
+
+                    if (nodo.HeaderTag.innerText.Trim().Equals(nodo.SplittedPartBody.innerText.Trim()) &&
+                        nodo.Children.Count > 0)
+                    {
+                        // Nodo vacio y con hijos 
+                        ChmDocumentNode hijo = (ChmDocumentNode)nodo.Children[0];
+                        if (hijo.SplittedPartBody != null)
+                        {
+                            // El hijo tiene cuerpo: Unificarlos.
+                            nodo.SplittedPartBody.insertAdjacentHTML("beforeEnd", hijo.SplittedPartBody.innerHTML);
+                            hijo.SplittedPartBody = null;
+                            hijo.ReplaceFile(nodo.DestinationFileName);
+                        }
+                    }
+                }
+
+                foreach (ChmDocumentNode hijo in nodo.Children)
+                    JoinEmptyNodes(hijo);
+            }
+            catch (Exception ex)
+            {
+                UI.log(new Exception("There was some problem when we tried to join the empty section " +
+                    nodo.Title + " with their children", ex));
+            }
+        }
+
+        /// <summary>
+        /// Joins empty nodes (node with a title and without any other content) with other 
+        /// nodes with content
+        /// </summary>
+        private void JoinEmptyNodes()
+        {
+            // Intentar unificar nodos que quedarian vacios, con solo el titulo de la seccion:
+            foreach (ChmDocumentNode nodo in Document.RootNode.Children)
+            {
+                JoinEmptyNodes(nodo);
+
+                if (UI.CancellRequested())
+                    return;
+            }
+        }
+
+        private void CreateDocumentIndex(ChmDocumentNode nodo, int nivel)
+        {
+            if (Project.MaxHeaderIndex != 0 && nivel > Project.MaxHeaderIndex)
+                return;
+
+            Document.Index.Add(nodo);
+            foreach (ChmDocumentNode hijo in nodo.Children)
+                CreateDocumentIndex(hijo, nivel + 1);
+        }
+
+        private void CreateDocumentIndex()
+        {
+            Document.Index = new ChmDocumentIndex();
+            foreach (ChmDocumentNode hijo in Document.RootNode.Children)
+                CreateDocumentIndex(hijo, 1);
+        }
+
     }
 }

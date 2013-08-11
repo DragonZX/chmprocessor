@@ -159,6 +159,7 @@
     <Compile Include="DocumentProcessor.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Generators\ChmGenerator.cs" />
     <Compile Include="HtmlPageDecorator.cs" />
     <Compile Include="DocumentStructure\ChmDocumentIndex.cs">
       <SubType>Code</SubType>
