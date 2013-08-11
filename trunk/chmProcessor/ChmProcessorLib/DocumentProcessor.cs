@@ -625,7 +625,7 @@ namespace ChmProcessorLib
             return archivosGenerados;
         }
 
-        private void GuardarParte( IHTMLElement nuevoBody ) 
+        /*private void GuardarParte( IHTMLElement nuevoBody ) 
         {
             IHTMLElement sectionHeader = SearchFirstCutNode( nuevoBody );
             ChmDocumentNode nodeToStore;
@@ -656,7 +656,7 @@ namespace ChmProcessorLib
                 nodeToStore.SplittedPartBody = nuevoBody;
                 nodeToStore.BuildListOfContainedANames();  // Store the A name's tags of the body.
             }
-        }
+        }*/
 
         /// <summary>
         /// Vacia el directorio de destino, y copia los archivos adicionales a aquel.
@@ -1034,14 +1034,13 @@ namespace ChmProcessorLib
                 return null;
 
             // Build the tree structure of chapters.
-            log("Searching sections", ConsoleUserInterface.INFO);
-            tree = new ChmDocument();
-            tree.AnalizarDocumento( Project.CutLevel, iDoc.body , this.UI );
+            ChmDocumentParser parser = new ChmDocumentParser(iDoc, this.UI, Project);
+            tree = parser.ParseDocument();
 
             if (CancellRequested())
                 return null;
 
-            log("Splitting file", ConsoleUserInterface.INFO);
+            /*log("Splitting file", ConsoleUserInterface.INFO);
             // newBody is the <body> tag of the current splitted part 
             IHTMLElement newBody = Clone( iDoc.body );
             IHTMLElementCollection col = (IHTMLElementCollection)iDoc.body.children;
@@ -1074,7 +1073,7 @@ namespace ChmProcessorLib
                 if (CancellRequested())
                     return null;
             }
-            GuardarParte(newBody);
+            GuardarParte(newBody);*/
 
             if (CancellRequested())
                 return null;
@@ -1088,7 +1087,8 @@ namespace ChmProcessorLib
 
             // Mirar si al final se ha generado el archivo "1.htm". Si no, borrarlo
             // del arbol de archivos:
-            string archivo1 = Project.HelpProjectDirectory + Path.DirectorySeparatorChar + "1.htm";
+            // Check if the file for content without title was created. If not, remove it from the files tree.
+            string archivo1 = Path.Combine(Project.HelpProjectDirectory , ChmDocument.INITIALSECTIONFILENAME);
             if( ! File.Exists( archivo1) ) 
             {
                 tree.RootNode.DestinationFileName = "";
@@ -1448,6 +1448,7 @@ namespace ChmProcessorLib
         /// <summary>
         /// Return the first header tag (H1,H2,etc) found on a subtree of the html document 
         /// that will split the document.
+        /// TODO: Join this function and ChmDocumentParser.SearchFirstCutNode
         /// </summary>
         /// <param name="root">Root of the html subtree where to search a split</param>
         /// <returns>The first split tag node. null if none was found.</returns>
@@ -1468,7 +1469,7 @@ namespace ChmProcessorLib
             }
         }
 
-        private IHTMLAnchorElement BuscarNodoA( IHTMLElement raiz ) 
+        /*private IHTMLAnchorElement BuscarNodoA( IHTMLElement raiz ) 
         {
             if( raiz is IHTMLAnchorElement )
                 return (IHTMLAnchorElement)raiz;
@@ -1484,31 +1485,32 @@ namespace ChmProcessorLib
                 return null;
             }
 
-        }
+        }*/
 
         /// <summary>
         /// Busca si un arbol contiene un corte de seccion.
         /// </summary>
         /// <param name="nodo">Raiz del arbol en que buscar</param>
         /// <returns>True si el arbol contiene un corte de seccion.</returns>
-        private bool WillBeBroken( IHTMLElement nodo ) 
+        /*private bool WillBeBroken( IHTMLElement nodo ) 
         {
             return SearchFirstCutNode( nodo ) != null;
-        }
+        }*/
 
         /// <summary>
         /// Clone a node, without their children.
         /// </summary>
         /// <param name="nodo">Node to clone</param>
         /// <returns>Cloned node</returns>
-        private IHTMLElement Clone(IHTMLElement nodo ) 
+        /*private IHTMLElement Clone(IHTMLElement nodo ) 
         {
             IHTMLElement e = iDoc.createElement( nodo.tagName );
             IHTMLElement2 e2 = (IHTMLElement2) e;
             e2.mergeAttributes( nodo );
             return e;
-        }
+        }*/
 
+        // TODO: Join this function with the same on ChmDocumentParser
         static public bool EsHeader( IHTMLElement nodo ) 
         {
             return nodo is IHTMLHeaderElement && nodo.innerText != null && !nodo.innerText.Trim().Equals("");
@@ -1518,6 +1520,7 @@ namespace ChmProcessorLib
         /// Checks if a node is a HTML header tag (H1, H2, etc) upper or equal to the cut level for the
         /// project (Project.CutLevel).
         /// Also checks if it contains some text.
+        /// TODO: Join this function with the same on ChmDocumentParser
         /// </summary>
         /// <param name="node">HTML node to check</param>
         /// <returns>true if the node is a cut header</returns>
@@ -1554,7 +1557,7 @@ namespace ChmProcessorLib
         /// </summary>
         /// <param name="parent">Parent witch to add the new node</param>
         /// <param name="child">The child node to add</param>
-        private void InsertAfter( IHTMLElement parent , IHTMLElement child ) 
+        /*private void InsertAfter( IHTMLElement parent , IHTMLElement child ) 
         {
             try 
             {
@@ -1565,7 +1568,7 @@ namespace ChmProcessorLib
                      parent.tagName + "): " + ex.Message, ConsoleUserInterface.ERRORWARNING);
                 log(ex);
             }
-        }
+        }*/
 
         /// <summary>
         /// Process a HTML node of the document
@@ -1575,7 +1578,7 @@ namespace ChmProcessorLib
         /// A list of subtrees of the HTML original tree broken by the cut level headers.
         /// If the node and their descendands have not cut level headers, the node will be returned as is.
         /// </returns>
-        private ArrayList ProcessNode( IHTMLElement node ) 
+        /*private ArrayList ProcessNode( IHTMLElement node ) 
         {
             ArrayList subtreesList = new ArrayList();
 
@@ -1618,7 +1621,7 @@ namespace ChmProcessorLib
                 subtreesList.Add( node );
 
             return subtreesList;
-        }
+        }*/
 
         /// <summary>
         /// Logs the content of a stream

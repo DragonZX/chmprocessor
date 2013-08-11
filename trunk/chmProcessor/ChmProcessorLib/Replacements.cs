@@ -47,6 +47,7 @@ namespace ChmProcessorLib
 
         /// <summary>
         /// List of replacements to do. 
+        /// TODO: This is a dictionary...
         /// <see cref="ReplacementPair"/>
         /// </summary>
         private ArrayList ReplacementsList = new ArrayList();

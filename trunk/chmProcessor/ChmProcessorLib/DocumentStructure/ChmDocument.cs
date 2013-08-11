@@ -33,10 +33,16 @@ namespace ChmProcessorLib.DocumentStructure
     {
 
         /// <summary>
+        /// File name where to store the content of the initial part of the document that comes without any
+        /// section
+        /// </summary>
+        public const string INITIALSECTIONFILENAME = "start.htm";
+
+        /// <summary>
         /// Default title for the start of the help content (start of the document out of any section,
         /// entire help content on a single page, etc)
         /// </summary>
-        static public String DEFAULTTILE = "Help content";
+        public const string DEFAULTTILE = "Help content";
 
         /// <summary>
         /// Ultimo nodo insertado en el arbol.
@@ -46,7 +52,7 @@ namespace ChmProcessorLib.DocumentStructure
         /// <summary>
         /// THE html document
         /// </summary>
-        private IHTMLDocument2 IDoc;
+        public IHTMLDocument2 IDoc;
 
         /// <summary>
         /// The root node for the document.
@@ -256,21 +262,21 @@ namespace ChmProcessorLib.DocumentStructure
             return texto;
         }
 
-        private void AsignarNombreArchivos( ChmDocumentNode nodo , ref int Cnt , int nivelCorte ) 
+        /*private void AsignarNombreArchivos( ChmDocumentNode nodo , ref int Cnt , int nivelCorte ) 
         {
             if( nodo.HeaderTag != null && DocumentProcessor.IsCutHeader( nivelCorte , nodo.HeaderTag ) ) 
                 nodo.StoredAt( nodo.NombreArchivo( Cnt++ ) );
 
             foreach( ChmDocumentNode hijo in nodo.Children ) 
                 AsignarNombreArchivos( hijo , ref Cnt , nivelCorte );
-        }
+        }*/
 
         /// <summary>
         /// Make a recursive seach of all HTML header nodes into the document.
         /// </summary>
         /// <param name="currentNode">Current HTML node on the recursive search</param>
         /// <param name="ui">The application log. It can be null.</param>
-        private void AnalizarDocumentoRecursivo( IHTMLElement currentNode , UserInterface ui ) 
+        /*private void AnalizarDocumentoRecursivo( IHTMLElement currentNode , UserInterface ui ) 
         {
             if( currentNode is IHTMLHeaderElement )
                 InsertarNodo( currentNode , ui );
@@ -278,7 +284,7 @@ namespace ChmProcessorLib.DocumentStructure
             IHTMLElementCollection col = (IHTMLElementCollection) currentNode.children;
             foreach( IHTMLElement hijo in col )
                 AnalizarDocumentoRecursivo(hijo, ui);
-        }
+        }*/
 
         /// <summary>
         /// Builds the sections tree of the document.
@@ -286,7 +292,7 @@ namespace ChmProcessorLib.DocumentStructure
         /// <param name="cutLevel">HTML Header level that will contain an entire HTML page</param>
         /// <param name="root">Root of the HTML document</param>
         /// <param name="ui">The application log. it can be null.</param>
-        public void AnalizarDocumento( int cutLevel , IHTMLElement root , UserInterface ui) 
+        /*public void AnalizarDocumento( int cutLevel , IHTMLElement root , UserInterface ui) 
         {
             // Reservar el primer nodo para el contenido que venga sin titulo1, (portada,etc).
             ChmDocumentNode sinSeccion = new ChmDocumentNode( this.RootNode , null , ui);
@@ -303,7 +309,7 @@ namespace ChmProcessorLib.DocumentStructure
             int Cnt = 2;
             foreach( ChmDocumentNode hijo in this.RootNode.Children )
                 AsignarNombreArchivos(hijo, ref Cnt, cutLevel);
-        }
+        }*/
 
         private void ListaArchivosGenerados( ArrayList lista , ChmDocumentNode nodo ) 
         {
