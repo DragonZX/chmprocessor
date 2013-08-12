@@ -160,6 +160,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Generators\ChmGenerator.cs" />
+    <Compile Include="Generators\JavaHelpGenerator.cs" />
+    <Compile Include="Generators\PdfGenerator.cs" />
+    <Compile Include="Generators\XpsGenerator.cs" />
     <Compile Include="HtmlPageDecorator.cs" />
     <Compile Include="DocumentStructure\ChmDocumentIndex.cs">
       <SubType>Code</SubType>

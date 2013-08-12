@@ -118,7 +118,7 @@ namespace ChmProcessorLib.DocumentStructure
             }
         }
 
-        protected void GenerarArbolDeContenidos( StreamWriter writer , ChmDocumentNode nodo , int NivelMaximoTOC , int nivel ) 
+        /*protected void GenerarArbolDeContenidos( StreamWriter writer , ChmDocumentNode nodo , int NivelMaximoTOC , int nivel ) 
         {
             if( NivelMaximoTOC != 0 && nivel > NivelMaximoTOC )
                 return;
@@ -131,7 +131,7 @@ namespace ChmProcessorLib.DocumentStructure
                     GenerarArbolDeContenidos( writer , hijo , NivelMaximoTOC , nivel + 1 );
                 writer.WriteLine( "</UL>" );
             }
-        }
+        }*/
 
         /// <summary>
         /// Saves the table of contents of this tree for a CHM project.
@@ -140,7 +140,7 @@ namespace ChmProcessorLib.DocumentStructure
         /// <param name="MaxTOCLevel">Maximum level of deepth into the tree to save sections. =0 
         /// will save all the sections</param>
         /// <param name="encoding">Encoding to save the file</param>
-        public void GenerarArbolDeContenidos( string filePath , int MaxTOCLevel , Encoding encoding) 
+        /*public void GenerarArbolDeContenidos( string filePath , int MaxTOCLevel , Encoding encoding) 
         {
             StreamWriter writer = new StreamWriter(filePath, false, encoding);
             writer.WriteLine( "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML//EN\">" );
@@ -154,7 +154,7 @@ namespace ChmProcessorLib.DocumentStructure
             writer.WriteLine( "</UL>" );
             writer.WriteLine( "</BODY></HTML>" );
             writer.Close();
-        }
+        }*/
 
         /// <summary>
         /// Generate a java help table of contents xml file.
@@ -163,7 +163,7 @@ namespace ChmProcessorLib.DocumentStructure
         /// <param name="currentNode">Node to process now</param>
         /// <param name="currentLevel">Current deep level of the node into the document tree</param>
         /// <param name="maxLevelTOC">Maximum deep level into the tree to generate the TOC.</param>
-        public void GenerateJavaHelpTOC(StreamWriter writer, ChmDocumentNode currentNode, int maxLevelTOC, int currentLevel)
+        /*public void GenerateJavaHelpTOC(StreamWriter writer, ChmDocumentNode currentNode, int maxLevelTOC, int currentLevel)
         {
             if (maxLevelTOC != 0 && currentLevel > maxLevelTOC)
                 return;
@@ -175,14 +175,14 @@ namespace ChmProcessorLib.DocumentStructure
 
             if (currentNode.HeaderTag != null && currentNode.Children.Count > 0)
                 writer.WriteLine("</tocitem>");
-        }
+        }*/
 
         /// <summary>
         /// Generate a java help table of contents xml file.
         /// </summary>
         /// <param name="file">Path of the TOC file to generate.</param>
         /// <param name="maxLevelTOC">Maximum deep level into the tree to generate the TOC.</param>
-        public void GenerateJavaHelpTOC(string file, int maxLevelTOC)
+        /*public void GenerateJavaHelpTOC(string file, int maxLevelTOC)
         {
             StreamWriter writer = new StreamWriter(file, false, Encoding.UTF8);
             writer.WriteLine("<?xml version=\"1.0\" encoding=\"utf-8\" ?>");
@@ -194,7 +194,7 @@ namespace ChmProcessorLib.DocumentStructure
                 GenerateJavaHelpTOC(writer, child, maxLevelTOC, 1);
             writer.WriteLine("</toc>");
             writer.Close();
-        }
+        }*/
 
         // TODO: Move this function to ChmDocumentIndex class
         /*public void GenerarIndice( ChmDocumentIndex index , ChmDocumentNode nodo , int NivelMaximoIndice , int nivel ) 
@@ -232,7 +232,7 @@ namespace ChmProcessorLib.DocumentStructure
                 else
                     nombre = DEFAULTTILE;
                 texto = "<li><a href=\"" + nodo.Href ;
-                texto += "\">" + DocumentProcessor.HtmlEncode( nombre ) + "</a>";
+                texto += "\">" + HttpUtility.HtmlEncode( nombre ) + "</a>";
             }
 
             if( nodo.Children.Count > 0 ) 

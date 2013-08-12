@@ -10,7 +10,9 @@ namespace ChmProcessorLib.Generators
 {
 
     /// <summary>
-    /// Tool to create and compile a CHM project
+    /// Tool to create and compile a CHM project from a document
+    /// TODO: The project directory creation, the topic pages generation and decoration, and the copy
+    /// TODO: of additional files should be done here.
     /// </summary>
     public class ChmGenerator
     {
@@ -35,11 +37,6 @@ namespace ChmProcessorLib.Generators
         /// TODO: Dont use this. Use the name stored into the chmproject "Project"
         /// </summary>
         private const string CHMFILENAME = "help.chm";
-
-        /// <summary>
-        /// Directy path where is stored the CHM project
-        /// </summary>
-        private string ChmProjectDirectory;
 
         /// <summary>
         /// Text encodig to create the CHM project files
@@ -72,10 +69,9 @@ namespace ChmProcessorLib.Generators
         /// </summary>
         private List<string> AdditionalFiles;
 
-        public ChmGenerator(ChmDocument document, string chmProjectDirectory, 
-            UserInterface ui, ChmProject project, List<string> additionalFiles)
+        public ChmGenerator(ChmDocument document, UserInterface ui, ChmProject project, 
+            List<string> additionalFiles)
         {
-            this.ChmProjectDirectory = chmProjectDirectory;
             this.Document = document;
             this.UI = ui;
             this.Project = project;
@@ -108,10 +104,13 @@ namespace ChmProcessorLib.Generators
         /// </summary>
         private string ChmProjectPath
         {
-            get { return Path.Combine(ChmProjectDirectory, HELPPROJECTFILENAME); }
+            get { return Path.Combine(Project.HelpProjectDirectory, HELPPROJECTFILENAME); }
         }
 
-        public void CreateProject()
+        /// <summary>
+        /// Generates and compiles the CHM file
+        /// </summary>
+        public void Generate()
         {
             UI.log("Generating table of contents", ConsoleUserInterface.INFO);
             GenerateTOCFile();
@@ -142,7 +141,7 @@ namespace ChmProcessorLib.Generators
         /// <param name="filePath">Path where to store the file.</param>
         private void GenerateTOCFile()
         {
-            string filePath = Path.Combine(ChmProjectDirectory, TOCFILENAME);
+            string filePath = Path.Combine(Project.HelpProjectDirectory, TOCFILENAME);
             StreamWriter writer = new StreamWriter(filePath, false, Encoding);
             writer.WriteLine("<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML//EN\">");
             writer.WriteLine("<HTML>");
@@ -157,12 +156,29 @@ namespace ChmProcessorLib.Generators
             writer.Close();
         }
 
+        private string TOCEntry(ChmDocumentNode node)
+        {
+            string nombre = "";
+            if (node.HeaderTag != null)
+                nombre = node.HeaderTag.innerText;
+            else
+                nombre = ChmDocument.DEFAULTTILE;
+
+            string texto = "<LI> <OBJECT type=\"text/sitemap\">\n" +
+                "     <param name=\"Name\" value=\"" +
+                node.HtmlEncodedTitle +
+                "\">\n" +
+                "     <param name=\"Local\" value=\"" + node.Href;
+            texto += "\">\n" + "     </OBJECT>\n";
+            return texto;
+        }
+
         private void GenerateTOCFile(StreamWriter writer, ChmDocumentNode nodo, int nivel)
         {
             if (Project.MaxHeaderContentTree != 0 && nivel > Project.MaxHeaderContentTree)
                 return;
 
-            writer.WriteLine(nodo.EntradaArbolContenidos);
+            writer.WriteLine(/*nodo.EntradaArbolContenidos*/ TOCEntry(nodo) );
             if (nodo.Children.Count > 0)
             {
                 writer.WriteLine("<UL>");
@@ -179,7 +195,7 @@ namespace ChmProcessorLib.Generators
         /// <param name="encoding">Encoding used to write the file</param>
         private void GenerateHelpIndex()
         {
-            string filePath = Path.Combine(ChmProjectDirectory, INDEXFILENAME);
+            string filePath = Path.Combine(Project.HelpProjectDirectory, INDEXFILENAME);
             StreamWriter writer = new StreamWriter(filePath, false, Encoding);
             writer.WriteLine("<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML//EN\">");
             writer.WriteLine("<HTML>");
@@ -190,7 +206,7 @@ namespace ChmProcessorLib.Generators
             foreach (ChmDocumentNode node in Document.Index)
             {
                 if (!node.Href.Equals(""))
-                    writer.WriteLine(node.EntradaArbolContenidos);
+                    writer.WriteLine(/*node.EntradaArbolContenidos*/ TOCEntry(node) );
             }
             writer.WriteLine("</UL>");
             writer.WriteLine("</BODY></HTML>");
@@ -210,11 +226,11 @@ namespace ChmProcessorLib.Generators
             writer.WriteLine("[OPTIONS]");
             writer.WriteLine("Compatibility=1.1 or later");
             writer.WriteLine("Compiled file=" + CHMFILENAME);
-            writer.WriteLine("Contents file=toc-generado.hhc");
+            writer.WriteLine("Contents file=" + TOCFILENAME);
             writer.WriteLine("Default topic=" + firstTopicFile);
             writer.WriteLine("Display compile progress=No");
             writer.WriteLine("Full-text search=Yes");
-            writer.WriteLine("Index file=Index-generado.hhk");
+            writer.WriteLine("Index file=" + INDEXFILENAME);
             writer.WriteLine("Language=0x" + Convert.ToString(HelpWorkshopCulture.LCID, 16) + " " + HelpWorkshopCulture.DisplayName);
             writer.WriteLine("Title=" + Project.HelpTitle);
             writer.WriteLine("\r\n[FILES]");
@@ -243,6 +259,7 @@ namespace ChmProcessorLib.Generators
             {
                 string proyecto = "\"" + ChmProjectPath + "\"";
 
+                // TODO: Use DocumentProcessor.ExecuteCommandLine to make this execution:
                 ProcessStartInfo info;
                 if (!AppSettings.UseAppLocale)
                     // Run the raw compiler
@@ -268,7 +285,7 @@ namespace ChmProcessorLib.Generators
                 UI.LogStream(proceso.StandardOutput, ConsoleUserInterface.INFO);
                 UI.LogStream(proceso.StandardError, ConsoleUserInterface.ERRORWARNING);
 
-                string archivoAyudaOrigen = Path.Combine(ChmProjectDirectory, CHMFILENAME);
+                string archivoAyudaOrigen = Path.Combine(Project.HelpProjectDirectory, CHMFILENAME);
                 if (File.Exists(archivoAyudaOrigen))
                     // Copy the file from the temporally directory to the gift by the user
                     File.Copy(archivoAyudaOrigen, Project.HelpFile, true);

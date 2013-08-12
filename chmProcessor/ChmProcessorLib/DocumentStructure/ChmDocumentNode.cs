@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using mshtml;
+using System.Web;
 
 namespace ChmProcessorLib.DocumentStructure
 {
@@ -293,11 +294,12 @@ namespace ChmProcessorLib.DocumentStructure
         {
             get 
             {
-                return DocumentProcessor.HtmlEncode( Title );
+                //return DocumentProcessor.HtmlEncode( Title );
+                return HttpUtility.HtmlEncode(Title);
             }
         }
 
-        public string EntradaArbolContenidos 
+        /*public string EntradaArbolContenidos 
         {
             get 
             {
@@ -315,36 +317,36 @@ namespace ChmProcessorLib.DocumentStructure
                 texto += "\">\n" + "     </OBJECT>\n";
                 return texto;
             }
-        }
+        }*/
 
         #region Java Help
 
         /// <summary>
         /// Tag for a java help index file of this section.
         /// </summary>
-        public string JavaHelpIndexEntry
+        /*public string JavaHelpIndexEntry
         {
             get
             {
                 return "<indexitem text=\"" + HtmlEncodedTitle + "\" target=\"" + JavaHelpTarget + "\" />";
             }
-        }
+        }*/
 
         /// <summary>
         /// Tag for a java help map file of this section.
         /// </summary>
-        public string JavaHelpMapEntry
+        /*public string JavaHelpMapEntry
         {
             get
             {
                 return "<mapID target=\"" + JavaHelpTarget + "\" url=\"" + Href + "\" />";
             }
-        }
+        }*/
 
         /// <summary>
         /// Tag for a java help TOC file of this section.
         /// </summary>
-        public string JavaHelpTOCEntry
+        /*public string JavaHelpTOCEntry
         {
             get
             {
@@ -355,18 +357,18 @@ namespace ChmProcessorLib.DocumentStructure
                     entry += ">";
                 return entry;
             }
-        }
+        }*/
 
         /// <summary>
         /// Name of the java help target for this section
         /// </summary>
-        public string JavaHelpTarget
+        /*public string JavaHelpTarget
         {
             get
             {
                 return HtmlEncodedTitle;
             }
-        }
+        }*/
 
         #endregion
 
@@ -381,7 +383,7 @@ namespace ChmProcessorLib.DocumentStructure
                 string enlace = "";
                 if( HeaderTag != null ) 
                 {
-                    enlace = DocumentProcessor.HtmlEncode( Path.GetFileName( DestinationFileName ) );
+                    enlace = HttpUtility.HtmlEncode( Path.GetFileName( DestinationFileName ) );
                     if( ! MainAnchorName.Equals("") )
                         enlace += "#" + MainAnchorName;
                 }
