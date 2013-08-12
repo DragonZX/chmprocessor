@@ -54,7 +54,7 @@ namespace ChmProcessorLib.DocumentStructure
         /// </summary>
         /// <param name="fileName">Path where to save the file</param>
         /// <param name="encoding">Encoding used to write the file</param>
-        public void StoreHelpIndex( string fileName , Encoding encoding) 
+        /*public void StoreHelpIndex( string fileName , Encoding encoding) 
         {
             StreamWriter writer = new StreamWriter( fileName , false , encoding );
             writer.WriteLine( "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML//EN\">" );
@@ -71,13 +71,13 @@ namespace ChmProcessorLib.DocumentStructure
             writer.WriteLine( "</UL>" );
             writer.WriteLine( "</BODY></HTML>" );
             writer.Close();
-        }
+        }*/
 
         /// <summary>
         /// Store the xml file for the java help with the index of topics.
         /// </summary>
         /// <param name="fileName">Path of the java help index file name</param>
-        public void GenerateJavaHelpIndex(string fileName)
+        /*public void GenerateJavaHelpIndex(string fileName)
         {
             StreamWriter writer = new StreamWriter(fileName, false, Encoding.UTF8 );
             writer.WriteLine("<?xml version=\"1.0\" encoding=\"utf-8\" ?>");
@@ -92,13 +92,13 @@ namespace ChmProcessorLib.DocumentStructure
             }
             writer.WriteLine("</index>");
             writer.Close();
-        }
+        }*/
 
         /// <summary>
         /// Generates the map xml file for java help
         /// </summary>
         /// <param name="dirJavaHelp">Path of the java help map file name</param>
-        public void GenerateJavaHelpMapFile(String fileName)
+        /*public void GenerateJavaHelpMapFile(String fileName)
         {
             StreamWriter writer = new StreamWriter(fileName, false, Encoding.UTF8);
             writer.WriteLine("<?xml version=\"1.0\" encoding=\"utf-8\" ?>");
@@ -113,12 +113,12 @@ namespace ChmProcessorLib.DocumentStructure
             }
             writer.WriteLine("</map>");
             writer.Close();
-        }
+        }*/
 
         /// <summary>
         /// Name of the java help target for the first section on the index.
         /// </summary>
-        public string FirstTopicTarget
+        /*public string FirstTopicTarget
         {
             get
             {
@@ -129,7 +129,7 @@ namespace ChmProcessorLib.DocumentStructure
                 }
                 return ChmDocument.DEFAULTTILE;
             }
-        }
+        }*/
 
     }
 }

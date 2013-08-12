@@ -19,7 +19,6 @@
 using System;
 using System.IO;
 using mshtml;
-using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
@@ -29,12 +28,15 @@ using System.Runtime.InteropServices;
 using System.Globalization;
 using WebIndexLib;
 using ChmProcessorLib.DocumentStructure;
+using ChmProcessorLib.Generators;
 
 namespace ChmProcessorLib
 {
 
 	/// <summary>
     /// Class to handle manipulations of a HTML / Word file to generate the help
+    /// TODO: Calls to UserInterface.log outside this class (on Generators classes) does not store
+    /// TODO: the generated exceptions on the "GenerationExceptions" member. They must to do it.
 	/// </summary>
     public class DocumentProcessor
     {
@@ -78,7 +80,7 @@ namespace ChmProcessorLib
         /// <summary>
         /// Lista de archivos y directorios adicionales a añadir al proyecto de ayuda
         /// </summary>
-        private ArrayList ArchivosAdicionales;
+        private List<string> ArchivosAdicionales;
 
         /// <summary>
         /// Indica si el archivo a procesar es un documento word o uno html
@@ -104,7 +106,7 @@ namespace ChmProcessorLib
         /// <summary>
         /// List of exceptions catched on the generation process.
         /// </summary>
-        public ArrayList GenerationExceptions = new ArrayList();
+        public List<Exception> GenerationExceptions = new List<Exception>();
 
         /// <summary>
         /// Timer to avoid html loading hang ups
@@ -365,7 +367,7 @@ namespace ChmProcessorLib
         public DocumentProcessor( ChmProject project )
         {
             this.Project = project;
-            this.ArchivosAdicionales = new ArrayList(project.ArchivosAdicionales);
+            this.ArchivosAdicionales = new List<string>(project.ArchivosAdicionales);
             this.replaceBrokenLinks = AppSettings.ReplaceBrokenLinks;
             try
             {
@@ -522,7 +524,7 @@ namespace ChmProcessorLib
             }
         }
         
-        private void GuardarDocumentos(string directory, HtmlPageDecorator decorator, ChmDocumentNode nodo, ArrayList archivosGenerados, WebIndex indexer) 
+        private void GuardarDocumentos(string directory, HtmlPageDecorator decorator, ChmDocumentNode nodo, List<string> archivosGenerados, WebIndex indexer) 
         {
             if( nodo.SplittedPartBody != null ) 
             {
@@ -611,14 +613,14 @@ namespace ChmProcessorLib
             }
         }*/
 
-        private ArrayList GuardarDocumentos(string directory, HtmlPageDecorator decorator, WebIndex indexer) 
+        private List<string> GuardarDocumentos(string directory, HtmlPageDecorator decorator, WebIndex indexer) 
         {
             // Intentar unificar nodos que quedarian vacios, con solo el titulo de la seccion:
             /*foreach( ChmDocumentNode nodo in tree.RootNode.Children ) 
                 UnificarNodos( nodo );*/
 
             // Recorrer el arbol en busca de nodos con cuerpo
-            ArrayList archivosGenerados = new ArrayList();
+            List<string> archivosGenerados = new List<string>();
             foreach (ChmDocumentNode nodo in tree.RootNode.Children)
                 GuardarDocumentos(directory, decorator, nodo, archivosGenerados, indexer);
 
@@ -629,7 +631,7 @@ namespace ChmProcessorLib
         /// Vacia el directorio de destino, y copia los archivos adicionales a aquel.
         /// </summary>
         /// <returns>Devuelve la lista de archivos adicionales a incluir en el proyecto de la ayuda</returns>
-        private ArrayList GenerarDirDestino( string dirDst ) 
+        private List<string> GenerarDirDestino(string dirDst) 
         {
             // Recrear el directorio:
             try
@@ -645,7 +647,7 @@ namespace ChmProcessorLib
             Directory.CreateDirectory( dirDst );
             
             // Copiar los archivos adicionales
-            ArrayList nuevosArchivos = new ArrayList();
+            List<string> nuevosArchivos = new List<string>();
             foreach( string arc in ArchivosAdicionales ) 
             {
                 if( Directory.Exists( arc ) )
@@ -667,6 +669,7 @@ namespace ChmProcessorLib
 
         /// <summary>
         /// Extract the style tag of the document to an CSS external file.
+        /// TODO: This should be done into ChmDocumentParser
         /// </summary>
         /// <returns>Path to the generated CSS file. null if no CSS was generated</returns>
         private string CheckForStyleTags() {
@@ -735,7 +738,7 @@ namespace ChmProcessorLib
         /// <summary>
         /// Generate a XPS file for the document.
         /// </summary>
-        private void BuildXps()
+        /*private void BuildXps()
         {
             log("Generating XPS file", ConsoleUserInterface.INFO);
             try
@@ -749,13 +752,14 @@ namespace ChmProcessorLib
                         "pdf/xps generation add-in (http://www.microsoft.com/downloads/details.aspx?FamilyID=4D951911-3E7E-4AE6-B059-A2E79ED87041&displaylang=en)", ConsoleUserInterface.ERRORWARNING);
                 log(ex);
             }
-        }
+        }*/
 
         private void ExecuteProjectCommandLine()
         {
             try
             {
                 log("Executing '" + Project.CommandLine.Trim() + "'", ConsoleUserInterface.INFO);
+                // TODO: Do a call to ExecuteCommandLine to run this execution.
                 string strCmdLine = "/C " + Project.CommandLine.Trim();
                 ProcessStartInfo si = new System.Diagnostics.ProcessStartInfo("CMD.exe", strCmdLine);
                 si.CreateNoWindow = false;
@@ -816,7 +820,7 @@ namespace ChmProcessorLib
         /// <summary>
         /// Generate a PDF file for the document.
         /// </summary>
-        private void BuildPdf()
+        /*private void BuildPdf()
         {
             try
             {
@@ -843,34 +847,46 @@ namespace ChmProcessorLib
                         "generate a PDF file. You can download it from http://www.pdfforge.org/products/pdfcreator/download", ConsoleUserInterface.ERRORWARNING);
                 log(ex);
             }
-        }
+        }*/
 
         public void GenerateHelp()
         {
             try
             {
                 // Generate help project and java help:
-                string helpProjectFile = Generate();
+                Generate();
 
-                if (CancellRequested())
+                /*if (CancellRequested())
                     return;
 
                 // Open or compile the help project
-                ProcessHelpProject(helpProjectFile);
+                ProcessHelpProject(helpProjectFile);*/
+
+                // TODO: If the chm has been compiled, remove the project directory from the temporal directory.
+                ChmGenerator chmGenerator = new ChmGenerator(tree, UI, Project, ArchivosAdicionales);
+                chmGenerator.Generate();
 
                 if (CancellRequested())
                     return;
 
                 // PDF:
                 if (Project.GeneratePdf)
-                    BuildPdf();
+                {
+                    //BuildPdf();
+                    PdfGenerator pdfGenerator = new PdfGenerator(MainSourceFile, UI, Project);
+                    pdfGenerator.Generate();
+                }
 
                 if (CancellRequested())
                     return;
 
                 // XPS:
                 if (Project.GenerateXps)
-                    BuildXps();
+                {
+                    //BuildXps();
+                    XpsGenerator xpsGenerator = new XpsGenerator(MainSourceFile, UI, Project);
+                    xpsGenerator.Generate();
+                }
 
                 if (CancellRequested())
                     return;
@@ -959,15 +975,14 @@ namespace ChmProcessorLib
         /// <summary>
         /// Generates help products.
         /// </summary>
-        /// <returns>Path to help project generated.</returns>
-        private string Generate() 
+        private void Generate() 
         {
 
             // Open and process source files
             OpenSourceFiles();
 
             if (CancellRequested())
-                return null;
+                return;
 
             if( esWord )
             {
@@ -979,11 +994,11 @@ namespace ChmProcessorLib
             }
 
             if (CancellRequested())
-                return null;
+                return;
 
             // Preparar el directorio de destino.
             log("Creating project directory: " + Project.HelpProjectDirectory, ConsoleUserInterface.INFO);
-            ArrayList listaFinalArchivos = GenerarDirDestino(Project.HelpProjectDirectory);
+            List<string> listaFinalArchivos = GenerarDirDestino(Project.HelpProjectDirectory);
 
             // Check if there is a <STYLE> tag into the header. If there is, take it out to a CSS file.
             log("Extracting STYLE tags to a CSS file", ConsoleUserInterface.INFO);
@@ -992,26 +1007,27 @@ namespace ChmProcessorLib
                 listaFinalArchivos.Add(cssFile);
 
             if (CancellRequested())
-                return null;
+                return;
 
             PrepareHtmlDecorators();
 
             if (CancellRequested())
-                return null;
+                return;
 
             // Build the tree structure of document titles.
             ChmDocumentParser parser = new ChmDocumentParser(iDoc, this.UI, Project);
             tree = parser.ParseDocument();
 
             if (CancellRequested())
-                return null;
+                return;
 
             // Generar los archivos HTML:
             log("Storing splitted files", ConsoleUserInterface.INFO);
-            ArrayList archivosGenerados = GuardarDocumentos(Project.HelpProjectDirectory, chmDecorator, null);
+            List<string> archivosGenerados = GuardarDocumentos(Project.HelpProjectDirectory, chmDecorator, null);
 
             if (CancellRequested())
-                return null;
+                return;
+
             // Check if the file for content without title was created. If not, remove it from the files tree.
             string archivo1 = Path.Combine(Project.HelpProjectDirectory , ChmDocument.INITIALSECTIONFILENAME);
             if( ! File.Exists( archivo1) ) 
@@ -1026,10 +1042,10 @@ namespace ChmProcessorLib
                 primero = ((ChmDocumentNode) tree.RootNode.Children[0]).DestinationFileName;
 
             if (CancellRequested())
-                return null;
+                return;
 
             // Generar archivo con arbol de contenidos:
-            log("Generating table of contents", ConsoleUserInterface.INFO);
+            /*log("Generating table of contents", ConsoleUserInterface.INFO);
             tree.GenerarArbolDeContenidos(Project.HelpProjectDirectory + Path.DirectorySeparatorChar +
                 "toc-generado.hhc", Project.MaxHeaderContentTree, helpWorkshopEncoding );
             
@@ -1037,11 +1053,7 @@ namespace ChmProcessorLib
                 return null;
 
             // Generar archivo con palabras clave:
-            /*log("Generating index", ConsoleUserInterface.INFO);
-            ChmDocumentIndex index = tree.GenerarIndice(Project.MaxHeaderIndex);
-            index.StoreHelpIndex(Project.HelpProjectDirectory + Path.DirectorySeparatorChar +
-                "Index-generado.hhk", helpWorkshopEncoding);*/
-            log("Generating index", ConsoleUserInterface.INFO);
+               log("Generating index", ConsoleUserInterface.INFO);
             tree.Index.StoreHelpIndex(Project.HelpProjectDirectory + Path.DirectorySeparatorChar +
                 "Index-generado.hhk", helpWorkshopEncoding);
 
@@ -1051,10 +1063,10 @@ namespace ChmProcessorLib
             // Generar el archivo del proyecto de ayuda
             log("Generating help project", ConsoleUserInterface.INFO);
             string archivoAyuda = Project.HelpProjectDirectory + Path.DirectorySeparatorChar + NOMBREPROYECTO;
-            GenerarArchivoProyecto( listaFinalArchivos , archivoAyuda , primero );
+            GenerarArchivoProyecto( listaFinalArchivos , archivoAyuda , primero );*/
 
             if (CancellRequested())
-                return null;
+                return;
 
             if( Project.GenerateWeb )
             {
@@ -1064,7 +1076,7 @@ namespace ChmProcessorLib
             }
 
             if (CancellRequested())
-                return null;
+                return;
 
             if (Project.GenerateJavaHelp)
             {
@@ -1079,7 +1091,7 @@ namespace ChmProcessorLib
 
             log("Project generated", ConsoleUserInterface.ERRORWARNING);
 
-            return archivoAyuda;
+            //return archivoAyuda;
         }
 
         /// <summary>
@@ -1087,11 +1099,11 @@ namespace ChmProcessorLib
         /// </summary>
         /// <param name="textToEnconde">Text to use on a HTML content page.</param>
         /// <returns>The save HTML version of the text</returns>
-        static public string HtmlEncode(string textToEnconde)
+        /*static public string HtmlEncode(string textToEnconde)
         {
             //return HtmlEncode(textToEnconde, true);
             return HttpUtility.HtmlEncode(textToEnconde);
-        }
+        }*/
 
         private void GeneateSitemap(string webDirectory)
         {
@@ -1140,7 +1152,7 @@ namespace ChmProcessorLib
         /// </summary>
         /// <param name="dirJavaHelp">Directory where to generate the help.hs file</param>
         /// <param name="index">Index of topics of the document</param>
-        void GenerateJavaHelpSetFile(String dirJavaHelp, ChmDocumentIndex index)
+        /*void GenerateJavaHelpSetFile(String dirJavaHelp, ChmDocumentIndex index)
         {
             // TODO: Translate the labels with web translation files:
             StreamWriter writer = new StreamWriter( dirJavaHelp + Path.DirectorySeparatorChar + "help.hs" ,
@@ -1157,7 +1169,7 @@ namespace ChmProcessorLib
             writer.WriteLine("<view><name>Search</name><label>Search</label><type>javax.help.SearchView</type><data engine=\"com.sun.java.help.search.DefaultSearchEngine\">JavaHelpSearch</data></view>");
             writer.WriteLine("</helpset>");
             writer.Close();
-        }
+        }*/
 
         
 
@@ -1167,21 +1179,27 @@ namespace ChmProcessorLib
         /// <param name="index">List of topics of the document.</param>
         /// <param name="cssFile">CSS file of the document, if it was generated.</param>
         /// </summary>
-        private void GenerateJavaHelp(ArrayList generatedFiles, ChmDocumentIndex index, string cssFile)
+        private void GenerateJavaHelp(List<string> generatedFiles, ChmDocumentIndex index, string cssFile)
         {
-            
+
+            JavaHelpGenerator jhGenerator = new JavaHelpGenerator(MainSourceFile, tree, UI, Project);
+
             // Create a temporal directy to generate the javahelp files:
-            String dirJavaHelp = Path.GetTempPath() + Path.DirectorySeparatorChar + Path.GetFileNameWithoutExtension(MainSourceFile) + "-javahelp";
+            /*String dirJavaHelp = Path.GetTempPath() + Path.DirectorySeparatorChar + Path.GetFileNameWithoutExtension(MainSourceFile) + "-javahelp";
             log("Copiying files to directory " + dirJavaHelp, ConsoleUserInterface.INFO);
-            GenerarDirDestino(dirJavaHelp);
+            GenerarDirDestino(dirJavaHelp);*/
+
+            log("Copiying files to directory " + jhGenerator.JavaHelpDirectoryGeneration, ConsoleUserInterface.INFO);
+            GenerarDirDestino(jhGenerator.JavaHelpDirectoryGeneration);
 
             // Copy the css file if was generated:
             if (cssFile != null)
-                File.Copy(cssFile, dirJavaHelp + Path.DirectorySeparatorChar + Path.GetFileName(cssFile));
+                File.Copy(cssFile, Path.Combine(jhGenerator.JavaHelpDirectoryGeneration, Path.GetFileName(cssFile)) );
 
             // Write HTML help content files to the destination directory
-            GuardarDocumentos(dirJavaHelp, webDecorator, null);
+            GuardarDocumentos(jhGenerator.JavaHelpDirectoryGeneration, webDecorator, null);
 
+            /*
             log("Generating java help xml files", ConsoleUserInterface.INFO);
             // Generate the java help xml files:
             GenerateJavaHelpSetFile(dirJavaHelp, index);
@@ -1201,7 +1219,29 @@ namespace ChmProcessorLib
             log(jarPath + " " + commandLine, ConsoleUserInterface.INFO);
             ExecuteCommandLine(jarPath, commandLine, dirJavaHelp);
 
-            Directory.Delete(dirJavaHelp, true);
+            Directory.Delete(dirJavaHelp, true);*/
+
+            jhGenerator.Generate();
+        }
+
+        /// <summary>
+        /// Executes a command line and writes the command output to the log.
+        /// </summary>
+        /// <param name="exeFile">Path of the executable file to run</param>
+        /// <param name="parameters">Parameters of the command line</param>
+        /// <param name="workingDirectory">Directory where to run the command line</param>
+        static public void ExecuteCommandLine(string exeFile, string parameters, string workingDirectory, UserInterface ui)
+        {
+            ProcessStartInfo info = new ProcessStartInfo(exeFile, parameters);
+            info.UseShellExecute = false;
+            info.RedirectStandardOutput = true;
+            info.CreateNoWindow = true;
+            info.WorkingDirectory = workingDirectory;
+
+            Process proceso = Process.Start(info);
+            while (!proceso.WaitForExit(1000))
+                ui.LogStream(proceso.StandardOutput, ConsoleUserInterface.INFO);
+            ui.LogStream(proceso.StandardOutput, ConsoleUserInterface.INFO);
         }
 
         /// <summary>
@@ -1212,16 +1252,7 @@ namespace ChmProcessorLib
         /// <param name="workingDirectory">Directory where to run the command line</param>
         private void ExecuteCommandLine(string exeFile, string parameters, string workingDirectory)
         {
-            ProcessStartInfo info = new ProcessStartInfo(exeFile, parameters);
-            info.UseShellExecute = false;
-            info.RedirectStandardOutput = true;
-            info.CreateNoWindow = true;
-            info.WorkingDirectory = workingDirectory;
-
-            Process proceso = Process.Start(info);
-            while (!proceso.WaitForExit(1000))
-                LogStream(proceso.StandardOutput, ConsoleUserInterface.INFO);
-            LogStream(proceso.StandardOutput, ConsoleUserInterface.INFO);
+            ExecuteCommandLine(exeFile, parameters, workingDirectory, this.UI);
         }
 
         /// <summary>
@@ -1230,7 +1261,7 @@ namespace ChmProcessorLib
         /// <param name="archivosGenerados">List of all files of the help content.</param>
         /// <param name="index">Index help information</param>
         /// <param name="cssFile">File that contains extracted CSS styles</param>
-        private void GenerateWebSite( ArrayList archivosGenerados, ChmDocumentIndex index, string cssFile ) 
+        private void GenerateWebSite(List<string> archivosGenerados, ChmDocumentIndex index, string cssFile) 
         {
             try
             {
@@ -1271,7 +1302,7 @@ namespace ChmProcessorLib
                 }
 
                 // HTML save version of the title:
-                string htmlTitle = HtmlEncode(Project.HelpTitle);
+                string htmlTitle = HttpUtility.HtmlEncode(Project.HelpTitle);
 
                 // Generate search form HTML code:
                 string textSearch = "";
@@ -1339,7 +1370,7 @@ namespace ChmProcessorLib
             }
         }
 
-        private void GenerarArchivoProyecto( ArrayList archivosAdicinales , string archivo , string temaInicial) 
+        /*private void GenerarArchivoProyecto(List<string> archivosAdicinales, string archivo, string temaInicial) 
         {
             StreamWriter writer = new StreamWriter(archivo, false, helpWorkshopEncoding);
             writer.WriteLine( "[OPTIONS]" );
@@ -1362,7 +1393,7 @@ namespace ChmProcessorLib
                 writer.WriteLine( arc );
             writer.WriteLine( "\r\n[INFOTYPES]\r\n" );
             writer.Close();
-        }
+        }*/
 
         /// <summary>
         /// Return the first header tag (H1,H2,etc) found on a subtree of the html document 
