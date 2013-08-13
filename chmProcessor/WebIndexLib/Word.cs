@@ -24,6 +24,10 @@ using System.Data.Common;
 
 namespace WebIndexLib
 {
+
+    /// <summary>
+    /// TODO: Try to replace all this stuff with Lucene or other external tool
+    /// </summary>
     class Word
     {
         static int LastCode;

@@ -32,6 +32,11 @@ namespace ChmProcessorLib.DocumentStructure
         private ChmDocumentNode LastedNodeInserted;
 
         /// <summary>
+        /// True if the parse process must clear broken links
+        /// </summary>
+        private bool ReplaceBrokenLinks;
+
+        /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="iDoc">The HTML document to parse</param>
@@ -43,6 +48,7 @@ namespace ChmProcessorLib.DocumentStructure
             Document = new ChmDocument(iDoc);
             UI = ui;
             Project = project;
+            ReplaceBrokenLinks = AppSettings.ReplaceBrokenLinks;
         }
 
         /// <summary>
@@ -86,9 +92,23 @@ namespace ChmProcessorLib.DocumentStructure
             UI.log("Joining empty document sections", ConsoleUserInterface.INFO);
             JoinEmptyNodes();
 
+            if (UI.CancellRequested())
+                return null;
+
+            // Change internal document links to point to the splitted files. Optionally repair broken links.
+            UI.log("Changing internal links", ConsoleUserInterface.INFO);
+            ChangeInternalLinks(Document.RootNode);
+
+            if (UI.CancellRequested())
+                return null;
+
             // Create the document index
             UI.log("Creating document index", ConsoleUserInterface.INFO);
             CreateDocumentIndex();
+
+            // Extract the embedded CSS styles of the document:
+            UI.log("Extracting CSS STYLE header tags", ConsoleUserInterface.INFO);
+            CheckForStyleTags();
 
             return Document;
         }
@@ -481,6 +501,194 @@ namespace ChmProcessorLib.DocumentStructure
             Document.Index = new ChmDocumentIndex();
             foreach (ChmDocumentNode hijo in Document.RootNode.Children)
                 CreateDocumentIndex(hijo, 1);
+        }
+
+        /// <summary>
+        /// Repair or remove an internal link.
+        /// Given a broken internal link, it searches a section title of the document with the
+        /// same text of the broken link. If its found, the destination link is modified to point to
+        /// that section. If a matching section is not found, the link will be removed and its content
+        /// will be keept.
+        /// </summary>
+        /// <param name="link">The broken link</param>
+        private void ReplaceBrokenLink(IHTMLAnchorElement link)
+        {
+            try
+            {
+                // Get the text of the link
+                string linkText = ((IHTMLElement)link).innerText.Trim();
+                // Seach a title with the same text of the link:
+                ChmDocumentNode destinationTitle = Document.SearchBySectionTitle(linkText);
+                if (destinationTitle != null)
+                    // Replace the original internal broken link with this:
+                    link.href = destinationTitle.Href;
+                else
+                {
+                    // No candidate title was found. Remove the link and keep its content
+                    IHTMLElementCollection linkChildren = (IHTMLElementCollection)((IHTMLElement)link).children;
+                    IHTMLDOMNode domLink = (IHTMLDOMNode)link;
+                    IHTMLDOMNode domParent = (IHTMLDOMNode) ((IHTMLElement)link).parentElement;
+                    foreach (IHTMLElement child in linkChildren)
+                        domParent.insertBefore((IHTMLDOMNode)child, domLink);
+                    domLink.removeNode(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                UI.log("Error reparining a broken link", ConsoleUserInterface.ERRORWARNING);
+                UI.log(ex);
+            }
+        }
+
+        /// <summary>
+        /// Makes a recursive search on the document tree to change internal document links to point to the 
+        /// splitted files. Optionally repair broken links.
+        /// </summary>
+        /// <param name="node">Current node on the recursive search</param>
+        private void ChangeInternalLinks(IHTMLElement node)
+        {
+            try
+            {
+                if (node is IHTMLAnchorElement)
+                {
+                    IHTMLAnchorElement link = (IHTMLAnchorElement)node;
+                    string href = link.href;
+                    if (href != null)
+                    {
+                        // An hyperlink node
+
+                        // Remove the about:blank
+                        // TODO: Check if this is really needed.
+                        href = href.Replace("about:blank", "").Replace("about:", "");
+
+                        if (href.StartsWith("#"))
+                        {
+                            // A internal link.
+                            // Replace it to point to the right splitted file.
+                            string safeRef = ChmDocumentNode.ToSafeFilename(href.Substring(1));
+                            ChmDocumentNode nodoArbol = Document.RootNode.BuscarEnlace(safeRef);
+                            if (nodoArbol != null)
+                                link.href = nodoArbol.DestinationFileName + "#" + safeRef;
+                            else
+                            {
+                                // Broken link.
+                                UI.log("WARNING: Broken link with text: '" + node.innerText + "'", ConsoleUserInterface.ERRORWARNING);
+                                //if (parent != null)
+                                if( node.parentElement != null )
+                                {
+                                    String inText = node.parentElement.innerText;
+                                    if (inText != null)
+                                    {
+                                        if (inText.Length > 200)
+                                            inText = inText.Substring(0, 200) + "...";
+                                        UI.log(" near of text: '" + inText + "'", ConsoleUserInterface.ERRORWARNING);
+                                    }
+                                }
+                                if (ReplaceBrokenLinks)
+                                    ReplaceBrokenLink(link);
+                            }
+
+                        }
+                    }
+                    else if (link.name != null)
+                    {
+                        // A HTML "boomark", the destination of a link.
+                        string safeName = ChmDocumentNode.ToSafeFilename(link.name);
+                        if (!link.name.Equals(safeName))
+                        {
+                            // Word bug? i have found names with space characters and other bad things. 
+                            // They fail into the CHM:
+                            //link.name = link.name.Replace(" ", ""); < NOT WORKS
+                            IHTMLDOMNode domNodeParent = (IHTMLDOMNode)node.parentElement;
+                            string htmlNewNode = "<a name=" + safeName + "></a>";
+                            IHTMLDOMNode newDomNode = (IHTMLDOMNode)Document.IDoc.createElement(htmlNewNode);
+                            domNodeParent.replaceChild(newDomNode, (IHTMLDOMNode)node);
+                        }
+                    }
+                }
+
+                IHTMLElementCollection col = (IHTMLElementCollection)node.children;
+                foreach (IHTMLElement child in col)
+                    ChangeInternalLinks(child);
+            }
+            catch (Exception ex)
+            {
+                UI.log(ex);
+            }
+        }
+
+        /// <summary>
+        /// Makes a recursive search on the document tree to change internal document links to point to the 
+        /// splitted files. Optionally repair broken links.
+        /// </summary>
+        /// <param name="node">Current node on the recursive search</param>
+        private void ChangeInternalLinks(ChmDocumentNode node) 
+        {
+            if (node.SplittedPartBody != null)
+                ChangeInternalLinks(node.SplittedPartBody);
+
+            foreach (ChmDocumentNode child in node.Children)
+                ChangeInternalLinks(child);
+        }
+
+        /// <summary>
+        /// Extracts the style tag of the document and save it into the document
+        /// </summary>
+        private void CheckForStyleTags()
+        {
+            IHTMLDocument3 iDoc3 = (IHTMLDocument3)Document.IDoc;
+            IHTMLDOMChildrenCollection col = (IHTMLDOMChildrenCollection)iDoc3.childNodes;
+            IHTMLHeadElement head = null;
+            IHTMLHtmlElement html = null;
+            IHTMLElement style = null;
+
+            // Search the HTML tag:
+            foreach (IHTMLElement e in col)
+            {
+                if (e is IHTMLHtmlElement)
+                {
+                    html = (IHTMLHtmlElement)e;
+                    break;
+                }
+            }
+
+            if (html != null)
+            {
+                // Search the <HEAD> tag.
+                col = (IHTMLDOMChildrenCollection)((IHTMLDOMNode)html).childNodes;
+                foreach (IHTMLElement e in col)
+                {
+                    if (e is IHTMLHeadElement)
+                    {
+                        head = (IHTMLHeadElement)e;
+                        break;
+                    }
+                }
+            }
+
+            if (head != null)
+            {
+                // Search the first <STYLE> tag:
+                col = (IHTMLDOMChildrenCollection)((IHTMLDOMNode)head).childNodes;
+                foreach (IHTMLElement e in col)
+                {
+                    if (e is IHTMLStyleElement)
+                    {
+                        style = (IHTMLElement)e;
+                        break;
+                    }
+                }
+            }
+
+            if (style != null && style.innerHTML != null)
+            {
+                // Remove comments and save the CSS contents:
+                Document.EmbeddedStylesTagContent = style.innerHTML.Replace("<!--", "").Replace("-->", "");
+                // Replace the node by other including the CSS file.
+                IHTMLDOMNode newDomNode = (IHTMLDOMNode)Document.IDoc.createElement("<link rel=\"stylesheet\" type=\"text/css\" href=\"" + ChmDocument.EMBEDDEDCSSFILENAME + "\" >");
+                ((IHTMLDOMNode)style).replaceNode(newDomNode);
+            }
+
         }
 
     }

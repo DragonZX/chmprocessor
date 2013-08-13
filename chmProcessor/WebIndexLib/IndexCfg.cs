@@ -25,6 +25,7 @@ namespace WebIndexLib
 {
     /// <summary>
     /// Class to load and store the search index configuration.
+    /// TODO: Try to replace all this stuff with Lucene or other external tool
     /// </summary>
     class IndexCfg
     {

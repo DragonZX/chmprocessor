@@ -39,7 +39,7 @@ namespace ChmProcessorLib
         /// </summary>
         /// <param name="text">Text to log</param>
         /// <param name="level">Level of the message. 1 for errors / warnings, 2 for information, 3
-        /// for debug messages</param>
+        /// for debug messages. Constant values are defined at ConsoleUserInterface</param>
         void log(string text, int level);
 
         /// <summary>
