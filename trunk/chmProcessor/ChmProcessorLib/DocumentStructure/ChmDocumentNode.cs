@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.IO;
 using mshtml;
 using System.Web;
+using WebIndexLib;
 
 namespace ChmProcessorLib.DocumentStructure
 {
@@ -299,79 +300,6 @@ namespace ChmProcessorLib.DocumentStructure
             }
         }
 
-        /*public string EntradaArbolContenidos 
-        {
-            get 
-            {
-                string nombre = "";
-                if( HeaderTag != null )
-                    nombre = HeaderTag.innerText;
-                else
-                    nombre = ChmDocument.DEFAULTTILE;
-
-                string texto = "<LI> <OBJECT type=\"text/sitemap\">\n" +
-                    "     <param name=\"Name\" value=\"" + 
-                    this.HtmlEncodedTitle + 
-                    "\">\n" + 
-                    "     <param name=\"Local\" value=\"" +  Href;
-                texto += "\">\n" + "     </OBJECT>\n";
-                return texto;
-            }
-        }*/
-
-        #region Java Help
-
-        /// <summary>
-        /// Tag for a java help index file of this section.
-        /// </summary>
-        /*public string JavaHelpIndexEntry
-        {
-            get
-            {
-                return "<indexitem text=\"" + HtmlEncodedTitle + "\" target=\"" + JavaHelpTarget + "\" />";
-            }
-        }*/
-
-        /// <summary>
-        /// Tag for a java help map file of this section.
-        /// </summary>
-        /*public string JavaHelpMapEntry
-        {
-            get
-            {
-                return "<mapID target=\"" + JavaHelpTarget + "\" url=\"" + Href + "\" />";
-            }
-        }*/
-
-        /// <summary>
-        /// Tag for a java help TOC file of this section.
-        /// </summary>
-        /*public string JavaHelpTOCEntry
-        {
-            get
-            {
-                String entry = "<tocitem text=\"" + HtmlEncodedTitle + "\" target=\"" + JavaHelpTarget + "\"";
-                if (Children.Count == 0)
-                    entry += " />";
-                else
-                    entry += ">";
-                return entry;
-            }
-        }*/
-
-        /// <summary>
-        /// Name of the java help target for this section
-        /// </summary>
-        /*public string JavaHelpTarget
-        {
-            get
-            {
-                return HtmlEncodedTitle;
-            }
-        }*/
-
-        #endregion
-
         /// <summary>
         /// Relative URL for this section. 
         /// As example "achilipu.htm#anchorname"
@@ -531,7 +459,89 @@ namespace ChmProcessorLib.DocumentStructure
             return null;
         }
 
-        #region IComparable members
+        // DONT REMOVE THIS COMMENT BY NOW. ITS THE INTRINCATED ORIGINAL SOURCE TO SAVE FILES
+        /*
+        private void GuardarDocumentos(string directory, HtmlPageDecorator decorator, ChmDocumentNode nodo, List<string> archivosGenerados, WebIndex indexer) 
+        {
+            if( nodo.SplittedPartBody != null ) 
+            {
+                string texto = "";
+                if( nodo.SplittedPartBody.innerText != null )
+                    texto = nodo.SplittedPartBody.innerText.Trim();
+
+                if( !texto.Equals("") ) 
+                {
+                    bool guardar = true;
+                    string titulo = "";
+                    IHTMLElement seccion = null;
+
+                    seccion = SearchFirstCutNode( nodo.SplittedPartBody );
+                    if( seccion != null && seccion.innerText != null ) 
+                    {
+                        titulo = seccion.innerText.Trim() ;
+                        if( titulo.Length == 0 )
+                            guardar = false;
+                    }
+
+                    if( guardar ) 
+                    {
+                        // Save the section, adding header, footers, etc:
+                        string filePath = directory + Path.DirectorySeparatorChar + nodo.DestinationFileName;
+                        decorator.ProcessAndSavePage(nodo.SplittedPartBody, filePath, nodo.Title);
+
+                        if (FirstChapterContent == null)
+                        {
+                            // This is the first chapter of the document. Store it clean, because
+                            // we will need after.
+                            FirstChapterContent = nodo.SplittedPartBody.innerHTML.Replace("about:blank", "").Replace("about:", "");
+                        }
+
+                        archivosGenerados.Add(filePath);
+
+                        if (indexer != null)
+                            // Store the document at the full text search index:
+                            indexer.AddPage(nodo.DestinationFileName, nodo.Title, nodo.SplittedPartBody);
+                            
+                    }
+                }
+            }
+
+            foreach( ChmDocumentNode hijo in nodo.Children ) 
+                GuardarDocumentos( directory , decorator , hijo , archivosGenerados , indexer );
+        }
+        */
+
+        /// <summary>
+        /// Saves the splitted content of this node into a file, if it has any.
+        /// </summary>
+        /// <param name="directoryDstPath">Directory path where the content files will be stored</param>
+        /// <param name="decorator">Tool to generate and decorate the HTML content files</param>
+        /// <param name="indexer">Tool to index the saved content files. It can be null, if the content
+        /// does not need to be indexed.</param>
+        /// <returns>The content file name saved. Is this node has no content, it returns null</returns>
+        public string SaveContent(string directoryDstPath, HtmlPageDecorator decorator, WebIndex indexer)
+        {
+            if (SplittedPartBody == null)
+                return null;
+
+            string texto = "";
+            if (SplittedPartBody.innerText != null)
+                texto = SplittedPartBody.innerText.Trim();
+
+            // TODO: This never should happen... The parser joins empty sections...
+            if (string.IsNullOrEmpty(texto))
+                return null;
+
+            // Save the section, adding header, footers, etc:
+            string filePath = Path.Combine( directoryDstPath, DestinationFileName );
+            decorator.ProcessAndSavePage(SplittedPartBody, filePath, Title);
+
+            if (indexer != null)
+                // Store the document at the full text search index:
+                indexer.AddPage(DestinationFileName, Title, SplittedPartBody);
+
+            return DestinationFileName;
+        }
 
         public int CompareTo(object obj)
         {
@@ -540,8 +550,6 @@ namespace ChmProcessorLib.DocumentStructure
             ChmDocumentNode nodo = (ChmDocumentNode) obj;
             return String.CompareOrdinal( Title.ToLower() , nodo.Title.ToLower() );
         }
-
-        #endregion
 
     }
 

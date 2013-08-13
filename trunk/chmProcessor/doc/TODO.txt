@@ -16,3 +16,5 @@ IMPROVMENTS
 - Add option at settings window to set the level log.
 - Translate the "Inicio" spanish word (see NodoArbol.cs)
 - Translate all the spanish code to english.
+- Add a set of tests word files
+- Add option to not create the CHM.

@@ -160,8 +160,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Generators\ChmGenerator.cs" />
+    <Compile Include="Generators\ContentDirectoryGenerator.cs" />
     <Compile Include="Generators\JavaHelpGenerator.cs" />
     <Compile Include="Generators\PdfGenerator.cs" />
+    <Compile Include="Generators\WebHelpGenerator.cs" />
     <Compile Include="Generators\XpsGenerator.cs" />
     <Compile Include="HtmlPageDecorator.cs" />
     <Compile Include="DocumentStructure\ChmDocumentIndex.cs">
@@ -215,6 +217,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\doc\TODO.txt">
+      <Link>TODO.txt</Link>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

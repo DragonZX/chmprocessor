@@ -28,6 +28,10 @@ using System.Collections;
 
 namespace WebIndexLib
 {
+
+    /// <summary>
+    /// TODO: Try to replace all this stuff with Lucene or other external tool
+    /// </summary>
     public class WebIndex
     {
 

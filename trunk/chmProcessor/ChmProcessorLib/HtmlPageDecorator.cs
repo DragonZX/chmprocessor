@@ -27,7 +27,7 @@ namespace ChmProcessorLib
     /// <summary>
     /// Class to manipulate a single page to add headers, footers or other stuff.
     /// </summary>
-    class HtmlPageDecorator
+    public class HtmlPageDecorator
     {
 
         /// <summary>
