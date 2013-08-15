@@ -163,6 +163,12 @@
     <Compile Include="Generators\ContentDirectoryGenerator.cs" />
     <Compile Include="Generators\JavaHelpGenerator.cs" />
     <Compile Include="Generators\PdfGenerator.cs" />
+    <EmbeddedResource Include="Generators\SearchFormFullText.html" />
+    <Compile Include="Generators\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Generators\WebHelpGenerator.cs" />
     <Compile Include="Generators\XpsGenerator.cs" />
     <Compile Include="HtmlPageDecorator.cs" />
@@ -222,6 +228,13 @@
     <None Include="..\doc\TODO.txt">
       <Link>TODO.txt</Link>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Generators\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Generators\SearchFormSimple.html" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

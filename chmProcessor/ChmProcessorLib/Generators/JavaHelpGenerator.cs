@@ -29,7 +29,7 @@ namespace ChmProcessorLib.Generators
     /// TODO: The project directory creation, the topic pages generation and decoration, and the copy
     /// TODO: of additional files should be done here.
     /// </summary>
-    public class JavaHelpGenerator
+    public class JavaHelpGenerator : ContentDirectoryGenerator
     {
 
         /// <summary>
@@ -57,34 +57,21 @@ namespace ChmProcessorLib.Generators
         /// </summary>
         public string JavaHelpDirectoryGeneration;
 
-        /// <summary>
-        /// The document to convert to javahelp
-        /// </summary>
-        private ChmDocument Document;
-
-        /// <summary>
-        /// The logger
-        /// </summary>
-        private UserInterface UI;
-
-        /// <summary>
-        /// The generation settings
-        /// </summary>
-        private ChmProject Project;
-
         public JavaHelpGenerator(string mainSourceFile, ChmDocument document, UserInterface ui, 
-            ChmProject project)
+            ChmProject project, HtmlPageDecorator decorator) 
+            : base(document, ui, project, decorator)
         {
-            this.Document = document;
-            this.UI = ui;
-            this.Project = project;
-
             JavaHelpDirectoryGeneration = Path.Combine( Path.GetTempPath() , Path.GetFileNameWithoutExtension(mainSourceFile) )+ 
                 "-javahelp";
         }
 
-        public void Generate()
+        public void Generate(List<string> additionalFiles)
         {
+
+            // Create directory, content files and additional files
+            CreateDestinationDirectory(JavaHelpDirectoryGeneration, additionalFiles);
+            CreateHelpContentFiles(JavaHelpDirectoryGeneration);
+
             UI.log("Generating java help xml files", ConsoleUserInterface.INFO);
             GenerateJavaHelpSetFile();
             GenerateJavaHelpIndex();

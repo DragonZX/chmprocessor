@@ -390,127 +390,6 @@ namespace ChmProcessorLib
             }
         }
 
-        /*
-        /// <summary>
-        /// Repair or remove an internal link.
-        /// Given a broken internal link, it searches a section title of the document with the
-        /// same text of the broken link. If its found, the destination link is modified to point to
-        /// that section. If a matching section is not found, the link will be removed and its content
-        /// will be keept.
-        /// </summary>
-        /// <param name="link">The broken link</param>
-        /// <param name="parent">The parent of the broken link</param>
-        private void ReplaceBrokenLink(IHTMLAnchorElement link, IHTMLElement parent)
-        {
-            try
-            {
-                // Get the text of the link
-                string linkText = ((IHTMLElement)link).innerText.Trim();
-                // Seach a title with the same text of the link:
-                ChmDocumentNode destinationTitle = tree.SearchBySectionTitle(linkText);
-                if (destinationTitle != null)
-                    // Replace the original internal broken link with this:
-                    link.href = destinationTitle.Href;
-                else
-                {
-                    // No candidate title was found. Remove the link and keep its content
-                    //IHTMLElementCollection col = (IHTMLElementCollection)parent.children;
-                    IHTMLElementCollection linkChildren = (IHTMLElementCollection) ((IHTMLElement)link).children;
-                    IHTMLDOMNode domLink = (IHTMLDOMNode)link;
-                    IHTMLDOMNode domParent = (IHTMLDOMNode)parent;
-                    foreach (IHTMLElement child in linkChildren)
-                        domParent.insertBefore( (IHTMLDOMNode) child, domLink);
-                    domLink.removeNode(false);
-                }
-            }
-            catch (Exception ex)
-            {
-                log(ex);
-            }
-        }
-        */
-
-        /*
-        /// <summary>
-        /// Checks if the node is an internal link. 
-        /// If it is, replace the destination of the link from the original source file 
-        /// to the splitted file.
-        /// Also checks if the link is broken. If it is, we will try to replace it.
-        /// </summary>
-        /// <param name="node">HTML node to verify</param>
-        /// <param name="parent">Parent of the node. null if nodo has no parents.</param>
-        private void PreprocessHtmlNode( IHTMLElement node , IHTMLElement parent ) 
-        {
-            try
-            {
-                if (node is IHTMLAnchorElement)
-                {
-                    IHTMLAnchorElement link = (IHTMLAnchorElement)node;
-                    string href = link.href;
-                    if (href != null)
-                    {
-                        // An hyperlink node
-
-                        // Remove the about:blank
-                        // TODO: Check if this is really needed.
-                        href = href.Replace("about:blank", "").Replace("about:", "");
-
-                        if (href.StartsWith("#"))
-                        {
-                            // A internal link.
-                            // Replace it to point to the right splitted file.
-                            string safeRef = ChmDocumentNode.ToSafeFilename(href.Substring(1));
-                            ChmDocumentNode nodoArbol = tree.RootNode.BuscarEnlace(safeRef);
-                            if (nodoArbol != null)
-                                link.href = nodoArbol.DestinationFileName + "#" + safeRef;
-                            else
-                            {
-                                // Broken link.
-                                log("WARNING: Broken link with text: '" + node.innerText + "'", ConsoleUserInterface.ERRORWARNING);
-                                if (parent != null)
-                                {
-                                    String inText = parent.innerText;
-                                    if (inText != null)
-                                    {
-                                        if (inText.Length > 200)
-                                            inText = inText.Substring(0, 200) + "...";
-                                        log(" near of text: '" + inText + "'", ConsoleUserInterface.ERRORWARNING);
-                                    }
-                                }
-                                if (replaceBrokenLinks)
-                                    ReplaceBrokenLink(link, parent);
-                            }
-
-                        }
-                    }
-                    else if (link.name != null)
-                    {
-                        // A HTML "boomark", the destination of a link.
-                        string safeName = ChmDocumentNode.ToSafeFilename(link.name);
-                        if (!link.name.Equals(safeName))
-                        {
-                            // Word bug? i have found names with space characters and other bad things. 
-                            // They fail into the CHM:
-                            //link.name = link.name.Replace(" ", ""); < NOT WORKS
-                            IHTMLDOMNode domNodeParent = (IHTMLDOMNode)node.parentElement;
-                            string htmlNewNode = "<a name=" + safeName + "></a>";
-                            IHTMLDOMNode newDomNode = (IHTMLDOMNode)iDoc.createElement(htmlNewNode);
-                            domNodeParent.replaceChild(newDomNode, (IHTMLDOMNode)node);
-                        }
-                    }
-                }
-
-                IHTMLElementCollection col = (IHTMLElementCollection)node.children;
-                foreach (IHTMLElement hijo in col)
-                    PreprocessHtmlNode(hijo, node);
-            }
-            catch (Exception ex)
-            {
-                log(ex);
-            }
-        }
-        */
-
         private IHTMLElement BuscarNodo( IHTMLElement nodo , string tag ) 
         {
             if( nodo.tagName.ToLower().Equals( tag.ToLower() ) )
@@ -527,65 +406,9 @@ namespace ChmProcessorLib
                 return null;
             }
         }
-        
-        /*private void GuardarDocumentos(string directory, HtmlPageDecorator decorator, ChmDocumentNode nodo, List<string> archivosGenerados, WebIndex indexer) 
-        {
-            if( nodo.SplittedPartBody != null ) 
-            {
-                string texto = "";
-                if( nodo.SplittedPartBody.innerText != null )
-                    texto = nodo.SplittedPartBody.innerText.Trim();
-
-                if( !texto.Equals("") ) 
-                {
-                    bool guardar = true;
-                    string titulo = "";
-                    IHTMLElement seccion = null;
-
-                    seccion = SearchFirstCutNode( nodo.SplittedPartBody );
-                    if( seccion != null && seccion.innerText != null ) 
-                    {
-                        titulo = seccion.innerText.Trim() ;
-                        if( titulo.Length == 0 )
-                            guardar = false;
-                    }
-
-                    if( guardar ) 
-                    {
-                        // Save the section, adding header, footers, etc:
-                        string filePath = directory + Path.DirectorySeparatorChar + nodo.DestinationFileName;
-                        decorator.ProcessAndSavePage(nodo.SplittedPartBody, filePath, nodo.Title);
-
-                        if (FirstChapterContent == null)
-                        {
-                            // This is the first chapter of the document. Store it clean, because
-                            // we will need after.
-                            FirstChapterContent = nodo.SplittedPartBody.innerHTML.Replace("about:blank", "").Replace("about:", "");
-                        }
-
-                        archivosGenerados.Add(filePath);
-
-                        if (indexer != null)
-                            // Store the document at the full text search index:
-                            indexer.AddPage(nodo.DestinationFileName, nodo.Title, nodo.SplittedPartBody);
-                            
-                    }
-                }
-            }
-
-            foreach( ChmDocumentNode hijo in nodo.Children ) 
-                GuardarDocumentos( directory , decorator , hijo , archivosGenerados , indexer );
-        }*/
 
         private List<string> GuardarDocumentos(string directory, HtmlPageDecorator decorator, WebIndex indexer) 
         {
-            // Recorrer el arbol en busca de nodos con cuerpo
-            /*List<string> archivosGenerados = new List<string>();
-            foreach (ChmDocumentNode nodo in tree.RootNode.Children)
-                GuardarDocumentos(directory, decorator, nodo, archivosGenerados, indexer);
-
-            return archivosGenerados;*/
-
             return tree.SaveContentFiles(directory, decorator, indexer);
         }
 
@@ -629,76 +452,6 @@ namespace ChmProcessorLib
             return nuevosArchivos;
         }
 
-        /*
-        /// <summary>
-        /// Extract the style tag of the document to an CSS external file.
-        /// TODO: This should be done into ChmDocumentParser
-        /// </summary>
-        /// <returns>Path to the generated CSS file. null if no CSS was generated</returns>
-        private string CheckForStyleTags() {
-            IHTMLDocument3 iDoc3 = (IHTMLDocument3) iDoc;
-            IHTMLDOMChildrenCollection col = (IHTMLDOMChildrenCollection)iDoc3.childNodes;
-            IHTMLHeadElement head = null;
-            string cssFile = null;
-            IHTMLHtmlElement html = null;
-            IHTMLElement style = null;
-
-            // Search the HTML tag:
-            foreach (IHTMLElement e in col)
-            {
-                if (e is IHTMLHtmlElement)
-                {
-                    html = (IHTMLHtmlElement)e;
-                    break;
-                }
-            }
-
-            if (html != null)
-            {
-                // Search the <HEAD> tag.
-                col = (IHTMLDOMChildrenCollection)((IHTMLDOMNode)html).childNodes;
-                foreach (IHTMLElement e in col)
-                {
-                    if (e is IHTMLHeadElement)
-                    {
-                        head = (IHTMLHeadElement)e;
-                        break;
-                    }
-                }
-            }
-
-            if (head != null)
-            {
-                // Search the first <STYLE> tag:
-                col = (IHTMLDOMChildrenCollection)((IHTMLDOMNode)head).childNodes;
-                foreach (IHTMLElement e in col)
-                {
-                    if (e is IHTMLStyleElement)
-                    {
-                        style = (IHTMLElement)e;
-                        break;
-                    }
-                }
-            }
-
-            if (style != null && style.innerHTML != null )
-            {
-                // Remove comments
-                string cssText = style.innerHTML.Replace("<!--", "").Replace("-->", "");
-                // Create the CSS file:
-                cssFile = Project.HelpProjectDirectory + Path.DirectorySeparatorChar + "embeddedstyles.css";
-                StreamWriter writer = new StreamWriter(cssFile);
-                writer.Write(cssText);
-                writer.Close();
-                // Replace the node by other including the CSS file.
-                IHTMLDOMNode newDomNode = (IHTMLDOMNode)iDoc.createElement("<link rel=\"stylesheet\" type=\"text/css\" href=\"embeddedstyles.css\" >");
-                ((IHTMLDOMNode)style).replaceNode(newDomNode);
-            }
-
-            return cssFile;
-        }
-        */
-
         private void ExecuteProjectCommandLine()
         {
             try
@@ -735,7 +488,7 @@ namespace ChmProcessorLib
                 Generate();
 
                 // TODO: If the chm has been compiled, remove the project directory from the temporal directory.
-                ChmGenerator chmGenerator = new ChmGenerator(tree, UI, Project, ArchivosAdicionales);
+                ChmGenerator chmGenerator = new ChmGenerator(tree, UI, Project, ArchivosAdicionales, chmDecorator);
                 chmGenerator.Generate();
 
                 if (CancellRequested())
@@ -869,19 +622,8 @@ namespace ChmProcessorLib
                 return;
 
             // Preparar el directorio de destino.
-            log("Creating project directory: " + Project.HelpProjectDirectory, ConsoleUserInterface.INFO);
-            List<string> listaFinalArchivos = GenerarDirDestino(Project.HelpProjectDirectory);
-
-            // Check if there is a <STYLE> tag into the header. If there is, take it out to a CSS file.
-            /*log("Extracting STYLE tags to a CSS file", ConsoleUserInterface.INFO);
-            string cssFile = CheckForStyleTags();
-            if (cssFile != null)
-                listaFinalArchivos.Add(cssFile);*/
-
-            if (CancellRequested())
-                return;
-
-            PrepareHtmlDecorators();
+            //log("Creating project directory: " + Project.HelpProjectDirectory, ConsoleUserInterface.INFO);
+            //List<string> listaFinalArchivos = GenerarDirDestino(Project.HelpProjectDirectory);
 
             if (CancellRequested())
                 return;
@@ -893,8 +635,18 @@ namespace ChmProcessorLib
             if (CancellRequested())
                 return;
 
+            // Create decorators. This MUST to be called after the parsing: The parsing replaces the style tag
+            // from the document
+            PrepareHtmlDecorators();
+
+            if (CancellRequested())
+                return;
+
+            /*if (CancellRequested())
+                return;*/
+
             // Generar los archivos HTML:
-            log("Storing splitted files", ConsoleUserInterface.INFO);
+            /*log("Storing splitted files", ConsoleUserInterface.INFO);
             List<string> archivosGenerados = GuardarDocumentos(Project.HelpProjectDirectory, chmDecorator, null);
 
             if (CancellRequested())
@@ -906,7 +658,7 @@ namespace ChmProcessorLib
             {
                 tree.RootNode.DestinationFileName = "";
                 tree.RootNode.Children.RemoveAt(0);
-            }
+            }*/
 
             // Obtener el nombre del primer archivo generado:
             string primero = "";
@@ -920,7 +672,7 @@ namespace ChmProcessorLib
             {
                 // Generar la web con la ayuda:
                 log("Generating web site", ConsoleUserInterface.INFO);
-                GenerateWebSite(archivosGenerados, tree.Index);
+                GenerateWebSite(tree.Index);
             }
 
             if (CancellRequested())
@@ -929,7 +681,7 @@ namespace ChmProcessorLib
             if (Project.GenerateJavaHelp)
             {
                 log("Generating Java Help", ConsoleUserInterface.INFO);
-                GenerateJavaHelp(archivosGenerados, tree.Index);
+                GenerateJavaHelp(tree.Index);
             }
 
             if( esWord )
@@ -939,10 +691,9 @@ namespace ChmProcessorLib
 
             log("Project generated", ConsoleUserInterface.ERRORWARNING);
 
-            //return archivoAyuda;
         }
 
-        private void GeneateSitemap(string webDirectory)
+        /*private void GeneateSitemap(string webDirectory)
         {
             try {
                 string sitemap = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
@@ -982,29 +733,27 @@ namespace ChmProcessorLib
                 log("Error generating the sitemap: " + ex.Message, ConsoleUserInterface.ERRORWARNING);
                 log(ex);
             }
-        }       
+        }*/     
 
         /// <summary>
         /// Generates a JAR with the java help of the document.
         /// <param name="generatedFiles">List of chapter html files generated for the help</param>
         /// <param name="index">List of topics of the document.</param>
         /// </summary>
-        private void GenerateJavaHelp(List<string> generatedFiles, ChmDocumentIndex index)
+        private void GenerateJavaHelp(ChmDocumentIndex index)
         {
 
-            JavaHelpGenerator jhGenerator = new JavaHelpGenerator(MainSourceFile, tree, UI, Project);
+            JavaHelpGenerator jhGenerator = new JavaHelpGenerator(MainSourceFile, tree, UI, Project, chmDecorator);
 
+            /*
             log("Copiying files to directory " + jhGenerator.JavaHelpDirectoryGeneration, ConsoleUserInterface.INFO);
             GenerarDirDestino(jhGenerator.JavaHelpDirectoryGeneration);
 
-            // Copy the css file if was generated:
-            //if (cssFile != null)
-            //    File.Copy(cssFile, Path.Combine(jhGenerator.JavaHelpDirectoryGeneration, Path.GetFileName(cssFile)) );
-
             // Write HTML help content files to the destination directory
-            GuardarDocumentos(jhGenerator.JavaHelpDirectoryGeneration, webDecorator, null);
+            GuardarDocumentos(jhGenerator.JavaHelpDirectoryGeneration, chmDecorator, null);
+            */
 
-            jhGenerator.Generate();
+            jhGenerator.Generate(ArchivosAdicionales);
         }
 
         /// <summary>
@@ -1041,12 +790,12 @@ namespace ChmProcessorLib
         /// <summary>
         /// Generated the help web site 
         /// </summary>
-        /// <param name="archivosGenerados">List of all files of the help content.</param>
         /// <param name="index">Index help information</param>
-        private void GenerateWebSite(List<string> archivosGenerados, ChmDocumentIndex index) 
+        private void GenerateWebSite(ChmDocumentIndex index) 
         {
             try
             {
+                /*
                 // Crear el directorio web y copiar archivos adicionales:
                 string dirWeb;
                 if (Project.WebDirectory.Equals(""))
@@ -1143,6 +892,10 @@ namespace ChmProcessorLib
                 if (Project.GenerateSitemap)
                     // Generate site map for web indexers (google).
                     GeneateSitemap(dirWeb);
+                */
+
+                WebHelpGenerator webHelpGenerator = new WebHelpGenerator(tree, UI, Project, webDecorator);
+                webHelpGenerator.Generate(ArchivosAdicionales);
 
             }
             catch (Exception ex)

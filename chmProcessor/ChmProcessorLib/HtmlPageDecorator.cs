@@ -358,7 +358,9 @@ namespace ChmProcessorLib
                     }
 
                     // Close the HTML tag:
-                    textBeforeBody += "</html>\n";
+                    //textBeforeBody += "</html>\n"; < CRAP
+                    textAfterBody += "</html>\n";
+
                 }
 
                 // TODO: Other tags should not be added too?

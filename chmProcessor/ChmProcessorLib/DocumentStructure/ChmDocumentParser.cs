@@ -32,6 +32,11 @@ namespace ChmProcessorLib.DocumentStructure
         private ChmDocumentNode LastedNodeInserted;
 
         /// <summary>
+        /// Reserved node for the initial content of the document without any title.
+        /// </summary>
+        private ChmDocumentNode InitialNode;
+
+        /// <summary>
         /// True if the parse process must clear broken links
         /// </summary>
         private bool ReplaceBrokenLinks;
@@ -60,8 +65,8 @@ namespace ChmProcessorLib.DocumentStructure
             UI.log("Searching sections", ConsoleUserInterface.INFO);
 
             // Build a node for the content without an initial title
-            ChmDocumentNode noSectionStart = new ChmDocumentNode(Document.RootNode, null, UI);
-            Document.RootNode.Children.Add(noSectionStart);
+            InitialNode = new ChmDocumentNode(Document.RootNode, null, UI);
+            Document.RootNode.Children.Add(InitialNode);
 
             // Parse recursivelly the document headers structure by headers sections
             ParseHeaderStructure(Document.IDoc.body);
@@ -70,12 +75,14 @@ namespace ChmProcessorLib.DocumentStructure
                 return null;
 
             // By default, all document goes to the section without any title
-            Document.RootNode.StoredAt(ChmDocument.INITIALSECTIONFILENAME);
+            //Document.RootNode.StoredAt(ChmDocument.INITIALSECTIONFILENAME);
+            foreach (ChmDocumentNode child in Document.RootNode.Children)
+                child.StoredAt(ChmDocument.INITIALSECTIONFILENAME);
 
             // Now assign filenames where will be stored each section.
-            int cnt = 2;
-            foreach (ChmDocumentNode hijo in Document.RootNode.Children)
-                SplitFilesStructure(hijo, ref cnt);
+            int cnt = 1;
+            foreach (ChmDocumentNode child in Document.RootNode.Children)
+                SplitFilesStructure(child, ref cnt);
 
             if (UI.CancellRequested())
                 return null;
@@ -106,9 +113,16 @@ namespace ChmProcessorLib.DocumentStructure
             UI.log("Creating document index", ConsoleUserInterface.INFO);
             CreateDocumentIndex();
 
+            if (UI.CancellRequested())
+                return null;
+
             // Extract the embedded CSS styles of the document:
             UI.log("Extracting CSS STYLE header tags", ConsoleUserInterface.INFO);
             CheckForStyleTags();
+
+            // If the initial node for content without title is empty, remove it:
+            if (InitialNode.EmptyTextContent)
+                Document.RootNode.Children.Remove(InitialNode);
 
             return Document;
         }
@@ -134,7 +148,6 @@ namespace ChmProcessorLib.DocumentStructure
         /// Adds a section to the section tree.
         /// The section will be added as child of the last section inserted with a level
         /// higher than then section
-        /// TODO: Remove LastedNodeInserted member and put a parameter with the chapters current path on this function
         /// </summary>
         /// <param name="nodo">HTML header tag with the title of the section</param>
         /// <param name="ui">Application log. It can be null</param>
@@ -273,13 +286,8 @@ namespace ChmProcessorLib.DocumentStructure
             IHTMLElement sectionHeader = SearchFirstCutNode(nuevoBody);
             ChmDocumentNode nodeToStore = null;
             if (sectionHeader == null)
-            {
-                if (Document.RootNode.Children.Count > 0)
-                {
-                    // If no section was found, its the first section of the document:
-                    nodeToStore = Document.RootNode.Children[0];
-                }
-            }
+                // If no section was found, its the first section of the document:
+                nodeToStore = InitialNode;
             else
             {
                 string aName = "";
