@@ -29,10 +29,8 @@ namespace ChmProcessorLib.Generators
 
     /// <summary>
     /// Tool to create and compile a CHM project from a document
-    /// TODO: The project directory creation, the topic pages generation and decoration, and the copy
-    /// TODO: of additional files should be done here.
     /// </summary>
-    public class ChmGenerator
+    public class ChmGenerator : ContentDirectoryGenerator
     {
 
         /// <summary>
@@ -67,28 +65,14 @@ namespace ChmProcessorLib.Generators
         private CultureInfo HelpWorkshopCulture;
 
         /// <summary>
-        /// Structured document to compile to CHM
-        /// </summary>
-        private ChmDocument Document;
-
-        /// <summary>
-        /// Log generator
-        /// </summary>
-        private UserInterface UI;
-
-        /// <summary>
-        /// Generation settings
-        /// </summary>
-        private ChmProject Project;
-
-        /// <summary>
         /// List of other file paths to include into the CHM.
         /// The paths on this list must to be relative to the ChmProjectDirectory member directory
         /// </summary>
         private List<string> AdditionalFiles;
 
         public ChmGenerator(ChmDocument document, UserInterface ui, ChmProject project, 
-            List<string> additionalFiles)
+            List<string> additionalFiles, HtmlPageDecorator decorator)
+            : base(document, ui, project, decorator)
         {
             this.Document = document;
             this.UI = ui;
@@ -130,6 +114,11 @@ namespace ChmProcessorLib.Generators
         /// </summary>
         public void Generate()
         {
+
+            // Create directory, content files and additional files
+            CreateDestinationDirectory(Project.HelpProjectDirectory, AdditionalFiles);
+            CreateHelpContentFiles(Project.HelpProjectDirectory);
+
             UI.log("Generating table of contents", ConsoleUserInterface.INFO);
             GenerateTOCFile();
 
@@ -236,8 +225,11 @@ namespace ChmProcessorLib.Generators
 
             // Get the name of the first splitted file:
             string firstTopicFile = string.Empty;
-            if (Document.RootNode.Children.Count > 0)
-                firstTopicFile = Document.RootNode.Children[0].DestinationFileName;
+            //if (Document.RootNode.Children.Count > 0)
+            //    firstTopicFile = Document.RootNode.Children[0].DestinationFileName;
+            ChmDocumentNode firstTopicNode = Document.FirstNodeWithContent;
+            if (firstTopicNode != null && !string.IsNullOrEmpty(firstTopicNode.DestinationFileName))
+                firstTopicFile = firstTopicNode.DestinationFileName;
 
             string filePath = ChmProjectPath;
             StreamWriter writer = new StreamWriter(filePath, false, Encoding);

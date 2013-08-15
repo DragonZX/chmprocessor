@@ -27,6 +27,7 @@ namespace ChmProcessorLib.DocumentStructure
 	/// <summary>
 	/// Topics index of the document.
     /// Its just a plain list of the tree nodes of the document.
+    /// TODO: Remove this class
 	/// </summary>
 	public class ChmDocumentIndex : List<ChmDocumentNode>
 	{
@@ -35,7 +36,7 @@ namespace ChmProcessorLib.DocumentStructure
         /// Generate a HTML select tag, with the topics index of the help.
         /// </summary>
         /// <returns>The select tag with the topics.</returns>
-        public string GenerateWebIndex() 
+        /*public string GenerateWebIndex() 
         {
             Sort();
             string index = "<select id=\"topicsList\" style=\"width:100%;\" size=\"20\" onclick=\"topicOnClick();\" ondblclick=\"topicSelected();\" >\n";
@@ -47,7 +48,7 @@ namespace ChmProcessorLib.DocumentStructure
             }
             index += "</select>\n";
             return index;
-        }
+        }*/
 
         /// <summary>
         /// Store the HHK file for the help project with the topics index.

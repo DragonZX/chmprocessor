@@ -551,6 +551,23 @@ namespace ChmProcessorLib.DocumentStructure
             return String.CompareOrdinal( Title.ToLower() , nodo.Title.ToLower() );
         }
 
+        /// <summary>
+        /// True if the node has no content, the content is empty or it has only whitespaces
+        /// </summary>
+        public bool EmptyTextContent
+        {
+            get
+            {
+                if (SplittedPartBody == null )
+                    return true;
+                string content = SplittedPartBody.innerText;
+                if (content == null)
+                    return true;
+                content = content.Trim();
+                return content == string.Empty;
+            }
+        }
+
     }
 
 }

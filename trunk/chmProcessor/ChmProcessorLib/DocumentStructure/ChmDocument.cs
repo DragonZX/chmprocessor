@@ -102,9 +102,9 @@ namespace ChmProcessorLib.DocumentStructure
         /// </summary>
         /// <param name="nodo">HTML header tag with the title of the section</param>
         /// <param name="ui">Application log. It can be null</param>
-        public void InsertarNodo( IHTMLElement node , UserInterface ui ) 
+        /*public void InsertarNodo( IHTMLElement node , UserInterface ui ) 
         {
-            // Ignorar cabeceras vacias (saltos de linea,etc. ) :
+
             if( !DocumentProcessor.EsHeader( node ) )
                 return;
 
@@ -128,108 +128,9 @@ namespace ChmProcessorLib.DocumentStructure
                 }
                 ultimoInsertado = nuevoNodo;
             }
-        }
-
-        /*protected void GenerarArbolDeContenidos( StreamWriter writer , ChmDocumentNode nodo , int NivelMaximoTOC , int nivel ) 
-        {
-            if( NivelMaximoTOC != 0 && nivel > NivelMaximoTOC )
-                return;
-
-            writer.WriteLine( nodo.EntradaArbolContenidos );
-            if( nodo.Children.Count > 0 ) 
-            {
-                writer.WriteLine( "<UL>" );
-                foreach( ChmDocumentNode hijo in nodo.Children ) 
-                    GenerarArbolDeContenidos( writer , hijo , NivelMaximoTOC , nivel + 1 );
-                writer.WriteLine( "</UL>" );
-            }
         }*/
 
-        /// <summary>
-        /// Saves the table of contents of this tree for a CHM project.
-        /// </summary>
-        /// <param name="filePath">Path where to store the file.</param>
-        /// <param name="MaxTOCLevel">Maximum level of deepth into the tree to save sections. =0 
-        /// will save all the sections</param>
-        /// <param name="encoding">Encoding to save the file</param>
-        /*public void GenerarArbolDeContenidos( string filePath , int MaxTOCLevel , Encoding encoding) 
-        {
-            StreamWriter writer = new StreamWriter(filePath, false, encoding);
-            writer.WriteLine( "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML//EN\">" );
-            writer.WriteLine( "<HTML>" );
-            writer.WriteLine( "<HEAD>" );
-            writer.WriteLine( "<!-- Sitemap 1.0 -->" );
-            writer.WriteLine( "</HEAD><BODY>" );
-            writer.WriteLine( "<UL>" );
-            foreach( ChmDocumentNode hijo in RootNode.Children ) 
-                GenerarArbolDeContenidos( writer , hijo , MaxTOCLevel , 1 );
-            writer.WriteLine( "</UL>" );
-            writer.WriteLine( "</BODY></HTML>" );
-            writer.Close();
-        }*/
-
-        /// <summary>
-        /// Generate a java help table of contents xml file.
-        /// </summary>
-        /// <param name="writer">File where to store the TOC</param>
-        /// <param name="currentNode">Node to process now</param>
-        /// <param name="currentLevel">Current deep level of the node into the document tree</param>
-        /// <param name="maxLevelTOC">Maximum deep level into the tree to generate the TOC.</param>
-        /*public void GenerateJavaHelpTOC(StreamWriter writer, ChmDocumentNode currentNode, int maxLevelTOC, int currentLevel)
-        {
-            if (maxLevelTOC != 0 && currentLevel > maxLevelTOC)
-                return;
-
-            if( currentNode.HeaderTag != null ) 
-                writer.WriteLine(currentNode.JavaHelpTOCEntry);
-            foreach (ChmDocumentNode child in currentNode.Children)
-                GenerateJavaHelpTOC(writer, child, maxLevelTOC, currentLevel + 1);
-
-            if (currentNode.HeaderTag != null && currentNode.Children.Count > 0)
-                writer.WriteLine("</tocitem>");
-        }*/
-
-        /// <summary>
-        /// Generate a java help table of contents xml file.
-        /// </summary>
-        /// <param name="file">Path of the TOC file to generate.</param>
-        /// <param name="maxLevelTOC">Maximum deep level into the tree to generate the TOC.</param>
-        /*public void GenerateJavaHelpTOC(string file, int maxLevelTOC)
-        {
-            StreamWriter writer = new StreamWriter(file, false, Encoding.UTF8);
-            writer.WriteLine("<?xml version=\"1.0\" encoding=\"utf-8\" ?>");
-            writer.WriteLine("<!DOCTYPE toc\n" + 
-                "PUBLIC \"-//Sun Microsystems Inc.//DTD JavaHelp TOC Version 2.0//EN\"\n" +
-                "\"http://java.sun.com/products/javahelp/toc_2_0.dtd\">");
-            writer.WriteLine("<toc version=\"2.0\">");
-            foreach (ChmDocumentNode child in RootNode.Children)
-                GenerateJavaHelpTOC(writer, child, maxLevelTOC, 1);
-            writer.WriteLine("</toc>");
-            writer.Close();
-        }*/
-
-        // TODO: Move this function to ChmDocumentIndex class
-        /*public void GenerarIndice( ChmDocumentIndex index , ChmDocumentNode nodo , int NivelMaximoIndice , int nivel ) 
-        {
-            if( NivelMaximoIndice != 0 && nivel > NivelMaximoIndice )
-                return;
-
-            index.Add( nodo );
-            //writer.WriteLine( nodo.EntradaArbolContenidos );
-            foreach( ChmDocumentNode hijo in nodo.Children ) 
-                GenerarIndice( index , hijo , NivelMaximoIndice , nivel + 1 );
-        }*/
-
-        // TODO: Move this function to ChmDocumentIndex class
-        /*public ChmDocumentIndex GenerarIndice( int NivelMaximoIndice ) 
-        {
-            ChmDocumentIndex index = new ChmDocumentIndex();
-            foreach( ChmDocumentNode hijo in RootNode.Children ) 
-                GenerarIndice( index , hijo , NivelMaximoIndice , 1 );
-            return index;
-        }*/
-
-        private string GenerarArbolHtml( ChmDocumentNode nodo , int NivelMaximoTOC , int nivel ) 
+        /*private string GenerarArbolHtml( ChmDocumentNode nodo , int NivelMaximoTOC , int nivel ) 
         {
             if( NivelMaximoTOC != 0 && nivel > NivelMaximoTOC )
                 return "";
@@ -276,7 +177,7 @@ namespace ChmProcessorLib.DocumentStructure
                 texto += GenerarArbolHtml( hijo , NivelMaximoTOC , 1 ) + "\n";
             texto += "</ul>\n";
             return texto;
-        }
+        }*/
 
         private void ListaArchivosGenerados(List<string> lista, ChmDocumentNode nodo) 
         {
@@ -357,5 +258,45 @@ namespace ChmProcessorLib.DocumentStructure
             return savedFiles;
         }
 
+        /// <summary>
+        /// Makes a recursive search to ghet the first node with content of the document.
+        /// If none is found, return nulls.
+        /// </summary>
+        private ChmDocumentNode FirstNodeWithContentSearch(ChmDocumentNode node)
+        {
+            if (node.SplittedPartBody != null)
+                return node;
+
+            foreach (ChmDocumentNode child in node.Children)
+            {
+                ChmDocumentNode aux = FirstNodeWithContentSearch(child);
+                if (aux != null)
+                    return aux;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Returns the fist node that has HTML content.
+        /// If none is found, return null
+        /// </summary>
+        public ChmDocumentNode FirstNodeWithContent
+        {
+            get { return FirstNodeWithContentSearch(RootNode); }
+        }
+
+        /// <summary>
+        /// Returns the inner HTML of the body of the first splitted help content of the document.
+        /// If none is found, return nulls
+        /// </summary>
+        public string FirstSplittedContent
+        {
+            get {
+                ChmDocumentNode firstNode = FirstNodeWithContentSearch(RootNode);
+                if (firstNode == null)
+                    return null;
+                return firstNode.SplittedPartBody.innerHTML.Replace("about:blank", "").Replace("about:", "");
+            }
+        }
     }
 }

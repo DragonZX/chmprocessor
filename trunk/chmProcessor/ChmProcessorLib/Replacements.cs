@@ -25,15 +25,15 @@ using System.IO;
 namespace ChmProcessorLib
 {
     /// <summary>
-    /// Used to make text replacements in files.
+    /// Tool to make text replacements in files.
     /// </summary>
-    class Replacements
+    class Replacements : Dictionary<string, string>
     {
 
         /// <summary>
         /// A simple text replacement
         /// </summary>
-        private class ReplacementPair
+        /*private class ReplacementPair
         {
             public string ValueToReplace;
             public string NewValue;
@@ -43,14 +43,21 @@ namespace ChmProcessorLib
                 ValueToReplace = valueToReplace;
                 NewValue = newValue;
             }
-        }
+        }*/
 
         /// <summary>
         /// List of replacements to do. 
         /// TODO: This is a dictionary...
         /// <see cref="ReplacementPair"/>
         /// </summary>
-        private ArrayList ReplacementsList = new ArrayList();
+        //private ArrayList ReplacementsList = new ArrayList();
+
+        /// <summary>
+        /// Creates a empty set of replacements
+        /// </summary>
+        public Replacements()
+        {
+        }
 
         /// <summary>
         /// Constructor. Creates replacementes from two arrays. Each string into valuesToReplace is
@@ -61,7 +68,8 @@ namespace ChmProcessorLib
         public Replacements(string[] valuesToReplace, string[] replacedValues)
         {
             for (int i = 0; i < valuesToReplace.Length; i++)
-                ReplacementsList.Add(new ReplacementPair(valuesToReplace[i], replacedValues[i]));
+                //ReplacementsList.Add(new ReplacementPair(valuesToReplace[i], replacedValues[i]));
+                Add(valuesToReplace[i], replacedValues[i]);
         }
 
         /// <summary>
@@ -72,6 +80,7 @@ namespace ChmProcessorLib
         /// textotreplace2
         /// replacedtext2
         /// ...
+        /// TODO: Try to use standard resource files instead of this crap.
         /// </summary>
         /// <param name="file">path to file where load the replacements</param>
         public void AddReplacementsFromFile(string file)
@@ -86,7 +95,8 @@ namespace ChmProcessorLib
                     if ( !valueToReplace.Trim().Equals("") && !reader.EndOfStream)
                     {
                         string replacedValue = reader.ReadLine().Trim();
-                        ReplacementsList.Add(new ReplacementPair("%" + valueToReplace + "%", replacedValue));
+                        //ReplacementsList.Add(new ReplacementPair("%" + valueToReplace + "%", replacedValue));
+                        Add("%" + valueToReplace + "%", replacedValue);
                     }
                 }
             }
@@ -102,8 +112,10 @@ namespace ChmProcessorLib
             StreamReader reader = new StreamReader(srcPath);
             string text = reader.ReadToEnd();
             reader.Close();
-            foreach (ReplacementPair pair in ReplacementsList)
-                text = text.Replace(pair.ValueToReplace, pair.NewValue);
+            /*foreach (ReplacementPair pair in ReplacementsList)
+                text = text.Replace(pair.ValueToReplace, pair.NewValue);*/
+            foreach (string key in Keys)
+                text = text.Replace(key, this[key]);
 
             StreamWriter writer;
             if( outputEncoding != null )

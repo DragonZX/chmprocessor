@@ -22,79 +22,220 @@ using System.Text;
 using ChmProcessorLib.DocumentStructure;
 using WebIndexLib;
 using System.IO;
+using System.Reflection;
+using System.Web;
 
 namespace ChmProcessorLib.Generators
 {
     /// <summary>
     /// Tool to create a web help site from a document.
-    /// TODO: The project directory creation, the topic pages generation and decoration, and the copy
-    /// TODO: of additional files should be done here.
     /// </summary>
-    public class WebHelpGenerator
+    public class WebHelpGenerator : ContentDirectoryGenerator
     {
 
-        /// <summary>
-        /// Structured document to compile to CHM
-        /// </summary>
-        private ChmDocument Document;
 
-        /// <summary>
-        /// Log generator
-        /// </summary>
-        private UserInterface UI;
-
-        /// <summary>
-        /// Generation settings
-        /// </summary>
-        private ChmProject Project;
-
-        public WebHelpGenerator(ChmDocument document, UserInterface ui, ChmProject project)
+        public WebHelpGenerator(ChmDocument document, UserInterface ui, ChmProject project, 
+            HtmlPageDecorator decorator)
+            : base(document, ui, project, decorator)
         {
-            this.Document = document;
-            this.UI = ui;
-            this.Project = project;
         }
 
-        /*
-        public void Generate()
+        public void Generate(List<string> additionalFiles)
         {
 
-            if (Project.FullTextSearch)
-            {
-                indexer = new WebIndex();
-                string dbFile = dirWeb + Path.DirectorySeparatorChar + "fullsearchdb.db3";
-                string dirTextFiles = dirWeb + Path.DirectorySeparatorChar + "textFiles";
-                indexer.Connect(dbFile);
-                indexer.CreateDatabase(System.Windows.Forms.Application.StartupPath + Path.DirectorySeparatorChar + "searchdb.sql", dirTextFiles);
-                indexer.StoreConfiguration(Project.WebLanguage);
-            }
-
-        }
-
-        private void GenerateSearchIndex()
-        {
-            WebIndex indexer = null;
             try
             {
                 if (Project.FullTextSearch)
                 {
-                    indexer = new WebIndex();
-                    string dbFile = Path.Combine( Project.WebDirectory , "fullsearchdb.db3" );
-                    string dirTextFiles = dirWeb + Path.DirectorySeparatorChar + "textFiles";
-                    indexer.Connect(dbFile);
-                    indexer.CreateDatabase(System.Windows.Forms.Application.StartupPath + Path.DirectorySeparatorChar + "searchdb.sql", dirTextFiles);
-                    indexer.StoreConfiguration(Project.WebLanguage);
+                    // Prepare the search index
+                    Indexer = new WebIndex();
+                    string dbFile = Path.Combine(Project.WebDirectory, "fullsearchdb.db3");
+                    string dirTextFiles = Path.Combine(Project.WebDirectory, "textFiles");
+                    Indexer.Connect(dbFile);
+                    Indexer.CreateDatabase(System.Windows.Forms.Application.StartupPath + Path.DirectorySeparatorChar + "searchdb.sql", dirTextFiles);
+                    Indexer.StoreConfiguration(Project.WebLanguage);
                 }
 
-                // Create new files for the web help:
-                GuardarDocumentos(dirWeb, webDecorator, indexer);
+                // Create directory, content files and additional files
+                CreateDestinationDirectory(Project.WebDirectory, additionalFiles);
+                CreateHelpContentFiles(Project.WebDirectory);
+
             }
             finally
             {
-                if (indexer != null)
-                    indexer.Disconnect();
+                if (Indexer != null)
+                    Indexer.Disconnect();
+            }
+
+            // Create text replacements
+            Replacements replacements = CreateTextReplacements();
+
+            // Copy web files replacing text
+            string baseDir = Path.Combine( System.Windows.Forms.Application.StartupPath , "webFiles");
+            replacements.CopyDirectoryReplaced(baseDir, Project.WebDirectory, MSWord.HTMLEXTENSIONS, AppSettings.UseTidyOverOutput, UI, Decorator.OutputEncoding);
+
+            // Copy full text search files replacing text:
+            if (Project.FullTextSearch)
+            {
+                // Copy full text serch files:
+                string dirSearchFiles = System.Windows.Forms.Application.StartupPath + Path.DirectorySeparatorChar + "searchFiles";
+                replacements.CopyDirectoryReplaced(dirSearchFiles, Project.WebDirectory, MSWord.ASPXEXTENSIONS, false, UI, Decorator.OutputEncoding);
+            }
+
+            if (Project.GenerateSitemap)
+                // Generate site map for web indexers (google).
+                GeneateSitemap();
+
+        }
+
+        /// <summary>
+        /// Generate a HTML select tag, with the topics index of the help.
+        /// </summary>
+        /// <returns>The select tag with the topics.</returns>
+        private string GenerateWebIndex()
+        {
+            Document.Index.Sort();
+            string index = "<select id=\"topicsList\" style=\"width:100%;\" size=\"20\" onclick=\"topicOnClick();\" ondblclick=\"topicSelected();\" >\n";
+            foreach (ChmDocumentNode node in Document.Index)
+            {
+                string href = node.Href;
+                if (!href.Equals(""))
+                    index += "<option value=\"" + node.Href + "\">" + node.HtmlEncodedTitle + "</option>\n";
+            }
+            index += "</select>\n";
+            return index;
+        }
+
+        /// <summary>
+        /// Creates the object to make copy of the web files template replacing texts
+        /// </summary>
+        /// <returns>The text replacements tool</returns>
+        private Replacements CreateTextReplacements()
+        {
+
+            // Generate search form HTML code:
+            string textSearch = Project.FullTextSearch ? Resources.SearchFormFullText : Resources.SearchFormSimple;
+
+            // Create standard replacements:
+            Replacements replacements = new Replacements();
+            replacements.Add("%TEXTSEARCH%" , textSearch );
+            replacements.Add("%TITLE%" , HttpUtility.HtmlEncode(Project.HelpTitle) );
+            replacements.Add("%TREE%" , CreateHtmlTree( "contentsTree", "contentTree") );
+            replacements.Add("%TOPICS%", GenerateWebIndex() );
+            replacements.Add("%FIRSTPAGECONTENT%", Document.FirstSplittedContent );
+            replacements.Add("%WEBDESCRIPTION%", Decorator.MetaDescriptionTag);
+            replacements.Add("%KEYWORDS%", Decorator.MetaKeywordsTag);
+            replacements.Add("%HEADER%", Decorator.HeaderHtmlCode);
+            replacements.Add("%FOOTER%", Decorator.FooterHtmlCode);
+            replacements.Add("%HEADINCLUDE%", Decorator.HeadIncludeHtmlCode);
+
+            // Load translation files.
+            string translationFile = Path.Combine( System.Windows.Forms.Application.StartupPath , "webTranslations" ); 
+            translationFile = Path.Combine( translationFile , Project.WebLanguage + ".txt");
+            try
+            {
+                replacements.AddReplacementsFromFile(translationFile);
+            }
+            catch (Exception ex)
+            {
+                UI.log("Error opening web translations file" + translationFile + ": " + ex.Message, ConsoleUserInterface.ERRORWARNING);
+                UI.log(ex);
+            }
+
+            return replacements;
+        }
+
+        private void GeneateSitemap()
+        {
+            try
+            {
+                string sitemap = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                                 "<urlset xmlns=\"http://www.google.com/schemas/sitemap/0.84\">\n";
+                string webBase = this.Project.WebBase;
+                if (!webBase.EndsWith("/"))
+                    webBase += "/";
+                if (!webBase.StartsWith("http://"))
+                    webBase += "http://";
+
+                string[] htmlFiles = Directory.GetFiles(Project.WebDirectory);
+                foreach (string file in htmlFiles)
+                {
+                    string lowerFile = file.ToLower();
+                    if (lowerFile.EndsWith(".htm") || lowerFile.EndsWith(".html"))
+                    {
+                        // Add to the sitemap
+                        sitemap += "<url>\n<loc>" + webBase + Path.GetFileName(file) + "</loc>\n<lastmod>";
+                        DateTime lastmod = File.GetLastWriteTime(file);
+                        sitemap += lastmod.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'sszzz") + "</lastmod>\n";
+                        sitemap += "<changefreq>" + this.Project.ChangeFrequency + "</changefreq>\n";
+                        sitemap += "</url>\n";
+                    }
+                }
+                sitemap += "</urlset>";
+
+                // Store
+                string sitemapFile = Path.Combine( Project.WebDirectory, "sitemap.xml" );
+                StreamWriter writer = new StreamWriter(sitemapFile, false, Encoding.UTF8);
+                writer.Write(sitemap);
+                writer.Close();
+                string sitemapZiped = Path.Combine( Project.WebDirectory, "sitemap.xml.gz" );
+                Zip.CompressFile(sitemapFile, sitemapZiped);
+                File.Delete(sitemapFile);
+            }
+            catch (Exception ex)
+            {
+                UI.log("Error generating the sitemap: " + ex.Message, ConsoleUserInterface.ERRORWARNING);
+                UI.log(ex);
             }
         }
-        */
+
+        private string CreateHtmlTree(ChmDocumentNode nodo, int nivel)
+        {
+            if (Project.MaxHeaderContentTree != 0 && nivel > Project.MaxHeaderContentTree)
+                return "";
+
+            string texto = "";
+            if (!nodo.Href.Equals(""))
+            {
+                // Verificar el nodo inicial, que puede no tener titulo:
+                string nombre = "";
+                if (nodo.HeaderTag != null)
+                    nombre = nodo.HeaderTag.innerText;
+                else
+                    nombre = ChmDocument.DEFAULTTILE;
+                texto = "<li><a href=\"" + nodo.Href;
+                texto += "\">" + HttpUtility.HtmlEncode(nombre) + "</a>";
+            }
+
+            if (nodo.Children.Count > 0)
+            {
+                if (Project.MaxHeaderContentTree == 0 || nivel < Project.MaxHeaderContentTree)
+                {
+                    texto += "\n<ul>\n";
+                    foreach (ChmDocumentNode hijo in nodo.Children)
+                        texto += CreateHtmlTree(hijo, nivel + 1) + "\n";
+                    texto += "</ul>";
+                }
+            }
+            if (!texto.Equals(""))
+                texto += "</li>";
+            return texto;
+        }
+
+        private string CreateHtmlTree(string id, string classId)
+        {
+            string texto = "<ul";
+            if (id != null)
+                texto += " id=\"" + id + "\"";
+            if (classId != null)
+                texto += " class=\"" + classId + "\"";
+            texto += ">\n";
+
+            foreach (ChmDocumentNode hijo in Document.RootNode.Children)
+                texto += CreateHtmlTree(hijo, 1) + "\n";
+            texto += "</ul>\n";
+            return texto;
+        }
+
     }
 }

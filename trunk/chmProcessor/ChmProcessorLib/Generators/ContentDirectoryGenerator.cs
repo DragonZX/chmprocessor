@@ -60,6 +60,7 @@ namespace ChmProcessorLib.Generators
         /// <returns>Devuelve la lista de archivos adicionales a incluir en el proyecto de la ayuda</returns>
         protected List<string> CreateDestinationDirectory(string dirDst, List<string> additionalFiles)
         {
+            UI.log("Creating directory " + dirDst, ConsoleUserInterface.INFO);
             // Recrear el directorio:
             try
             {
@@ -101,6 +102,7 @@ namespace ChmProcessorLib.Generators
         /// <returns>List of the created file names, without directory</returns>
         protected List<string> CreateHelpContentFiles(string destinationDirectory)
         {
+            UI.log("Generating help content files", ConsoleUserInterface.INFO);
             return Document.SaveContentFiles(destinationDirectory, Decorator, Indexer);
         }
 
