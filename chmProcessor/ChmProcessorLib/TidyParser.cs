@@ -232,14 +232,13 @@ namespace ChmProcessorLib
             }
         }
 
-        // TODO: NOT TESTED. MAYBE DOES NOT WORK.
-        public string ParseString(string htmlText)
+        /*public string ParseString(string htmlText)
         {
             log("Parsing html...", 2);
             string parameters = ConfigureParse();
             MemoryStream ms = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(htmlText));
             return ExecuteTidy(parameters,new StreamReader(ms));
-        }
+        }*/
 
         private void log(string text, int level)
         {

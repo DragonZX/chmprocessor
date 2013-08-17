@@ -18,3 +18,4 @@ IMPROVMENTS
 - Add a set of tests word files
 - Add option to not create the CHM.
 - Try to use HTML agility pack instead mshtml
+- Use standard api to keep last opened files.

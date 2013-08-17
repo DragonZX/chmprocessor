@@ -67,6 +67,7 @@ namespace ChmProcessorLib.Generators
 
         public void Generate(List<string> additionalFiles)
         {
+            UI.log("Generating Java Help", ConsoleUserInterface.INFO);
 
             // Create directory, content files and additional files
             CreateDestinationDirectory(JavaHelpDirectoryGeneration, additionalFiles);

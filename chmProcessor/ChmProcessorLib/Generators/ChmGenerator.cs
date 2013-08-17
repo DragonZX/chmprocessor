@@ -116,7 +116,7 @@ namespace ChmProcessorLib.Generators
         {
 
             // Create directory, content files and additional files
-            CreateDestinationDirectory(Project.HelpProjectDirectory, AdditionalFiles);
+            List<string> relativePaths = CreateDestinationDirectory(Project.HelpProjectDirectory, AdditionalFiles);
             CreateHelpContentFiles(Project.HelpProjectDirectory);
 
             UI.log("Generating table of contents", ConsoleUserInterface.INFO);
@@ -132,7 +132,7 @@ namespace ChmProcessorLib.Generators
                 return;
 
             UI.log("Generating help project", ConsoleUserInterface.INFO);
-            GenerateHelpProject();
+            GenerateHelpProject(relativePaths);
 
             if (UI.CancellRequested())
                 return;
@@ -145,7 +145,6 @@ namespace ChmProcessorLib.Generators
         /// <summary>
         /// Saves the table of contents of this tree for a CHM project.
         /// </summary>
-        /// <param name="filePath">Path where to store the file.</param>
         private void GenerateTOCFile()
         {
             string filePath = Path.Combine(Project.HelpProjectDirectory, TOCFILENAME);
@@ -220,7 +219,7 @@ namespace ChmProcessorLib.Generators
             writer.Close();
         }
 
-        private void GenerateHelpProject()
+        private void GenerateHelpProject(List<string> additionalFilesRelativePaths)
         {
 
             // Get the name of the first splitted file:
@@ -244,7 +243,7 @@ namespace ChmProcessorLib.Generators
             writer.WriteLine("Language=0x" + Convert.ToString(HelpWorkshopCulture.LCID, 16) + " " + HelpWorkshopCulture.DisplayName);
             writer.WriteLine("Title=" + Project.HelpTitle);
             writer.WriteLine("\r\n[FILES]");
-            foreach (string extraFile in AdditionalFiles)
+            foreach (string extraFile in additionalFilesRelativePaths)
                 writer.WriteLine(extraFile);
             List<string> lista = Document.ListaArchivosGenerados();
             foreach (string arc in lista)
@@ -297,8 +296,15 @@ namespace ChmProcessorLib.Generators
 
                 string archivoAyudaOrigen = Path.Combine(Project.HelpProjectDirectory, CHMFILENAME);
                 if (File.Exists(archivoAyudaOrigen))
-                    // Copy the file from the temporally directory to the gift by the user
+                {
+                    // Be sure the destination directory exists
+                    string destinationDirectory = Path.GetDirectoryName(Project.HelpFile);
+                    if (!Directory.Exists(destinationDirectory))
+                        Directory.CreateDirectory(destinationDirectory);
+
+                    // Copy the file from the temporally directory to destination
                     File.Copy(archivoAyudaOrigen, Project.HelpFile, true);
+                }
                 else
                     throw new Exception("After compiling, the file " + archivoAyudaOrigen + " was not found. Some error happened with the compilation. Try to generate the help project manually");
             }
@@ -306,7 +312,7 @@ namespace ChmProcessorLib.Generators
 
         /// <summary>
         /// Handle the generated help project.
-        /// It can be compiled or openened through Windows sell.
+        /// It can be compiled or opened through Windows sell.
         /// </summary>
         private void ProcessHelpProject()
         {

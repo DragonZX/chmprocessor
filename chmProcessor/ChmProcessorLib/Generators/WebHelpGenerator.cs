@@ -43,6 +43,11 @@ namespace ChmProcessorLib.Generators
         public void Generate(List<string> additionalFiles)
         {
 
+            UI.log("Generating web site", ConsoleUserInterface.INFO);
+
+            // Create directory, and additional files
+            CreateDestinationDirectory(Project.WebDirectory, additionalFiles);
+            
             try
             {
                 if (Project.FullTextSearch)
@@ -56,8 +61,7 @@ namespace ChmProcessorLib.Generators
                     Indexer.StoreConfiguration(Project.WebLanguage);
                 }
 
-                // Create directory, content files and additional files
-                CreateDestinationDirectory(Project.WebDirectory, additionalFiles);
+                // Create content help files, and index them if it was needed
                 CreateHelpContentFiles(Project.WebDirectory);
 
             }

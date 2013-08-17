@@ -1,4 +1,8 @@
 
+REM ------------------------------------------------
+REM COPY NEEDED FILES TO DEBUG DIRECTORY
+REM ------------------------------------------------
+
 MKDIR ChmProcessor\bin
 MKDIR ChmProcessor\bin\x86
 MKDIR ChmProcessor\bin\x86\Debug

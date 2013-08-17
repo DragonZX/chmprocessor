@@ -154,7 +154,7 @@ namespace ChmProcessorLib.DocumentStructure
         private void AddHeaderNode(IHTMLElement node)
         {
             // Ignore empty headers (line breaks, etc)
-            if (!DocumentProcessor.EsHeader(node))
+            if (!EsHeader(node))
                 return;
 
             int headerLevel = ChmDocumentNode.HeaderTagLevel(node);
@@ -191,7 +191,7 @@ namespace ChmProcessorLib.DocumentStructure
         /// <param name="Cnt">Counter to assign unique file names</param>
         private void SplitFilesStructure(ChmDocumentNode node, ref int Cnt)
         {
-            if (node.HeaderTag != null && DocumentProcessor.IsCutHeader(Project.CutLevel, node.HeaderTag))
+            if (node.HeaderTag != null && IsCutHeader(node.HeaderTag))
                 node.StoredAt(node.NombreArchivo(Cnt++));
 
             foreach (ChmDocumentNode hijo in node.Children)
@@ -494,21 +494,33 @@ namespace ChmProcessorLib.DocumentStructure
             }
         }
 
-        private void CreateDocumentIndex(ChmDocumentNode nodo, int nivel)
+        /// <summary>
+        /// Creates the plain index of the document: The list of topics on the document,
+        /// sorted by the title
+        /// </summary>
+        /// <param name="node">Current document node on the recursive search</param>
+        /// <param name="nodeLevel">The node depth on the document tree</param>
+        private void CreateDocumentIndex(ChmDocumentNode node, int nodeLevel)
         {
-            if (Project.MaxHeaderIndex != 0 && nivel > Project.MaxHeaderIndex)
+            if (Project.MaxHeaderIndex != 0 && nodeLevel > Project.MaxHeaderIndex)
                 return;
 
-            Document.Index.Add(nodo);
-            foreach (ChmDocumentNode hijo in nodo.Children)
-                CreateDocumentIndex(hijo, nivel + 1);
+            Document.Index.Add(node);
+            foreach (ChmDocumentNode hijo in node.Children)
+                CreateDocumentIndex(hijo, nodeLevel + 1);
         }
 
+        /// <summary>
+        /// Creates the plain index of the document: The list of topics on the document,
+        /// sorted by the title
+        /// </summary>
         private void CreateDocumentIndex()
         {
-            Document.Index = new ChmDocumentIndex();
+            Document.Index = new List<ChmDocumentNode>();
             foreach (ChmDocumentNode hijo in Document.RootNode.Children)
                 CreateDocumentIndex(hijo, 1);
+
+            Document.Index.Sort();
         }
 
         /// <summary>

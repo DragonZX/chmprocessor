@@ -53,11 +53,11 @@ namespace ChmProcessorLib.Generators
         }
 
         /// <summary>
-        /// Vacia el directorio de destino, y copia los archivos adicionales a aquel.
+        /// Creates or re-creates the destination directory, and it copies the additional files to it
         /// <param name="additionalFiles">List of absolute paths to additional files to copy to the
         /// directory</param>
         /// </summary>
-        /// <returns>Devuelve la lista de archivos adicionales a incluir en el proyecto de la ayuda</returns>
+        /// <returns>The list of copied files, with a path relative to the destination directory</returns>
         protected List<string> CreateDestinationDirectory(string dirDst, List<string> additionalFiles)
         {
             UI.log("Creating directory " + dirDst, ConsoleUserInterface.INFO);
@@ -83,12 +83,14 @@ namespace ChmProcessorLib.Generators
                     // Its a directory. Copy it:
                     string dst = Path.Combine( dirDst, Path.GetFileName(arc) );
                     FileSystem.CopyDirectory(arc, dst);
+                    // TODO: Should we return here all recursivelly copied files?
                 }
                 else if (File.Exists(arc))
                 {
-                    string dst = Path.Combine( dirDst, Path.GetFileName(arc) );
+                    string fileName = Path.GetFileName(arc);
+                    string dst = Path.Combine( dirDst, fileName );
                     File.Copy(arc, dst);
-                    nuevosArchivos.Add(Path.GetFileName(arc));
+                    nuevosArchivos.Add(fileName);
                 }
             }
 
