@@ -145,6 +145,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommandLineExecution.cs" />
     <Compile Include="DocumentStructure\ChmDocument.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -172,9 +173,6 @@
     <Compile Include="Generators\WebHelpGenerator.cs" />
     <Compile Include="Generators\XpsGenerator.cs" />
     <Compile Include="HtmlPageDecorator.cs" />
-    <Compile Include="DocumentStructure\ChmDocumentIndex.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="MSWord.cs">
       <SubType>Code</SubType>
     </Compile>

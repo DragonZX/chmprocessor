@@ -42,16 +42,6 @@ namespace ChmProcessorLib
     {
 
         /// <summary>
-        /// Name for the help project that will be generated
-        /// </summary>
-        public static string NOMBREPROYECTO = "help.hhp";
-
-        /// <summary>
-        /// Name for the chm file that will be generated (?)
-        /// </summary>
-        public static string NOMBREARCHIVOAYUDA = "help.chm";
-
-        /// <summary>
         /// Main source file to convert to help.
         /// If there was multiple documents to convert to help, they are joined on this.
         /// </summary>
@@ -63,40 +53,35 @@ namespace ChmProcessorLib
         private IHTMLDocument2 iDoc;
 
         /// <summary>
-        /// HTML title nodes (H1,H2,etc) tree.
+        /// HTML document structure
         /// </summary>
-        private ChmDocument tree;
+        private ChmDocument Document;
 
         /// <summary>
         /// Decorator for pages for the generated CHM 
         /// </summary>
-        private HtmlPageDecorator chmDecorator = new HtmlPageDecorator();
+        private HtmlPageDecorator ChmDecorator = new HtmlPageDecorator();
 
         /// <summary>
         /// Decorator for pages for the generated web site and the JavaHelp file.
         /// </summary>
-        private HtmlPageDecorator webDecorator = new HtmlPageDecorator();
+        private HtmlPageDecorator WebDecorator = new HtmlPageDecorator();
 
         /// <summary>
         /// Lista de archivos y directorios adicionales a añadir al proyecto de ayuda
         /// </summary>
-        private List<string> ArchivosAdicionales;
+        private List<string> AdditionalFiles;
 
         /// <summary>
         /// Indica si el archivo a procesar es un documento word o uno html
         /// </summary>
-        private bool esWord;
+        private bool IsMSWord;
 
         /// <summary>
-        /// Si esWord = true, indica el directorio temporal donde se genero el 
+        /// Si IsMSWord = true, indica el directorio temporal donde se genero el 
         /// html del documento word
         /// </summary>
-        private string dirHtml;
-
-        /// <summary>
-        /// HTML content of the body of the first chapter into the document.
-        /// </summary>
-        private string FirstChapterContent;
+        private string MSWordHtmlDirectory;
 
         /// <summary>
         /// Project to generate the help. 
@@ -114,7 +99,7 @@ namespace ChmProcessorLib
         private System.Windows.Forms.Timer timerTimeout;
 
         /// <summary>
-        /// Handler of the user interface of the generation process. Can be null.
+        /// Handler of the user interface of the generation process.
         /// </summary>
         public UserInterface UI;
 
@@ -235,17 +220,17 @@ namespace ChmProcessorLib
 
             log("Convert file " + MainSourceFile + " to HTML", ConsoleUserInterface.INFO);
             string nombreArchivo = Path.GetFileNameWithoutExtension(MainSourceFile);
-            dirHtml = Path.GetTempPath() + Path.DirectorySeparatorChar + nombreArchivo;
-            if (Directory.Exists(dirHtml))
-                Directory.Delete(dirHtml, true);
-            else if (File.Exists(dirHtml))
-                File.Delete(dirHtml);
-            Directory.CreateDirectory(dirHtml);
+            MSWordHtmlDirectory = Path.GetTempPath() + Path.DirectorySeparatorChar + nombreArchivo;
+            if (Directory.Exists(MSWordHtmlDirectory))
+                Directory.Delete(MSWordHtmlDirectory, true);
+            else if (File.Exists(MSWordHtmlDirectory))
+                File.Delete(MSWordHtmlDirectory);
+            Directory.CreateDirectory(MSWordHtmlDirectory);
 
             // Rename the file to a save name. If there is spaces, for example, 
             // links to embedded images into the document are not found.
             //string finalFile = dirHtml + Path.DirectorySeparatorChar + nombreArchivo + ".htm";
-            string finalFile = dirHtml + Path.DirectorySeparatorChar + ChmDocumentNode.ToSafeFilename(nombreArchivo) + ".htm";
+            string finalFile = MSWordHtmlDirectory + Path.DirectorySeparatorChar + ChmDocumentNode.ToSafeFilename(nombreArchivo) + ".htm";
 
             msWord.SaveWordToHtml(MainSourceFile, finalFile);
             return finalFile;
@@ -262,10 +247,10 @@ namespace ChmProcessorLib
             try
             {
                 string archivoFinal = (string)Project.SourceFiles[0];
-                esWord = MSWord.ItIsWordDocument(archivoFinal);
-                dirHtml = null;
+                IsMSWord = MSWord.ItIsWordDocument(archivoFinal);
+                MSWordHtmlDirectory = null;
                 // Si es un documento word, convertirlo a HTML filtrado
-                if (esWord)
+                if (IsMSWord)
                 {
                     msWord = new MSWord();
                     archivoFinal = ConvertWordSourceFiles(msWord);
@@ -367,7 +352,7 @@ namespace ChmProcessorLib
         public DocumentProcessor( ChmProject project )
         {
             this.Project = project;
-            this.ArchivosAdicionales = new List<string>(project.ArchivosAdicionales);
+            this.AdditionalFiles = new List<string>(project.ArchivosAdicionales);
             this.replaceBrokenLinks = AppSettings.ReplaceBrokenLinks;
             try
             {
@@ -388,68 +373,6 @@ namespace ChmProcessorLib
                 log(ex);
                 throw new Exception("The ANSI codepage " + helpWorkshopCulture.TextInfo.ANSICodePage + " is not found.", ex);
             }
-        }
-
-        private IHTMLElement BuscarNodo( IHTMLElement nodo , string tag ) 
-        {
-            if( nodo.tagName.ToLower().Equals( tag.ToLower() ) )
-                return nodo;
-            else 
-            {
-                IHTMLElementCollection col = (IHTMLElementCollection) nodo.children;
-                foreach( IHTMLElement hijo in col ) 
-                {
-                    IHTMLElement encontrado = BuscarNodo( hijo , tag );
-                    if( encontrado != null )
-                        return encontrado;
-                }
-                return null;
-            }
-        }
-
-        private List<string> GuardarDocumentos(string directory, HtmlPageDecorator decorator, WebIndex indexer) 
-        {
-            return tree.SaveContentFiles(directory, decorator, indexer);
-        }
-
-        /// <summary>
-        /// Vacia el directorio de destino, y copia los archivos adicionales a aquel.
-        /// </summary>
-        /// <returns>Devuelve la lista de archivos adicionales a incluir en el proyecto de la ayuda</returns>
-        private List<string> GenerarDirDestino(string dirDst) 
-        {
-            // Recrear el directorio:
-            try
-            {
-                if (Directory.Exists(dirDst))
-                    Directory.Delete(dirDst, true);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error deleting directory: " + dirDst + ". Is it on use?", ex);
-            }
-
-            Directory.CreateDirectory( dirDst );
-            
-            // Copiar los archivos adicionales
-            List<string> nuevosArchivos = new List<string>();
-            foreach( string arc in ArchivosAdicionales ) 
-            {
-                if( Directory.Exists( arc ) )
-                {
-                    // Its a directory. Copy it:
-                    string dst = dirDst + Path.DirectorySeparatorChar + Path.GetFileName( arc );
-                    FileSystem.CopyDirectory(arc, dst);
-                }
-                else if( File.Exists( arc ) ) 
-                {
-                    string dst = dirDst + Path.DirectorySeparatorChar + Path.GetFileName( arc );
-                    File.Copy( arc , dst );
-                    nuevosArchivos.Add( Path.GetFileName( arc ) );
-                }
-            }
-
-            return nuevosArchivos;
         }
 
         private void ExecuteProjectCommandLine()
@@ -480,38 +403,124 @@ namespace ChmProcessorLib
             }
         }
 
+        /// <summary>
+        /// Generates the CHM project, and compile it optionally
+        /// </summary>
+        private void GenerateChm()
+        {
+            try
+            {
+                // TODO: If the chm has been compiled, remove the project directory from the temporal directory.
+                ChmGenerator chmGenerator = new ChmGenerator(Document, UI, Project, AdditionalFiles, ChmDecorator);
+                chmGenerator.Generate();
+            }
+            catch (Exception ex)
+            {
+                UI.log(ex);
+            }
+        }
+
+        private void GeneratePdf()
+        {
+            try
+            {
+                PdfGenerator pdfGenerator = new PdfGenerator(MainSourceFile, UI, Project);
+                pdfGenerator.Generate();
+            }
+            catch (Exception ex)
+            {
+                log(ex);
+            }
+        }
+
+        private void GenerateXps()
+        {
+            try
+            {
+                XpsGenerator xpsGenerator = new XpsGenerator(MainSourceFile, UI, Project);
+                xpsGenerator.Generate();
+            }
+            catch (Exception ex)
+            {
+                log(ex);
+            }
+        }
+
+        /// <summary>
+        /// Generated the help web site 
+        /// </summary>
+        private void GenerateWebSite()
+        {
+            try
+            {
+                WebHelpGenerator webHelpGenerator = new WebHelpGenerator(Document, UI, Project, WebDecorator);
+                webHelpGenerator.Generate(AdditionalFiles);
+            }
+            catch (Exception ex)
+            {
+                log(ex);
+            }
+        }
+
         public void GenerateHelp()
         {
             try
             {
-                // Generate help project and java help:
-                Generate();
 
-                // TODO: If the chm has been compiled, remove the project directory from the temporal directory.
-                ChmGenerator chmGenerator = new ChmGenerator(tree, UI, Project, ArchivosAdicionales, chmDecorator);
-                chmGenerator.Generate();
+                // Open and process source files
+                OpenSourceFiles();
 
                 if (CancellRequested())
                     return;
 
-                // PDF:
+                if (IsMSWord)
+                {
+                    // Añadir a la lista de archivos adicionales el directorio generado con 
+                    // los archivos del documento word:
+                    string[] archivos = Directory.GetDirectories(MSWordHtmlDirectory);
+                    foreach (string archivo in archivos)
+                        AdditionalFiles.Add(archivo);
+                }
+
+                if (CancellRequested())
+                    return;
+
+                // Build the tree structure of document titles.
+                ChmDocumentParser parser = new ChmDocumentParser(iDoc, this.UI, Project);
+                Document = parser.ParseDocument();
+
+                if (CancellRequested())
+                    return;
+
+                // Create decorators. This MUST to be called after the parsing: The parsing replaces the style tag
+                // from the document
+                PrepareHtmlDecorators();
+
+                if (CancellRequested())
+                    return;
+
+                GenerateChm();
+
+                if (Project.GenerateWeb)
+                    GenerateWebSite();
+
+                if (CancellRequested())
+                    return;
+
+                if (Project.GenerateJavaHelp)
+                    GenerateJavaHelp();
+
+                if (CancellRequested())
+                    return;
+
                 if (Project.GeneratePdf)
-                {
-                    //BuildPdf();
-                    PdfGenerator pdfGenerator = new PdfGenerator(MainSourceFile, UI, Project);
-                    pdfGenerator.Generate();
-                }
+                    GeneratePdf();
 
                 if (CancellRequested())
                     return;
 
-                // XPS:
                 if (Project.GenerateXps)
-                {
-                    //BuildXps();
-                    XpsGenerator xpsGenerator = new XpsGenerator(MainSourceFile, UI, Project);
-                    xpsGenerator.Generate();
-                }
+                    GenerateXps();
 
                 if (CancellRequested())
                     return;
@@ -519,6 +528,12 @@ namespace ChmProcessorLib
                 // Execute command line:
                 if (Project.CommandLine != null && !Project.CommandLine.Trim().Equals(""))
                     ExecuteProjectCommandLine();
+
+                if (IsMSWord)
+                    // Era un doc word. Se creo un dir. temporal para guardar el html.
+                    // Borrar este directorio:
+                    Directory.Delete(MSWordHtmlDirectory, true);
+
             }
             catch (Exception ex)
             {
@@ -536,21 +551,21 @@ namespace ChmProcessorLib
         {
 
             // CHM html files will use the encoding specified by the user:
-            chmDecorator.ui = this.UI;
+            ChmDecorator.ui = this.UI;
             // use the selected encoding:
-            chmDecorator.OutputEncoding = helpWorkshopEncoding;
+            ChmDecorator.OutputEncoding = helpWorkshopEncoding;
 
             // Web html files will be UTF-8:
-            webDecorator.ui = this.UI;
-            webDecorator.MetaDescriptionValue = Project.WebDescription;
-            webDecorator.MetaKeywordsValue = Project.WebKeywords;
-            webDecorator.OutputEncoding = Encoding.UTF8;
-            webDecorator.UseTidy = true;
+            WebDecorator.ui = this.UI;
+            WebDecorator.MetaDescriptionValue = Project.WebDescription;
+            WebDecorator.MetaKeywordsValue = Project.WebKeywords;
+            WebDecorator.OutputEncoding = Encoding.UTF8;
+            WebDecorator.UseTidy = true;
 
             if (!Project.ChmHeaderFile.Equals(""))
             {
                 log("Reading chm header: " + Project.ChmHeaderFile, ConsoleUserInterface.INFO);
-                chmDecorator.HeaderHtmlFile = Project.ChmHeaderFile;
+                ChmDecorator.HeaderHtmlFile = Project.ChmHeaderFile;
             }
 
             if (CancellRequested())
@@ -559,7 +574,7 @@ namespace ChmProcessorLib
             if (!Project.ChmFooterFile.Equals(""))
             {
                 log("Reading chm footer: " + Project.ChmFooterFile, ConsoleUserInterface.INFO);
-                chmDecorator.FooterHtmlFile = Project.ChmFooterFile;
+                ChmDecorator.FooterHtmlFile = Project.ChmFooterFile;
             }
 
             if (CancellRequested())
@@ -568,7 +583,7 @@ namespace ChmProcessorLib
             if (Project.GenerateWeb && !Project.WebHeaderFile.Equals(""))
             {
                 log("Reading web header: " + Project.WebHeaderFile, ConsoleUserInterface.INFO);
-                webDecorator.HeaderHtmlFile = Project.WebHeaderFile;
+                WebDecorator.HeaderHtmlFile = Project.WebHeaderFile;
             }
 
             if (CancellRequested())
@@ -577,7 +592,7 @@ namespace ChmProcessorLib
             if (Project.GenerateWeb && !Project.WebFooterFile.Equals(""))
             {
                 log("Reading web footer: " + Project.WebFooterFile, ConsoleUserInterface.INFO);
-                webDecorator.FooterHtmlFile = Project.WebFooterFile;
+                WebDecorator.FooterHtmlFile = Project.WebFooterFile;
             }
 
             if (CancellRequested())
@@ -586,21 +601,21 @@ namespace ChmProcessorLib
             if (Project.GenerateWeb && !Project.HeadTagFile.Equals(""))
             {
                 log("Reading <header> include: " + Project.HeadTagFile, ConsoleUserInterface.INFO);
-                webDecorator.HeadIncludeFile = Project.HeadTagFile;
+                WebDecorator.HeadIncludeFile = Project.HeadTagFile;
             }
 
             if (CancellRequested())
                 return;
 
             // Prepare decorators for use. Do it after extract style tags:
-            webDecorator.PrepareHtmlPattern((IHTMLDocument3)iDoc);
-            chmDecorator.PrepareHtmlPattern((IHTMLDocument3)iDoc);
+            WebDecorator.PrepareHtmlPattern((IHTMLDocument3)iDoc);
+            ChmDecorator.PrepareHtmlPattern((IHTMLDocument3)iDoc);
         }
 
         /// <summary>
         /// Generates help products.
         /// </summary>
-        private void Generate() 
+        /*private void Generate() 
         {
 
             // Open and process source files
@@ -621,13 +636,6 @@ namespace ChmProcessorLib
             if (CancellRequested())
                 return;
 
-            // Preparar el directorio de destino.
-            //log("Creating project directory: " + Project.HelpProjectDirectory, ConsoleUserInterface.INFO);
-            //List<string> listaFinalArchivos = GenerarDirDestino(Project.HelpProjectDirectory);
-
-            if (CancellRequested())
-                return;
-
             // Build the tree structure of document titles.
             ChmDocumentParser parser = new ChmDocumentParser(iDoc, this.UI, Project);
             tree = parser.ParseDocument();
@@ -642,47 +650,18 @@ namespace ChmProcessorLib
             if (CancellRequested())
                 return;
 
-            /*if (CancellRequested())
-                return;*/
-
-            // Generar los archivos HTML:
-            /*log("Storing splitted files", ConsoleUserInterface.INFO);
-            List<string> archivosGenerados = GuardarDocumentos(Project.HelpProjectDirectory, chmDecorator, null);
-
-            if (CancellRequested())
-                return;
-
-            // Check if the file for content without title was created. If not, remove it from the files tree.
-            string archivo1 = Path.Combine(Project.HelpProjectDirectory , ChmDocument.INITIALSECTIONFILENAME);
-            if( ! File.Exists( archivo1) ) 
-            {
-                tree.RootNode.DestinationFileName = "";
-                tree.RootNode.Children.RemoveAt(0);
-            }*/
-
-            // Obtener el nombre del primer archivo generado:
-            string primero = "";
-            if( tree.RootNode.Children.Count > 0 )
-                primero = ((ChmDocumentNode) tree.RootNode.Children[0]).DestinationFileName;
-
-            if (CancellRequested())
-                return;
-
             if( Project.GenerateWeb )
             {
                 // Generar la web con la ayuda:
                 log("Generating web site", ConsoleUserInterface.INFO);
-                GenerateWebSite(tree.Index);
+                GenerateWebSite();
             }
 
             if (CancellRequested())
                 return;
 
             if (Project.GenerateJavaHelp)
-            {
-                log("Generating Java Help", ConsoleUserInterface.INFO);
-                GenerateJavaHelp(tree.Index);
-            }
+                GenerateJavaHelp();
 
             if( esWord )
                 // Era un doc word. Se creo un dir. temporal para guardar el html.
@@ -691,69 +670,24 @@ namespace ChmProcessorLib
 
             log("Project generated", ConsoleUserInterface.ERRORWARNING);
 
-        }
-
-        /*private void GeneateSitemap(string webDirectory)
-        {
-            try {
-                string sitemap = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
-                                 "<urlset xmlns=\"http://www.google.com/schemas/sitemap/0.84\">\n";
-                string webBase = this.Project.WebBase;
-                if( !webBase.EndsWith("/") )
-                    webBase += "/";
-                if( !webBase.StartsWith("http://") )
-                    webBase += "http://";
-
-                string[] htmlFiles = Directory.GetFiles(webDirectory);
-                foreach (string file in htmlFiles)
-                {
-                    string lowerFile = file.ToLower();
-                    if (lowerFile.EndsWith(".htm") || lowerFile.EndsWith(".html"))
-                    {
-                        // Add to the sitemap
-                        sitemap += "<url>\n<loc>" + webBase + Path.GetFileName(file) + "</loc>\n<lastmod>";
-                        DateTime lastmod = File.GetLastWriteTime( file );
-                        sitemap += lastmod.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'sszzz") + "</lastmod>\n";
-                        sitemap += "<changefreq>" + this.Project.ChangeFrequency + "</changefreq>\n";
-                        sitemap += "</url>\n";
-                    }
-                }
-                sitemap += "</urlset>";
-
-                // Store
-                string sitemapFile = webDirectory + Path.DirectorySeparatorChar + "sitemap.xml";
-                StreamWriter writer = new StreamWriter( sitemapFile , false , Encoding.UTF8 );
-                writer.Write( sitemap );
-                writer.Close();
-                string sitemapZiped = webDirectory + Path.DirectorySeparatorChar + "sitemap.xml.gz";
-                Zip.CompressFile(sitemapFile, sitemapZiped);
-                File.Delete(sitemapFile);
-            }
-            catch( Exception ex ) {
-                log("Error generating the sitemap: " + ex.Message, ConsoleUserInterface.ERRORWARNING);
-                log(ex);
-            }
-        }*/     
+        }*/
 
         /// <summary>
         /// Generates a JAR with the java help of the document.
         /// <param name="generatedFiles">List of chapter html files generated for the help</param>
         /// <param name="index">List of topics of the document.</param>
         /// </summary>
-        private void GenerateJavaHelp(ChmDocumentIndex index)
+        private void GenerateJavaHelp()
         {
-
-            JavaHelpGenerator jhGenerator = new JavaHelpGenerator(MainSourceFile, tree, UI, Project, chmDecorator);
-
-            /*
-            log("Copiying files to directory " + jhGenerator.JavaHelpDirectoryGeneration, ConsoleUserInterface.INFO);
-            GenerarDirDestino(jhGenerator.JavaHelpDirectoryGeneration);
-
-            // Write HTML help content files to the destination directory
-            GuardarDocumentos(jhGenerator.JavaHelpDirectoryGeneration, chmDecorator, null);
-            */
-
-            jhGenerator.Generate(ArchivosAdicionales);
+            try
+            {
+                JavaHelpGenerator jhGenerator = new JavaHelpGenerator(MainSourceFile, Document, UI, Project, ChmDecorator);
+                jhGenerator.Generate(AdditionalFiles);
+            }
+            catch (Exception ex)
+            {
+                UI.log(ex);
+            }
         }
 
         /// <summary>
@@ -785,199 +719,6 @@ namespace ChmProcessorLib
         private void ExecuteCommandLine(string exeFile, string parameters, string workingDirectory)
         {
             ExecuteCommandLine(exeFile, parameters, workingDirectory, this.UI);
-        }
-
-        /// <summary>
-        /// Generated the help web site 
-        /// </summary>
-        /// <param name="index">Index help information</param>
-        private void GenerateWebSite(ChmDocumentIndex index) 
-        {
-            try
-            {
-                /*
-                // Crear el directorio web y copiar archivos adicionales:
-                string dirWeb;
-                if (Project.WebDirectory.Equals(""))
-                    dirWeb = Project.HelpProjectDirectory + Path.DirectorySeparatorChar + "web";
-                else
-                    dirWeb = Project.WebDirectory;
-                GenerarDirDestino(dirWeb);
-
-                // Copy the css file if was generated:
-                //if (cssFile != null)
-                //    File.Copy(cssFile, dirWeb + Path.DirectorySeparatorChar + Path.GetFileName(cssFile));
-
-                // Prepare the indexing database:
-                WebIndex indexer = null;
-                try
-                {
-                    if (Project.FullTextSearch)
-                    {
-                        indexer = new WebIndex();
-                        string dbFile = dirWeb + Path.DirectorySeparatorChar + "fullsearchdb.db3";
-                        string dirTextFiles = dirWeb + Path.DirectorySeparatorChar + "textFiles";
-                        indexer.Connect(dbFile);
-                        indexer.CreateDatabase(System.Windows.Forms.Application.StartupPath + Path.DirectorySeparatorChar + "searchdb.sql", dirTextFiles);
-                        indexer.StoreConfiguration(Project.WebLanguage);
-                    }
-
-                    // Create new files for the web help:
-                    GuardarDocumentos(dirWeb, webDecorator, indexer);
-                }
-                finally
-                {
-                    if (indexer != null)
-                        indexer.Disconnect();
-                }
-
-                // HTML save version of the title:
-                string htmlTitle = HttpUtility.HtmlEncode(Project.HelpTitle);
-
-                // Generate search form HTML code:
-                string textSearch = "";
-                if (Project.FullTextSearch)
-                {
-                    textSearch = "<form name=\"searchform\" method=\"post\" action=\"search.aspx\" id=\"searchform\" onsubmit=\"doFullTextSearch();return false;\" >\n";
-                    textSearch += "<p><img src=\"system-search.png\" align=middle alt=\"Search image\" /> <b>%Search Text%:</b><br /><input type=\"text\" id=\"searchText\" style=\"width:80%;\" name=\"searchText\"/>\n";
-                    textSearch += "<input type=\"button\" value=\"%Search%\" onclick=\"doFullTextSearch();\" id=\"Button1\" name=\"Button1\"/></p>\n";
-                }
-                else
-                {
-                    textSearch = "<form name=\"searchform\" method=\"post\" action=\"search.aspx\" id=\"searchform\" onsubmit=\"doSearch();return false;\" >\n";
-                    textSearch += "<p><img src=\"system-search.png\" align=middle alt=\"Search image\" /> <b>%Search Text%:</b><br /><input type=\"text\" id=\"searchText\" style=\"width:80%;\" name=\"searchText\"/><br/>\n";
-                    textSearch += "<input type=\"button\" value=\"%Search%\" onclick=\"doSearch();\" id=\"Button1\" name=\"Button1\"/></p>\n";
-                    textSearch += "<select id=\"searchResult\" style=\"width:100%;\" size=\"20\" name=\"searchResult\">\n";
-                    textSearch += "<option></option>\n";
-                    textSearch += "</select>\n";
-                }
-                textSearch += "</form>\n";
-
-                // The text placements for web files:
-                string[] variables = { "%TEXTSEARCH%" , "%TITLE%", "%TREE%", "%TOPICS%", "%FIRSTPAGECONTENT%", 
-                    "%WEBDESCRIPTION%", "%KEYWORDS%" , "%HEADER%" , "%FOOTER%" , "%HEADINCLUDE%" };
-                string[] newValues = { textSearch , htmlTitle, tree.GenerarArbolHtml(Project.MaxHeaderContentTree, "contentsTree", 
-                    "contentTree"), index.GenerateWebIndex(), FirstChapterContent, 
-                    webDecorator.MetaDescriptionTag , webDecorator.MetaKeywordsTag ,
-                    webDecorator.HeaderHtmlCode , webDecorator.FooterHtmlCode , webDecorator.HeadIncludeHtmlCode };
-
-                Replacements replacements = new Replacements(variables, newValues);
-
-                // Load translation files.
-                string translationFile = System.Windows.Forms.Application.StartupPath +
-                    Path.DirectorySeparatorChar + "webTranslations" + Path.DirectorySeparatorChar +
-                    Project.WebLanguage + ".txt";
-                try
-                {
-                    replacements.AddReplacementsFromFile(translationFile);
-                }
-                catch (Exception ex)
-                {
-                    log("Error opening web translations file" + translationFile + ": " + ex.Message, ConsoleUserInterface.ERRORWARNING);
-                    log(ex);
-                }
-
-                // Copy web files replacing text
-                string baseDir = System.Windows.Forms.Application.StartupPath + Path.DirectorySeparatorChar + "webFiles";
-                replacements.CopyDirectoryReplaced(baseDir, dirWeb, MSWord.HTMLEXTENSIONS, AppSettings.UseTidyOverOutput, UI, webDecorator.OutputEncoding);
-
-                // Copy full text search files replacing text:
-                if (Project.FullTextSearch)
-                {
-                    // Copy full text serch files:
-                    string dirSearchFiles = System.Windows.Forms.Application.StartupPath + Path.DirectorySeparatorChar + "searchFiles";
-                    replacements.CopyDirectoryReplaced(dirSearchFiles, dirWeb, MSWord.ASPXEXTENSIONS, false, UI, webDecorator.OutputEncoding);
-                }
-
-                if (Project.GenerateSitemap)
-                    // Generate site map for web indexers (google).
-                    GeneateSitemap(dirWeb);
-                */
-
-                WebHelpGenerator webHelpGenerator = new WebHelpGenerator(tree, UI, Project, webDecorator);
-                webHelpGenerator.Generate(ArchivosAdicionales);
-
-            }
-            catch (Exception ex)
-            {
-                log(ex);
-            }
-        }
-
-        /// <summary>
-        /// Return the first header tag (H1,H2,etc) found on a subtree of the html document 
-        /// that will split the document.
-        /// TODO: Join this function and ChmDocumentParser.SearchFirstCutNode
-        /// </summary>
-        /// <param name="root">Root of the html subtree where to search a split</param>
-        /// <returns>The first split tag node. null if none was found.</returns>
-        private IHTMLElement SearchFirstCutNode( IHTMLElement root ) 
-        {
-            if (IsCutHeader(root))
-                return root;
-            else 
-            {
-                IHTMLElementCollection col = (IHTMLElementCollection)root.children;
-                foreach( IHTMLElement e in col ) 
-                {
-                    IHTMLElement seccion = SearchFirstCutNode( e );
-                    if( seccion != null )
-                        return seccion;
-                }
-                return null;
-            }
-        }
-
-        // TODO: Join this function with the same on ChmDocumentParser
-        static public bool EsHeader( IHTMLElement nodo ) 
-        {
-            return nodo is IHTMLHeaderElement && nodo.innerText != null && !nodo.innerText.Trim().Equals("");
-        }
-
-        /// <summary>
-        /// Checks if a node is a HTML header tag (H1, H2, etc) upper or equal to the cut level for the
-        /// project (Project.CutLevel).
-        /// Also checks if it contains some text.
-        /// TODO: Join this function with the same on ChmDocumentParser
-        /// </summary>
-        /// <param name="node">HTML node to check</param>
-        /// <returns>true if the node is a cut header</returns>
-        public bool IsCutHeader( IHTMLElement node ) {
-            return IsCutHeader(Project.CutLevel, node);
-        }
-
-        /// <summary>
-        /// Checks if a node is a HTML header tag (H1, H2, etc) upper or equal to the cut level.
-        /// Also checks if it contains some text.
-        /// </summary>
-        /// <param name="MaximumLevel">Maximum level the level is accepted as cut level.</param>
-        /// <param name="node">HTML node to check</param>
-        /// <returns>true if the node is a cut header</returns>
-        static public bool IsCutHeader( int MaximumLevel , IHTMLElement node ) 
-        {
-            // If its a Hx node and x <= MaximumLevel, and it contains text, its a cut node:
-            if( EsHeader(node) ) 
-            {
-                string tagName = node.tagName.ToUpper();
-                for( int i=1;i<=MaximumLevel; i++ ) 
-                {
-                    string nombreTag = "H" + i;
-                    if( nombreTag.Equals( tagName ) )
-                        return true;
-                }
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Logs the content of a stream
-        /// </summary>
-        /// <param name="reader">Log with the content to read.</param>
-        /// <param name="level">Level of the stream</param>
-        private void LogStream(StreamReader reader, int logLevel) 
-        {
-            if (UI != null)
-                UI.LogStream(reader, logLevel);
         }
 
     }

@@ -66,9 +66,9 @@ namespace ChmProcessorLib.DocumentStructure
         public ChmDocumentNode RootNode;
 
         /// <summary>
-        /// The document index
+        /// The document index: A plain list of the topics, sorted by its title
         /// </summary>
-        public ChmDocumentIndex Index;
+        public List<ChmDocumentNode> Index;
 
         /// <summary>
         /// Word saves HTML with a embedded stye tag on the header with the document styles.
@@ -94,90 +94,6 @@ namespace ChmProcessorLib.DocumentStructure
         {
             IDoc = iDoc;
         }
-
-        /// <summary>
-        /// Adds a section to the section tree.
-        /// The section will be added as child of the last section inserted with a level
-        /// higher than then section
-        /// </summary>
-        /// <param name="nodo">HTML header tag with the title of the section</param>
-        /// <param name="ui">Application log. It can be null</param>
-        /*public void InsertarNodo( IHTMLElement node , UserInterface ui ) 
-        {
-
-            if( !DocumentProcessor.EsHeader( node ) )
-                return;
-
-            int nivel = ChmDocumentNode.HeaderTagLevel( node );
-            if( ultimoInsertado == null || nivel == 1 ) 
-            {
-                ultimoInsertado = new ChmDocumentNode( null, node , ui );
-                RootNode.AddChild( ultimoInsertado );
-            }
-            else 
-            {
-                ChmDocumentNode nuevoNodo = new ChmDocumentNode( ultimoInsertado, node , ui );
-                if( ultimoInsertado.HeaderLevel < nivel )
-                    ultimoInsertado.Children.Add( nuevoNodo );
-                else 
-                {
-                    ChmDocumentNode actual = ultimoInsertado.Parent;
-                    while( actual != RootNode && actual.HeaderLevel >= nivel )
-                        actual = actual.Parent;
-                    actual.AddChild( nuevoNodo );
-                }
-                ultimoInsertado = nuevoNodo;
-            }
-        }*/
-
-        /*private string GenerarArbolHtml( ChmDocumentNode nodo , int NivelMaximoTOC , int nivel ) 
-        {
-            if( NivelMaximoTOC != 0 && nivel > NivelMaximoTOC )
-                return "";
-
-            string texto = "";
-            if( ! nodo.Href.Equals("") ) 
-            {
-                // Verificar el nodo inicial, que puede no tener titulo:
-                string nombre = "";
-                if( nodo.HeaderTag != null )
-                    nombre = nodo.HeaderTag.innerText;
-                else
-                    nombre = DEFAULTTILE;
-                texto = "<li><a href=\"" + nodo.Href ;
-                texto += "\">" + HttpUtility.HtmlEncode( nombre ) + "</a>";
-            }
-
-            if( nodo.Children.Count > 0 ) 
-            {
-                if( NivelMaximoTOC == 0 || nivel < NivelMaximoTOC ) 
-                {
-                    texto += "\n<ul>\n";
-                    foreach( ChmDocumentNode hijo in nodo.Children ) 
-                        texto += GenerarArbolHtml( hijo , NivelMaximoTOC , nivel + 1 ) + "\n";
-                    texto += "</ul>";
-                }
-            }
-            if( !texto.Equals("") )
-                texto += "</li>";
-            return texto;
-        }
-
-        public string GenerarArbolHtml(int NivelMaximoTOC , string id , string classId ) 
-        {
-            //string texto = "<ul id=\"contentsTree\" class=\"contentTree\">";
-            string texto = "<ul";
-            if( id != null )
-                texto += " id=\"" + id + "\"";
-            if( classId != null )
-                texto += " class=\"" + classId + "\"";
-            texto += ">\n";
-
-            foreach( ChmDocumentNode hijo in RootNode.Children ) 
-                texto += GenerarArbolHtml( hijo , NivelMaximoTOC , 1 ) + "\n";
-            texto += "</ul>\n";
-            return texto;
-        }*/
 
         private void ListaArchivosGenerados(List<string> lista, ChmDocumentNode nodo) 
         {

@@ -115,7 +115,7 @@ namespace ChmProcessorLib
                 catch(Exception ex) 
                 {
                     wordApp = null;
-                    throw new Exception("MS Word cannot be openened. Is it installed?", ex);
+                    throw new Exception("MS Word cannot be opened. Is it installed?", ex);
                 }
             }
         }

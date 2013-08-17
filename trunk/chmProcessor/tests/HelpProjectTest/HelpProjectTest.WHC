@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuracion xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <SourceFiles>
+    <string>..\Test1.doc</string>
+    <string>..\Test2.doc</string>
+  </SourceFiles>
+  <Compilar>false</Compilar>
+  <DirectorioDestino>.\products\test-project</DirectorioDestino>
+  <HtmlCabecera>..\headerchm.htm</HtmlCabecera>
+  <HtmlPie>..\footerchm.htm</HtmlPie>
+  <TituloAyuda>Standard test</TituloAyuda>
+  <NivelCorte>2</NivelCorte>
+  <GenerarWeb>false</GenerarWeb>
+  <ArchivosAdicionales>
+    <string>..\folderToInclude</string>
+    <string>..\LSI.jpg</string>
+  </ArchivosAdicionales>
+  <AbrirProyecto>true</AbrirProyecto>
+  <DirectorioWeb>.\products\test-web</DirectorioWeb>
+  <NivelArbolContenidos>3</NivelArbolContenidos>
+  <NivelTemasIndice>4</NivelTemasIndice>
+  <ArchivoAyuda>.\products\test.chm</ArchivoAyuda>
+  <CommandLine />
+  <GeneratePdf>false</GeneratePdf>
+  <PdfPath>.\products\test.pdf</PdfPath>
+  <WebKeywords>keyword1, keyword2, achilipu, arriquitaun</WebKeywords>
+  <WebDescription>Content of the meta description tag</WebDescription>
+  <WebHeaderFile>..\headerweb.htm</WebHeaderFile>
+  <WebFooterFile>..\footerweb.htm</WebFooterFile>
+  <GenerateSitemap>false</GenerateSitemap>
+  <WebBase />
+  <ChangeFrequency>monthly</ChangeFrequency>
+  <WebLanguage>English</WebLanguage>
+  <ConfigurationVersion>1.6</ConfigurationVersion>
+  <FullTextSearch>false</FullTextSearch>
+  <PdfGeneration>OfficeAddin</PdfGeneration>
+  <GenerateXps>false</GenerateXps>
+  <XpsPath>.\products\test.xps</XpsPath>
+  <GenerateJavaHelp>false</GenerateJavaHelp>
+  <JavaHelpPath>.\products\test.jar</JavaHelpPath>
+  <HeadTagFile>..\headInclude.htm</HeadTagFile>
+  <ChmLocaleID>3082</ChmLocaleID>
+</Configuracion>
