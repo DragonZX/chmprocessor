@@ -269,7 +269,7 @@ namespace ChmProcessorLib.Generators
                 string proyecto = "\"" + ChmProjectPath + "\"";
 
                 // TODO: Use DocumentProcessor.ExecuteCommandLine to make this execution:
-                ProcessStartInfo info;
+                /*ProcessStartInfo info;
                 if (!AppSettings.UseAppLocale)
                     // Run the raw compiler
                     info = new ProcessStartInfo(compilerPath, proyecto);
@@ -292,7 +292,21 @@ namespace ChmProcessorLib.Generators
                 while (!proceso.WaitForExit(1000))
                     UI.LogStream(proceso.StandardOutput, ConsoleUserInterface.INFO);
                 UI.LogStream(proceso.StandardOutput, ConsoleUserInterface.INFO);
-                UI.LogStream(proceso.StandardError, ConsoleUserInterface.ERRORWARNING);
+                UI.LogStream(proceso.StandardError, ConsoleUserInterface.ERRORWARNING);*/
+
+                CommandLineExecution cmd;
+                if (!AppSettings.UseAppLocale)
+                    // Run the raw compiler
+                    cmd = new CommandLineExecution(compilerPath, proyecto, UI);
+                else
+                {
+                    // Run the compiler with AppLocale. Need to compile files with a 
+                    // char encoding distinct to the system codepage.
+                    // Command line example: C:\Windows\AppPatch\AppLoc.exe "C:\Program Files\HTML Help Workshop\hhc.exe" "A B C" "/L0480"
+                    string parameters = "\"" + compilerPath + "\" " + proyecto + " /L" + Convert.ToString(HelpWorkshopCulture.LCID, 16);
+                    cmd = new CommandLineExecution(AppSettings.AppLocalePath, parameters, UI);
+                }
+                cmd.Execute();
 
                 string archivoAyudaOrigen = Path.Combine(Project.HelpProjectDirectory, CHMFILENAME);
                 if (File.Exists(archivoAyudaOrigen))

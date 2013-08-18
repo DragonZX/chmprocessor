@@ -69,7 +69,7 @@ namespace ChmProcessorLib
         public int Execute()
         {
             ExecutionProcess = Process.Start(Info);
-            while (!ExecutionProcess.WaitForExit(1000))
+            while (!ExecutionProcess.WaitForExit(MAXIMUMWAIT))
                 UI.LogStream(ExecutionProcess.StandardOutput, ConsoleUserInterface.INFO);
             UI.LogStream(ExecutionProcess.StandardOutput, ConsoleUserInterface.INFO);
 
@@ -79,5 +79,14 @@ namespace ChmProcessorLib
             return ExecutionProcess.ExitCode;
         }
 
+        public override string ToString()
+        {
+            if (Info == null || string.IsNullOrEmpty( Info.FileName ) )
+                return string.Empty;
+            string txt = Info.FileName;
+            if (!string.IsNullOrEmpty(Info.Arguments))
+                txt += " " + Info.Arguments;
+            return txt;
+        }
     }
 }

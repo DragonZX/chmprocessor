@@ -308,14 +308,14 @@ namespace ChmProcessorLib.DocumentStructure
         {
             get 
             {
-                string enlace = "";
-                if( HeaderTag != null ) 
-                {
-                    enlace = HttpUtility.HtmlEncode( Path.GetFileName( DestinationFileName ) );
-                    if( ! MainAnchorName.Equals("") )
-                        enlace += "#" + MainAnchorName;
-                }
-                return enlace;
+
+                // TODO: HttpUtility.HtmlEncode probably is not needed...
+                // TODO: Path.GetFileName probably is not needed. DestinationFileName should be
+                // TODO: always relative
+                string link = HttpUtility.HtmlEncode(Path.GetFileName(DestinationFileName));
+                if (!MainAnchorName.Equals(""))
+                    link += "#" + MainAnchorName;
+                return link;
             }
         }
 
@@ -323,7 +323,7 @@ namespace ChmProcessorLib.DocumentStructure
         /// Destino de un href para hacer referencia a este capitulo. P.ej. "aa.htm#xxx".
         /// No convierte los caracteres no ascii a su codigo html.
         /// </summary>
-        public string HrefNoCodificado 
+        /*public string HrefNoCodificado 
         {
             get 
             {
@@ -336,7 +336,7 @@ namespace ChmProcessorLib.DocumentStructure
                 }
                 return enlace;
             }
-        }
+        }*/
 
         /// <summary>
         /// The html tag A to reference this chapter.

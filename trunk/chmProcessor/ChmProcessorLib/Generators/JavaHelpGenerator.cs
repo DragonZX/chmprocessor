@@ -81,15 +81,22 @@ namespace ChmProcessorLib.Generators
 
             UI.log("Building the search index", ConsoleUserInterface.INFO);
             UI.log(AppSettings.JavaHelpIndexerPath + " .", ConsoleUserInterface.INFO);
-            DocumentProcessor.ExecuteCommandLine(AppSettings.JavaHelpIndexerPath, ".", JavaHelpDirectoryGeneration, UI);
+            //DocumentProcessor.ExecuteCommandLine(AppSettings.JavaHelpIndexerPath, ".", JavaHelpDirectoryGeneration, UI);
+            CommandLineExecution cmd = new CommandLineExecution(AppSettings.JavaHelpIndexerPath, ".", UI);
+            cmd.Info.WorkingDirectory = JavaHelpDirectoryGeneration;
+            cmd.Execute();
 
             // Build a JAR with the help.
             //java -jar E:\dev\java\javahelp\javahelp2.0\demos\bin\hsviewer.jar -helpset help.jar
-            string commandLine = " cvf \"" + Project.JavaHelpPath + "\" .";
+            string parameters = " cvf \"" + Project.JavaHelpPath + "\" .";
             string jarPath = AppSettings.JarPath;
             UI.log("Building jar:", ConsoleUserInterface.INFO);
-            UI.log(jarPath + " " + commandLine, ConsoleUserInterface.INFO);
-            DocumentProcessor.ExecuteCommandLine(jarPath, commandLine, JavaHelpDirectoryGeneration, UI);
+            //UI.log(jarPath + " " + commandLine, ConsoleUserInterface.INFO);
+            //DocumentProcessor.ExecuteCommandLine(jarPath, parameters, JavaHelpDirectoryGeneration, UI);
+            cmd = new CommandLineExecution(jarPath, parameters, UI);
+            cmd.Info.WorkingDirectory = JavaHelpDirectoryGeneration;
+            UI.log(cmd.ToString(), ConsoleUserInterface.INFO);
+            cmd.Execute();
 
             // Remove the temporal directory
             Directory.Delete(JavaHelpDirectoryGeneration, true);
@@ -205,8 +212,8 @@ namespace ChmProcessorLib.Generators
             if (Project.MaxHeaderContentTree != 0 && currentLevel > Project.MaxHeaderContentTree)
                 return;
 
-            if (currentNode.HeaderTag != null)
-            {
+            //if (currentNode.HeaderTag != null)
+            //{
                 //writer.WriteLine(currentNode.JavaHelpTOCEntry);
                 String entry = "<tocitem text=\"" + currentNode.HtmlEncodedTitle + "\" target=\"" + JavaHelpTarget(currentNode) + "\"";
                 if (currentNode.Children.Count == 0)
@@ -214,7 +221,7 @@ namespace ChmProcessorLib.Generators
                 else
                     entry += ">";
                 writer.WriteLine(entry);
-            }
+            //}
 
             foreach (ChmDocumentNode child in currentNode.Children)
                 GenerateJavaHelpTOC(writer, child, currentLevel + 1);
