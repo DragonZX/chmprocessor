@@ -15,7 +15,7 @@ IMPROVMENTS
 - Add option at settings window to set the level log.
 - Translate the "Inicio" spanish word (see NodoArbol.cs)
 - Translate all the spanish code to english.
-- Add a set of tests word files
 - Add option to not create the CHM.
 - Try to use HTML agility pack instead mshtml
 - Use standard api to keep last opened files.
+- Make a BAT to clear the application registry node

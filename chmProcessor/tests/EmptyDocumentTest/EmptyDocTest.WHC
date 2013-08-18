@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuracion xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <SourceFiles>
+    <string>.\EmptyTest.doc</string>
+  </SourceFiles>
+  <Compilar>true</Compilar>
+  <DirectorioDestino>.\EmptyTest-project</DirectorioDestino>
+  <HtmlCabecera />
+  <HtmlPie />
+  <TituloAyuda>Empty document test</TituloAyuda>
+  <NivelCorte>2</NivelCorte>
+  <GenerarWeb>true</GenerarWeb>
+  <ArchivosAdicionales />
+  <AbrirProyecto>false</AbrirProyecto>
+  <DirectorioWeb>.\products\EmptyTest-web</DirectorioWeb>
+  <NivelArbolContenidos>3</NivelArbolContenidos>
+  <NivelTemasIndice>4</NivelTemasIndice>
+  <ArchivoAyuda>.\products\EmptyTest.chm</ArchivoAyuda>
+  <CommandLine />
+  <GeneratePdf>false</GeneratePdf>
+  <PdfPath>.\EmptyTest.pdf</PdfPath>
+  <WebKeywords />
+  <WebDescription />
+  <WebHeaderFile />
+  <WebFooterFile />
+  <GenerateSitemap>true</GenerateSitemap>
+  <WebBase>http://chmprocessor.sf.net</WebBase>
+  <ChangeFrequency>monthly</ChangeFrequency>
+  <WebLanguage>English</WebLanguage>
+  <ConfigurationVersion>1.6</ConfigurationVersion>
+  <FullTextSearch>false</FullTextSearch>
+  <PdfGeneration>OfficeAddin</PdfGeneration>
+  <GenerateXps>false</GenerateXps>
+  <XpsPath>.\EmptyTest.xps</XpsPath>
+  <GenerateJavaHelp>true</GenerateJavaHelp>
+  <JavaHelpPath>.\products\EmptyTest.jar</JavaHelpPath>
+  <HeadTagFile />
+  <ChmLocaleID>3082</ChmLocaleID>
+</Configuracion>

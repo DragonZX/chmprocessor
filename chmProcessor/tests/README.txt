@@ -7,7 +7,6 @@ This directory containts a set of tests to check the application.
 
 
 TODO: Add tests for:
-- Empty document
 - HTML source
 - Command line generation
 

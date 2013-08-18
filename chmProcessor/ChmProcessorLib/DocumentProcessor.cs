@@ -379,7 +379,7 @@ namespace ChmProcessorLib
         {
             try
             {
-                log("Executing '" + Project.CommandLine.Trim() + "'", ConsoleUserInterface.INFO);
+                /*log("Executing '" + Project.CommandLine.Trim() + "'", ConsoleUserInterface.INFO);
                 // TODO: Do a call to ExecuteCommandLine to run this execution.
                 string strCmdLine = "/C " + Project.CommandLine.Trim();
                 ProcessStartInfo si = new System.Diagnostics.ProcessStartInfo("CMD.exe", strCmdLine);
@@ -394,7 +394,15 @@ namespace ChmProcessorLib
                 string error = p.StandardError.ReadToEnd();
                 p.WaitForExit();
                 log(output, ConsoleUserInterface.INFO);
-                log(error, ConsoleUserInterface.ERRORWARNING);
+                log(error, ConsoleUserInterface.ERRORWARNING);*/
+
+                UI.log("Executing '" + Project.CommandLine.Trim() + "'", ConsoleUserInterface.INFO);
+                string parameters = "/C " + Project.CommandLine.Trim();
+                CommandLineExecution cmd = new CommandLineExecution("CMD.exe", parameters, UI);
+                // If execution reads std input, create a window for it: Otherwise it can
+                // hangup forever.
+                cmd.Info.CreateNoWindow = false;
+                cmd.Execute();
             }
             catch (Exception ex)
             {
@@ -613,66 +621,6 @@ namespace ChmProcessorLib
         }
 
         /// <summary>
-        /// Generates help products.
-        /// </summary>
-        /*private void Generate() 
-        {
-
-            // Open and process source files
-            OpenSourceFiles();
-
-            if (CancellRequested())
-                return;
-
-            if( esWord )
-            {
-                // Añadir a la lista de archivos adicionales el directorio generado con 
-                // los archivos del documento word:
-                string[] archivos = Directory.GetDirectories( dirHtml );
-                foreach( string archivo in archivos ) 
-                    ArchivosAdicionales.Add( archivo );
-            }
-
-            if (CancellRequested())
-                return;
-
-            // Build the tree structure of document titles.
-            ChmDocumentParser parser = new ChmDocumentParser(iDoc, this.UI, Project);
-            tree = parser.ParseDocument();
-
-            if (CancellRequested())
-                return;
-
-            // Create decorators. This MUST to be called after the parsing: The parsing replaces the style tag
-            // from the document
-            PrepareHtmlDecorators();
-
-            if (CancellRequested())
-                return;
-
-            if( Project.GenerateWeb )
-            {
-                // Generar la web con la ayuda:
-                log("Generating web site", ConsoleUserInterface.INFO);
-                GenerateWebSite();
-            }
-
-            if (CancellRequested())
-                return;
-
-            if (Project.GenerateJavaHelp)
-                GenerateJavaHelp();
-
-            if( esWord )
-                // Era un doc word. Se creo un dir. temporal para guardar el html.
-                // Borrar este directorio:
-                Directory.Delete( dirHtml , true );
-
-            log("Project generated", ConsoleUserInterface.ERRORWARNING);
-
-        }*/
-
-        /// <summary>
         /// Generates a JAR with the java help of the document.
         /// <param name="generatedFiles">List of chapter html files generated for the help</param>
         /// <param name="index">List of topics of the document.</param>
@@ -688,37 +636,6 @@ namespace ChmProcessorLib
             {
                 UI.log(ex);
             }
-        }
-
-        /// <summary>
-        /// Executes a command line and writes the command output to the log.
-        /// </summary>
-        /// <param name="exeFile">Path of the executable file to run</param>
-        /// <param name="parameters">Parameters of the command line</param>
-        /// <param name="workingDirectory">Directory where to run the command line</param>
-        static public void ExecuteCommandLine(string exeFile, string parameters, string workingDirectory, UserInterface ui)
-        {
-            ProcessStartInfo info = new ProcessStartInfo(exeFile, parameters);
-            info.UseShellExecute = false;
-            info.RedirectStandardOutput = true;
-            info.CreateNoWindow = true;
-            info.WorkingDirectory = workingDirectory;
-
-            Process proceso = Process.Start(info);
-            while (!proceso.WaitForExit(1000))
-                ui.LogStream(proceso.StandardOutput, ConsoleUserInterface.INFO);
-            ui.LogStream(proceso.StandardOutput, ConsoleUserInterface.INFO);
-        }
-
-        /// <summary>
-        /// Executes a command line and writes the command output to the log.
-        /// </summary>
-        /// <param name="exeFile">Path of the executable file to run</param>
-        /// <param name="parameters">Parameters of the command line</param>
-        /// <param name="workingDirectory">Directory where to run the command line</param>
-        private void ExecuteCommandLine(string exeFile, string parameters, string workingDirectory)
-        {
-            ExecuteCommandLine(exeFile, parameters, workingDirectory, this.UI);
         }
 
     }
