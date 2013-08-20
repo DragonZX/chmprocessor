@@ -80,7 +80,7 @@ namespace ChmProcessorLib.Generators
             this.AdditionalFiles = additionalFiles;
 
             // Get the encoding and culture for the chm:
-            try
+            /*try
             {
                 this.HelpWorkshopCulture = CultureInfo.GetCultureInfo(project.ChmLocaleID);
             }
@@ -98,7 +98,9 @@ namespace ChmProcessorLib.Generators
             {
                 UI.log(ex);
                 throw new Exception("The ANSI codepage " + HelpWorkshopCulture.TextInfo.ANSICodePage + " is not found.", ex);
-            }
+            }*/
+            this.HelpWorkshopCulture = project.GetChmCulture(UI);
+            this.Encoding = ChmProject.GetChmEncoding(UI, this.HelpWorkshopCulture);
         }
 
         /// <summary>
@@ -269,30 +271,6 @@ namespace ChmProcessorLib.Generators
                 string proyecto = "\"" + ChmProjectPath + "\"";
 
                 // TODO: Use DocumentProcessor.ExecuteCommandLine to make this execution:
-                /*ProcessStartInfo info;
-                if (!AppSettings.UseAppLocale)
-                    // Run the raw compiler
-                    info = new ProcessStartInfo(compilerPath, proyecto);
-                else
-                {
-                    // Run the compiler with AppLocale. Need to compile files with a 
-                    // char encoding distinct to the system codepage.
-                    // Command line example: C:\Windows\AppPatch\AppLoc.exe "C:\Program Files\HTML Help Workshop\hhc.exe" "A B C" "/L0480"
-                    string parameters = "\"" + compilerPath + "\" " + proyecto + " /L" + Convert.ToString(HelpWorkshopCulture.LCID, 16);
-                    info = new ProcessStartInfo(AppSettings.AppLocalePath, parameters);
-                }
-
-                info.UseShellExecute = false;
-                info.RedirectStandardOutput = true;
-                info.RedirectStandardError = true;
-                info.CreateNoWindow = true;
-
-                // Execute the compile process
-                Process proceso = Process.Start(info);
-                while (!proceso.WaitForExit(1000))
-                    UI.LogStream(proceso.StandardOutput, ConsoleUserInterface.INFO);
-                UI.LogStream(proceso.StandardOutput, ConsoleUserInterface.INFO);
-                UI.LogStream(proceso.StandardError, ConsoleUserInterface.ERRORWARNING);*/
 
                 CommandLineExecution cmd;
                 if (!AppSettings.UseAppLocale)
@@ -302,8 +280,8 @@ namespace ChmProcessorLib.Generators
                 {
                     // Run the compiler with AppLocale. Need to compile files with a 
                     // char encoding distinct to the system codepage.
-                    // Command line example: C:\Windows\AppPatch\AppLoc.exe "C:\Program Files\HTML Help Workshop\hhc.exe" "A B C" "/L0480"
-                    string parameters = "\"" + compilerPath + "\" " + proyecto + " /L" + Convert.ToString(HelpWorkshopCulture.LCID, 16);
+                    //string parameters = "\"" + compilerPath + "\" " + proyecto + " /L" + Convert.ToString(HelpWorkshopCulture.LCID, 16);
+                    string parameters = "\"" + compilerPath + "\" " + proyecto + " /L" + Convert.ToString(HelpWorkshopCulture.TextInfo.LCID, 16);
                     cmd = new CommandLineExecution(AppSettings.AppLocalePath, parameters, UI);
                 }
                 cmd.Execute();

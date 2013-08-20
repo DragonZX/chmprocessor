@@ -25,6 +25,7 @@ using System.Reflection;
 using System.Diagnostics;
 using System.Xml;
 using System.Globalization;
+using System.Text;
 
 namespace ChmProcessorLib
 {
@@ -541,5 +542,42 @@ namespace ChmProcessorLib
             }
         }
 
+        /// <summary>
+        /// Returns the selected culture for the CHM generation
+        /// </summary>
+        /// <param name="ui">The user interface</param>
+        /// <returns>The CHM culture</returns>
+        public CultureInfo GetChmCulture(UserInterface ui)
+        {
+            // Get the encoding and culture for the chm:
+            try
+            {
+                return CultureInfo.GetCultureInfo(ChmLocaleID);
+            }
+            catch (Exception ex)
+            {
+                ui.log(ex);
+                throw new Exception("The locale ID (LCID) " + ChmLocaleID + " is not found.", ex);
+            }
+        }
+
+        /// <summary>
+        /// Returns the selected encoding for the CHM generation
+        /// </summary>
+        /// <param name="ui">The user interface</param>
+        /// <param name="chmCulture">The CHM culture <see cref="GetChmCulture"/></param>
+        /// <returns>The CHM encoding</returns>
+        static public Encoding GetChmEncoding(UserInterface ui, CultureInfo chmCulture) 
+        {
+            try
+            {
+                return Encoding.GetEncoding(chmCulture.TextInfo.ANSICodePage);
+            }
+            catch (Exception ex)
+            {
+                ui.log(ex);
+                throw new Exception("The ANSI codepage " + chmCulture.TextInfo.ANSICodePage + " is not found.", ex);
+            }
+        }
 	}
 }

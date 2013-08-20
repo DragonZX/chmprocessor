@@ -25,7 +25,6 @@ namespace ChmProcessorLib
 {
     /// <summary>
     /// Tool to make a command line process execution
-    /// TODO: Finish and use this class
     /// </summary>
     public class CommandLineExecution
     {

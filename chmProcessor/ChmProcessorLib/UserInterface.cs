@@ -36,6 +36,7 @@ namespace ChmProcessorLib
         /// <summary>
         /// Called by the generation process to add a text to the log.
         /// TODO: Rename this to Log
+        /// TODO: Message level should be a enum
         /// </summary>
         /// <param name="text">Text to log</param>
         /// <param name="level">Level of the message. 1 for errors / warnings, 2 for information, 3
