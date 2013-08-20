@@ -19,3 +19,4 @@ IMPROVMENTS
 - Try to use HTML agility pack instead mshtml
 - Use standard api to keep last opened files.
 - Make a BAT to clear the application registry node
+- UI: When "add directory" is pressed on "Additional files" tab, the initial directory should be the help project file directory.

@@ -33,6 +33,12 @@ namespace ChmProcessor
 	/// </summary>
 	public class GenerationDialog : System.Windows.Forms.Form
 	{
+
+        /// <summary>
+        /// Code to disable the close button
+        /// </summary>
+        private const int CP_NOCLOSE_BUTTON = 0x200;
+
         /// <summary>
         /// Item to show on the errors list
         /// </summary>
@@ -157,9 +163,10 @@ namespace ChmProcessor
             // 
             // btnAceptar
             // 
+            this.btnAceptar.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.btnAceptar.Image = ((System.Drawing.Image)(resources.GetObject("btnAceptar.Image")));
             this.btnAceptar.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.btnAceptar.Location = new System.Drawing.Point(206, 381);
+            this.btnAceptar.Location = new System.Drawing.Point(243, 390);
             this.btnAceptar.Name = "btnAceptar";
             this.btnAceptar.Size = new System.Drawing.Size(173, 40);
             this.btnAceptar.TabIndex = 0;
@@ -169,7 +176,8 @@ namespace ChmProcessor
             // 
             // pic
             // 
-            this.pic.Location = new System.Drawing.Point(144, 381);
+            this.pic.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.pic.Location = new System.Drawing.Point(181, 390);
             this.pic.Name = "pic";
             this.pic.Size = new System.Drawing.Size(56, 40);
             this.pic.TabIndex = 3;
@@ -185,12 +193,15 @@ namespace ChmProcessor
             // 
             // tabControl1
             // 
+            this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
             this.tabControl1.Location = new System.Drawing.Point(12, 12);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(561, 363);
+            this.tabControl1.Size = new System.Drawing.Size(635, 372);
             this.tabControl1.TabIndex = 4;
             // 
             // tabPage1
@@ -206,6 +217,9 @@ namespace ChmProcessor
             // 
             // txtLog
             // 
+            this.txtLog.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.txtLog.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtLog.Location = new System.Drawing.Point(6, 6);
             this.txtLog.Multiline = true;
@@ -222,14 +236,15 @@ namespace ChmProcessor
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(553, 337);
+            this.tabPage2.Size = new System.Drawing.Size(627, 346);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Errors";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
             // btnErrorDetails
             // 
-            this.btnErrorDetails.Location = new System.Drawing.Point(6, 308);
+            this.btnErrorDetails.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnErrorDetails.Location = new System.Drawing.Point(6, 317);
             this.btnErrorDetails.Name = "btnErrorDetails";
             this.btnErrorDetails.Size = new System.Drawing.Size(127, 23);
             this.btnErrorDetails.TabIndex = 1;
@@ -239,25 +254,27 @@ namespace ChmProcessor
             // 
             // lstErrors
             // 
+            this.lstErrors.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.lstErrors.FormattingEnabled = true;
             this.lstErrors.HorizontalScrollbar = true;
             this.lstErrors.Location = new System.Drawing.Point(6, 6);
             this.lstErrors.Name = "lstErrors";
-            this.lstErrors.Size = new System.Drawing.Size(541, 290);
+            this.lstErrors.Size = new System.Drawing.Size(615, 290);
             this.lstErrors.TabIndex = 0;
             this.lstErrors.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lstErrors_MouseDoubleClick);
             // 
             // GenerationDialog
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
-            this.ClientSize = new System.Drawing.Size(585, 433);
-            this.ControlBox = false;
+            this.ClientSize = new System.Drawing.Size(659, 442);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.pic);
             this.Controls.Add(this.btnAceptar);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "GenerationDialog";
+            this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "chmProcessor  - Generating help...";
             ((System.ComponentModel.ISupportInitialize)(this.pic)).EndInit();
@@ -447,7 +464,18 @@ namespace ChmProcessor
 
         #endregion
 
-        
+        /// <summary>
+        /// Disables the dialog close box
+        /// </summary>
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                CreateParams myCp = base.CreateParams;
+                myCp.ClassStyle = myCp.ClassStyle | CP_NOCLOSE_BUTTON;
+                return myCp;
+            }
+        }
 
     }
 }

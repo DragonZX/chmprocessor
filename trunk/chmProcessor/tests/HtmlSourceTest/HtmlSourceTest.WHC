@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuracion xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <SourceFiles>
+    <string>.\NHibernate - Relational Persistence for Idiomatic .NET.htm</string>
+  </SourceFiles>
+  <Compilar>true</Compilar>
+  <DirectorioDestino>.\Mark Knopfler - Wikipedia, the free encyclopedia-project</DirectorioDestino>
+  <HtmlCabecera />
+  <HtmlPie />
+  <TituloAyuda>Html source test</TituloAyuda>
+  <NivelCorte>2</NivelCorte>
+  <GenerarWeb>true</GenerarWeb>
+  <ArchivosAdicionales>
+    <string>.\NHibernate - Relational Persistence for Idiomatic .NET_files</string>
+  </ArchivosAdicionales>
+  <AbrirProyecto>false</AbrirProyecto>
+  <DirectorioWeb>.\products\nhweb</DirectorioWeb>
+  <NivelArbolContenidos>3</NivelArbolContenidos>
+  <NivelTemasIndice>4</NivelTemasIndice>
+  <ArchivoAyuda>.\products\nhibernate.chm</ArchivoAyuda>
+  <CommandLine />
+  <GeneratePdf>false</GeneratePdf>
+  <PdfPath>.\Mark Knopfler - Wikipedia, the free encyclopedia.pdf</PdfPath>
+  <WebKeywords />
+  <WebDescription />
+  <WebHeaderFile />
+  <WebFooterFile />
+  <GenerateSitemap>false</GenerateSitemap>
+  <WebBase />
+  <ChangeFrequency>monthly</ChangeFrequency>
+  <WebLanguage>English</WebLanguage>
+  <ConfigurationVersion>1.6</ConfigurationVersion>
+  <FullTextSearch>false</FullTextSearch>
+  <PdfGeneration>OfficeAddin</PdfGeneration>
+  <GenerateXps>false</GenerateXps>
+  <XpsPath>.\Mark Knopfler - Wikipedia, the free encyclopedia.xps</XpsPath>
+  <GenerateJavaHelp>true</GenerateJavaHelp>
+  <JavaHelpPath>.\products\nhibernate.jar</JavaHelpPath>
+  <HeadTagFile />
+  <ChmLocaleID>3082</ChmLocaleID>
+</Configuracion>

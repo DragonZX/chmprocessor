@@ -214,5 +214,14 @@ namespace ChmProcessorLib.DocumentStructure
                 return firstNode.SplittedPartBody.innerHTML.Replace("about:blank", "").Replace("about:", "");
             }
         }
+
+        /// <summary>
+        /// Returns true if the parsed document was empty.
+        /// </summary>
+        public bool IsEmpty
+        {
+            get { return RootNode.Children.Count == 0; }
+        }
+
     }
 }

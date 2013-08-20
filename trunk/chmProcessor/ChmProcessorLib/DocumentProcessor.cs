@@ -48,9 +48,9 @@ namespace ChmProcessorLib
         private string MainSourceFile;
 
         /// <summary>
-        /// Documento HTML cargado:
+        /// The HTML source document
         /// </summary>
-        private IHTMLDocument2 iDoc;
+        private IHTMLDocument2 IDoc;
 
         /// <summary>
         /// HTML document structure
@@ -106,12 +106,12 @@ namespace ChmProcessorLib
         /// <summary>
         /// Encoding to write the help workshop project files.
         /// </summary>
-        private Encoding helpWorkshopEncoding;
+        //private Encoding helpWorkshopEncoding;
 
         /// <summary>
         /// Culture to put into the help workshop project file.
         /// </summary>
-        private CultureInfo helpWorkshopCulture;
+        //private CultureInfo helpWorkshopCulture;
 
         /// <summary>
         /// Should we replace / remove broken links?
@@ -321,13 +321,13 @@ namespace ChmProcessorLib
                 // Get a copy of the document:
                 // TODO: Check why is needed a copy... We cannot work with the original loaded file?
                 HTMLDocumentClass newDocClass = new HTMLDocumentClass();
-                iDoc = (IHTMLDocument2)newDocClass;
+                IDoc = (IHTMLDocument2)newDocClass;
                 object[] txtHtml = { ((IHTMLDocument3)docLoader).documentElement.outerHTML };
-                iDoc.writeln(txtHtml);
+                IDoc.writeln(txtHtml);
                 try
                 {
                     // Needed, otherwise some characters will not be displayed well.
-                    iDoc.charset = docLoader.charset;
+                    IDoc.charset = docLoader.charset;
                 }
                 catch (Exception ex)
                 {
@@ -354,48 +354,12 @@ namespace ChmProcessorLib
             this.Project = project;
             this.AdditionalFiles = new List<string>(project.ArchivosAdicionales);
             this.replaceBrokenLinks = AppSettings.ReplaceBrokenLinks;
-            try
-            {
-                this.helpWorkshopCulture = CultureInfo.GetCultureInfo(project.ChmLocaleID);
-            }
-            catch (Exception ex)
-            {
-                log(ex);
-                throw new Exception("The locale ID (LCID) " + project.ChmLocaleID + " is not found.", ex);
-            }
-
-            try
-            {
-                this.helpWorkshopEncoding = Encoding.GetEncoding(helpWorkshopCulture.TextInfo.ANSICodePage);
-            }
-            catch (Exception ex)
-            {
-                log(ex);
-                throw new Exception("The ANSI codepage " + helpWorkshopCulture.TextInfo.ANSICodePage + " is not found.", ex);
-            }
         }
 
         private void ExecuteProjectCommandLine()
         {
             try
             {
-                /*log("Executing '" + Project.CommandLine.Trim() + "'", ConsoleUserInterface.INFO);
-                // TODO: Do a call to ExecuteCommandLine to run this execution.
-                string strCmdLine = "/C " + Project.CommandLine.Trim();
-                ProcessStartInfo si = new System.Diagnostics.ProcessStartInfo("CMD.exe", strCmdLine);
-                si.CreateNoWindow = false;
-                si.UseShellExecute = false;
-                si.RedirectStandardOutput = true;
-                si.RedirectStandardError = true;
-                Process p = new Process();
-                p.StartInfo = si;
-                p.Start();
-                string output = p.StandardOutput.ReadToEnd();
-                string error = p.StandardError.ReadToEnd();
-                p.WaitForExit();
-                log(output, ConsoleUserInterface.INFO);
-                log(error, ConsoleUserInterface.ERRORWARNING);*/
-
                 UI.log("Executing '" + Project.CommandLine.Trim() + "'", ConsoleUserInterface.INFO);
                 string parameters = "/C " + Project.CommandLine.Trim();
                 CommandLineExecution cmd = new CommandLineExecution("CMD.exe", parameters, UI);
@@ -494,11 +458,18 @@ namespace ChmProcessorLib
                     return;
 
                 // Build the tree structure of document titles.
-                ChmDocumentParser parser = new ChmDocumentParser(iDoc, this.UI, Project);
+                ChmDocumentParser parser = new ChmDocumentParser(IDoc, this.UI, Project);
                 Document = parser.ParseDocument();
 
                 if (CancellRequested())
                     return;
+
+                if (Document.IsEmpty)
+                {
+                    // If the document is empty, we have finished
+                    UI.log("The document is empty. There is nothing to generate!", ConsoleUserInterface.ERRORWARNING);
+                    return;
+                }
 
                 // Create decorators. This MUST to be called after the parsing: The parsing replaces the style tag
                 // from the document
@@ -547,7 +518,7 @@ namespace ChmProcessorLib
             {
                 log("Error: " + ex.Message, ConsoleUserInterface.ERRORWARNING);
                 log(ex);
-                throw;
+                throw ex;
             }
         }
 
@@ -561,7 +532,7 @@ namespace ChmProcessorLib
             // CHM html files will use the encoding specified by the user:
             ChmDecorator.ui = this.UI;
             // use the selected encoding:
-            ChmDecorator.OutputEncoding = helpWorkshopEncoding;
+            ChmDecorator.OutputEncoding = ChmProject.GetChmEncoding( UI, Project.GetChmCulture(UI) );
 
             // Web html files will be UTF-8:
             WebDecorator.ui = this.UI;
@@ -616,8 +587,8 @@ namespace ChmProcessorLib
                 return;
 
             // Prepare decorators for use. Do it after extract style tags:
-            WebDecorator.PrepareHtmlPattern((IHTMLDocument3)iDoc);
-            ChmDecorator.PrepareHtmlPattern((IHTMLDocument3)iDoc);
+            WebDecorator.PrepareHtmlPattern((IHTMLDocument3)IDoc);
+            ChmDecorator.PrepareHtmlPattern((IHTMLDocument3)IDoc);
         }
 
         /// <summary>
