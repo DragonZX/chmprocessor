@@ -12,6 +12,6 @@ This directory containts a set of tests to check the application.
 
 
 TODO: Add tests for:
-- Command line generation
+- Broken links
 
 TODO: Add a bat to clean the previously generated tests
