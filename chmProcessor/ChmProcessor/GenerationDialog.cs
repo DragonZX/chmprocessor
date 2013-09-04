@@ -29,7 +29,7 @@ using System.Diagnostics;
 namespace ChmProcessor
 {
 	/// <summary>
-	/// Dialog to show the CHM generation status progress
+	/// Dialog to show the help generation status progress
 	/// </summary>
 	public class GenerationDialog : System.Windows.Forms.Form
 	{
@@ -50,39 +50,24 @@ namespace ChmProcessor
         }
 
         /// <summary>
-        /// CHM project to generate
-        /// </summary>
-        private ChmProject project;
-
-        /// <summary>
         /// Help generator
         /// </summary>
-        private DocumentProcessor processor;
+        private DocumentProcessor Processor;
 
         /// <summary>
         /// Should we close the window after the generation ends?
         /// </summary>
-        private bool exitAfterEnd;
+        private bool ExitAfterEnd;
 
         /// <summary>
         /// Worker for the generation process, to avoid get the user interface hang up.
         /// </summary>
-        private BackgroundWorker bgWorker;
+        private BackgroundWorker BgWorker;
 
         /// <summary>
-        /// Generation process finished?
+        /// If the main generation process has failed, this is the exception generated.
         /// </summary>
-        private bool finished;
-
-        /// <summary>
-        /// Generation process failed?
-        /// </summary>
-        private bool failed;
-
-        /// <summary>
-        /// If generation process failed, this is the exception generated.
-        /// </summary>
-        private Exception exceptionFail;
+        private Exception MainException;
 
         /// <summary>
         /// User interface to show the log on the window
@@ -92,7 +77,7 @@ namespace ChmProcessor
         /// <summary>
         /// Can we show prompts and dialogs to the user?
         /// </summary>
-        private bool askConfirmations;
+        private bool AskConfirmations;
 
         #region User interface controls
         private System.ComponentModel.Container components = null;
@@ -110,17 +95,15 @@ namespace ChmProcessor
 		{
 			InitializeComponent();
 
-            this.project = project;
-            this.exitAfterEnd = exitAfterEnd;
-            this.askConfirmations = askConfirmations;
+            this.ExitAfterEnd = exitAfterEnd;
+            this.AskConfirmations = askConfirmations;
 
             this.UI = new GenerationDialogUserInterface(this);
             this.UI.LogLevel = LogLevel;
 
-            this.processor = new DocumentProcessor(project);
-            this.processor.UI = UI;
+            this.Processor = new DocumentProcessor(project, UI);
 
-            bgWorker.RunWorkerAsync();
+            BgWorker.RunWorkerAsync();
 		}
 
 		/// <summary>
@@ -148,7 +131,7 @@ namespace ChmProcessor
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(GenerationDialog));
             this.btnAceptar = new System.Windows.Forms.Button();
             this.pic = new System.Windows.Forms.PictureBox();
-            this.bgWorker = new System.ComponentModel.BackgroundWorker();
+            this.BgWorker = new System.ComponentModel.BackgroundWorker();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.txtLog = new System.Windows.Forms.TextBox();
@@ -185,11 +168,11 @@ namespace ChmProcessor
             // 
             // bgWorker
             // 
-            this.bgWorker.WorkerReportsProgress = true;
-            this.bgWorker.WorkerSupportsCancellation = true;
-            this.bgWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgWorker_DoWork);
-            this.bgWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgWorker_RunWorkerCompleted);
-            this.bgWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bgWorker_ProgressChanged);
+            this.BgWorker.WorkerReportsProgress = true;
+            this.BgWorker.WorkerSupportsCancellation = true;
+            this.BgWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgWorker_DoWork);
+            this.BgWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgWorker_RunWorkerCompleted);
+            this.BgWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bgWorker_ProgressChanged);
             // 
             // tabControl1
             // 
@@ -289,7 +272,7 @@ namespace ChmProcessor
 
         private void btnAceptar_Click(object sender, System.EventArgs e)
         {
-            if (finished)
+            if (!BgWorker.IsBusy)
                 this.Close();
             else
             {
@@ -298,7 +281,7 @@ namespace ChmProcessor
                 {
                     // Cancel the process:
                     btnAceptar.Enabled = false;
-                    bgWorker.CancelAsync();
+                    BgWorker.CancelAsync();
                 }
             }
         }
@@ -310,27 +293,23 @@ namespace ChmProcessor
 
                 DateTime startTime = DateTime.Now;
 
-                processor.GenerateHelp();
+                Processor.GenerateHelp();
                 if (UI.CancellRequested())
                 {
-                    UI.log("PROCESS CANCELLED", 1);
+                    UI.Log("PROCESS CANCELLED", 1);
                     return;
                 }
 
-                UI.log("DONE!", 1);
+                UI.Log("DONE!", 1);
 
                 DateTime stopTime = DateTime.Now;
                 TimeSpan duration = stopTime - startTime;
-                UI.log("Total time: " + duration.ToString(), 2);
+                UI.Log("Total time: " + duration.ToString(), 2);
             }
             catch (Exception ex)
             {
-                //failed = true;
-                exceptionFail = ex;
+                MainException = ex;
             }
-
-            if (processor.GenerationExceptions.Count > 0)
-                failed = true;
         }
 
         /// <summary>
@@ -339,8 +318,8 @@ namespace ChmProcessor
         /// <param name="text">Text to write</param>
         public void Log(string text)
         {
-            if (bgWorker.IsBusy)
-                bgWorker.ReportProgress(0, text);
+            if (BgWorker.IsBusy)
+                BgWorker.ReportProgress(0, text);
             else
                 InternalLog(text);
         }
@@ -364,8 +343,8 @@ namespace ChmProcessor
         /// <param name="text">Text to write</param>
         public void Log(Exception exception)
         {
-            if (bgWorker.IsBusy)
-                bgWorker.ReportProgress(0, exception);
+            if (BgWorker.IsBusy)
+                BgWorker.ReportProgress(0, exception);
             else
                 Log(exception);
         }
@@ -387,7 +366,7 @@ namespace ChmProcessor
         {
             get
             {
-                return bgWorker.CancellationPending;
+                return BgWorker.CancellationPending;
             }
         }
 
@@ -401,14 +380,13 @@ namespace ChmProcessor
 
         private void bgWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            finished = true;
             btnAceptar.Enabled = true;
             btnAceptar.Text = "Accept";
             btnAceptar.Image = null;
             this.AcceptButton = btnAceptar;
-            if (failed)
+            // TODO: Images should go into the resources file, not into the file system.
+            if (lstErrors.Items.Count > 0)
             {
-                //try { pic.Image = new Bitmap(Application.StartupPath + Path.DirectorySeparatorChar + "dialog-error.png"); }
                 try
                 {
                     string path = Path.Combine(Application.StartupPath, "dialog-error.png");
@@ -417,18 +395,17 @@ namespace ChmProcessor
                 }
                 catch { }
 
-                if (exceptionFail != null)
+                if (MainException != null)
                 {
-                    UI.log("ERROR: " + exceptionFail.Message, 1);
-                    if (askConfirmations)
-                        new ExceptionMessageBox(exceptionFail).ShowDialog(this);
+                    UI.Log("ERROR: " + MainException.Message, 1);
+                    if (AskConfirmations)
+                        new ExceptionMessageBox(MainException).ShowDialog(this);
                 }
                 else
-                    UI.log("Failed", 1);
+                    UI.Log("Failed", 1);
             }
             else
             {
-                //try { pic.Image = new Bitmap(Application.StartupPath + Path.DirectorySeparatorChar + "dialog-information.png"); }
                 try
                 {
                     string path = Path.Combine(Application.StartupPath, "dialog-information.png");
@@ -437,7 +414,7 @@ namespace ChmProcessor
                 }
                 catch { }
             }
-            if (exitAfterEnd)
+            if (ExitAfterEnd)
                 Close();
         }
 

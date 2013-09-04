@@ -31,28 +31,6 @@ namespace ChmProcessorLib
     {
 
         /// <summary>
-        /// A simple text replacement
-        /// </summary>
-        /*private class ReplacementPair
-        {
-            public string ValueToReplace;
-            public string NewValue;
-
-            public ReplacementPair(string valueToReplace, string newValue)
-            {
-                ValueToReplace = valueToReplace;
-                NewValue = newValue;
-            }
-        }*/
-
-        /// <summary>
-        /// List of replacements to do. 
-        /// TODO: This is a dictionary...
-        /// <see cref="ReplacementPair"/>
-        /// </summary>
-        //private ArrayList ReplacementsList = new ArrayList();
-
-        /// <summary>
         /// Creates a empty set of replacements
         /// </summary>
         public Replacements()
@@ -112,8 +90,6 @@ namespace ChmProcessorLib
             StreamReader reader = new StreamReader(srcPath);
             string text = reader.ReadToEnd();
             reader.Close();
-            /*foreach (ReplacementPair pair in ReplacementsList)
-                text = text.Replace(pair.ValueToReplace, pair.NewValue);*/
             foreach (string key in Keys)
                 text = text.Replace(key, this[key]);
 

@@ -13,5 +13,6 @@ This directory containts a set of tests to check the application.
 
 TODO: Add tests for:
 - Broken links
+- Add non ASCII characters on topic titles of the standard test
 
 TODO: Add a bat to clean the previously generated tests

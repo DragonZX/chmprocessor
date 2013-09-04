@@ -47,7 +47,7 @@ namespace ChmProcessor
         /// Writes the text to the console and to the dialog.
         /// </summary>
         /// <param name="text">Text to log</param>
-        override protected void log(string text)
+        override protected void Log(string text)
         {
             //base.log(text);
             dialog.Log(text);
@@ -67,9 +67,8 @@ namespace ChmProcessor
         /// Its written to the console and to the generation dialog.
         /// </summary>
         /// <param name="text">Exception to log</param>
-        override public void log(Exception exception)
+        override public void Log(Exception exception)
         {
-            //base.log(exception);
             dialog.Log(exception);
         }
     }

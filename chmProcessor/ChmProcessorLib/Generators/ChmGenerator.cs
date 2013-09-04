@@ -121,19 +121,19 @@ namespace ChmProcessorLib.Generators
             List<string> relativePaths = CreateDestinationDirectory(Project.HelpProjectDirectory, AdditionalFiles);
             CreateHelpContentFiles(Project.HelpProjectDirectory);
 
-            UI.log("Generating table of contents", ConsoleUserInterface.INFO);
+            UI.Log("Generating table of contents", ConsoleUserInterface.INFO);
             GenerateTOCFile();
 
             if (UI.CancellRequested())
                 return;
 
-            UI.log("Generating index", ConsoleUserInterface.INFO);
+            UI.Log("Generating index", ConsoleUserInterface.INFO);
             GenerateHelpIndex();
 
             if (UI.CancellRequested())
                 return;
 
-            UI.log("Generating help project", ConsoleUserInterface.INFO);
+            UI.Log("Generating help project", ConsoleUserInterface.INFO);
             GenerateHelpProject(relativePaths);
 
             if (UI.CancellRequested())
@@ -166,15 +166,14 @@ namespace ChmProcessorLib.Generators
 
         private string TOCEntry(ChmDocumentNode node)
         {
-            string nombre = "";
-            if (node.HeaderTag != null)
-                nombre = node.HeaderTag.innerText;
-            else
-                nombre = ChmDocument.DEFAULTTILE;
+            string title = node.HtmlEncodedTitle;
+            // Remove line breaks on title: They broke the attribute value and the CHM compiler 
+            // doest not recognize it
+            title = title.Replace("\r\n", " ").Replace("\n", " ");
 
             string texto = "<LI> <OBJECT type=\"text/sitemap\">\n" +
                 "     <param name=\"Name\" value=\"" +
-                node.HtmlEncodedTitle +
+                title +
                 "\">\n" +
                 "     <param name=\"Local\" value=\"" + node.Href;
             texto += "\">\n" + "     </OBJECT>\n";
@@ -214,7 +213,7 @@ namespace ChmProcessorLib.Generators
             foreach (ChmDocumentNode node in Document.Index)
             {
                 if (!node.Href.Equals(""))
-                    writer.WriteLine(/*node.EntradaArbolContenidos*/ TOCEntry(node) );
+                    writer.WriteLine( TOCEntry(node) );
             }
             writer.WriteLine("</UL>");
             writer.WriteLine("</BODY></HTML>");
@@ -259,7 +258,7 @@ namespace ChmProcessorLib.Generators
         /// </summary>
         private void Compile()
         {
-            UI.log("Compiling CHM file", ConsoleUserInterface.INFO);
+            UI.Log("Compiling CHM file", ConsoleUserInterface.INFO);
 
             // The help compiler EXE path:
             string compilerPath = AppSettings.CompilerPath;
@@ -320,7 +319,7 @@ namespace ChmProcessorLib.Generators
             }
             else if (Project.OpenProject)
             {
-                UI.log("Opening CHM project", ConsoleUserInterface.INFO);
+                UI.Log("Opening CHM project", ConsoleUserInterface.INFO);
                 try
                 {
                     // Abrir el proyecto de la ayuda
@@ -330,9 +329,9 @@ namespace ChmProcessorLib.Generators
                 }
                 catch (Exception ex)
                 {
-                    UI.log("The project " + ChmProjectPath + " cannot be opened" +
+                    UI.Log("The project " + ChmProjectPath + " cannot be opened" +
                         ". Do you have installed the Microsoft Help Workshop ?", ConsoleUserInterface.ERRORWARNING);
-                    UI.log(ex);
+                    UI.Log(ex);
                 }
             }
         }

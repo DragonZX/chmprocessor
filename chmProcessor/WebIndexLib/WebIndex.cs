@@ -23,8 +23,9 @@ using System.Text;
 using System.Data.Common;
 using System.Windows.Forms;
 using System.IO;
-using mshtml;
+using HtmlAgilityPack;
 using System.Collections;
+using System.Web;
 
 namespace WebIndexLib
 {
@@ -145,7 +146,7 @@ namespace WebIndexLib
                 counter.Add(currentWord, wordStart, titleText );
         }
 
-        public void AddPage(string url , string title , IHTMLElement body)
+        public void AddPage(string url , string title , HtmlNode body)
         {
             DbTransaction trn = null;
 
@@ -153,8 +154,9 @@ namespace WebIndexLib
             {
                 trn = cnn.BeginTransaction();
 
-                string pageText = body.innerText.ToLower();
-                int count = pageText.Length;
+                string originalPageText = HttpUtility.HtmlDecode(body.InnerText);
+                string lowerPageText = originalPageText.ToLower();
+                int count = lowerPageText.Length;
 
                 Document doc = new Document(url, title, count);
                 doc.Insert(cnn);
@@ -162,12 +164,12 @@ namespace WebIndexLib
                 // Save a text copy of the HTML file.
                 string textFileName = Path.GetFileNameWithoutExtension( url ) + ".txt";
                 StreamWriter writer = new StreamWriter(textFilesDirectory + Path.DirectorySeparatorChar + textFileName);
-                writer.WriteLine(body.innerText);
+                writer.WriteLine(originalPageText);
                 writer.Close();
 
                 WordCounter counter = new WordCounter(count);
                 // Get the text of the main body:
-                AddText(pageText, count, counter , false );
+                AddText(lowerPageText, count, counter, false);
                 // Add the text of the title:
                 AddText(title.ToLower(), title.Length, counter , true);
 

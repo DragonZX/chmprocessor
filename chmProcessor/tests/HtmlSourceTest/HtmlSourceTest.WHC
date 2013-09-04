@@ -4,7 +4,7 @@
     <string>.\NHibernate - Relational Persistence for Idiomatic .NET.htm</string>
   </SourceFiles>
   <Compilar>true</Compilar>
-  <DirectorioDestino>.\Mark Knopfler - Wikipedia, the free encyclopedia-project</DirectorioDestino>
+  <DirectorioDestino>.\products\chmProject</DirectorioDestino>
   <HtmlCabecera />
   <HtmlPie />
   <TituloAyuda>Html source test</TituloAyuda>

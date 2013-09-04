@@ -36,23 +36,36 @@ namespace ChmProcessorLib
         /// </summary>
         public const string SUPPORTEDVERSION = "1.2";
 
-        private System.Windows.Forms.Timer timer;
-        private const int maxTime = 180;    // 3 min.
-        private bool ReadyState;
+        /// <summary>
+        /// Maximum time for printing, in seconds
+        /// </summary>
+        private const int MAXPRINTTIME = 180;    // 3 min.
+
+        /// <summary>
+        /// Timer to check print hang
+        /// </summary>
+        private Timer PrintTimeoutTimer;
+
+        /// <summary>
+        /// This is set to true when the printing ends
+        /// </summary>
+        private bool PrintingFinished;
+
         private PDFCreator.clsPDFCreatorError pErr;
+
         private PDFCreator.clsPDFCreator _PDFCreator;
 
         public PdfPrinter()
         {
-            timer = new System.Windows.Forms.Timer();
-            timer.Tick += new System.EventHandler(this.timer_Tick);
+            PrintTimeoutTimer = new System.Windows.Forms.Timer();
+            PrintTimeoutTimer.Tick += new System.EventHandler(this.PrintTimeoutTimer_Tick);
         }
 
         public void ConvertToPdf(string filePath, string pdfDestinationPath)
         {
             try
             {
-                ReadyState = false;
+                PrintingFinished = false;
 
                 string parameters;
 
@@ -62,14 +75,10 @@ namespace ChmProcessorLib
                 _PDFCreator.eError += new PDFCreator.__clsPDFCreator_eErrorEventHandler(_PDFCreator_eError);
                 _PDFCreator.eReady += new PDFCreator.__clsPDFCreator_eReadyEventHandler(_PDFCreator_eReady);
 
-                //System.Threading.Thread.Sleep(5000);
-
                 parameters = "/NoProcessingAtStartup";
 
                 if (!_PDFCreator.cStart(parameters, false))
                     throw new Exception("Error starting PdfCreator: [" + pErr.Number + "]: " + pErr.Description);
-
-                //System.Threading.Thread.Sleep(5000);
 
                 if (!_PDFCreator.cIsPrintable(filePath))
                     throw new Exception("PdfCreator says that file '" + filePath + "' is not printable!");
@@ -83,8 +92,6 @@ namespace ChmProcessorLib
                 string autosaveDir = opt.AutosaveDirectory;
                 int autosaveformat = opt.AutosaveFormat;
                 string autosavefilename = opt.AutosaveFilename;
-
-                //System.Threading.Thread.Sleep(5000);
 
                 // Set new options to save to the desired file:
                 opt.UseAutosave = 1;
@@ -102,14 +109,14 @@ namespace ChmProcessorLib
                 _PDFCreator.cPrinterStop = false;
 
                 // Wait until print ends
-                timer.Interval = maxTime * 1000;
-                timer.Enabled = true;
-                while (!ReadyState && timer.Enabled)
+                PrintTimeoutTimer.Interval = MAXPRINTTIME * 1000;
+                PrintTimeoutTimer.Enabled = true;
+                while (!PrintingFinished && PrintTimeoutTimer.Enabled)
                 {
                     Application.DoEvents();
                     System.Threading.Thread.Sleep(100); // Wait 100 miliseconds.
                 }
-                timer.Enabled = false;
+                PrintTimeoutTimer.Enabled = false;
 
                 // Restore previous options values:
                 opt.UseAutosave = useautosave;
@@ -119,7 +126,7 @@ namespace ChmProcessorLib
                 opt.AutosaveFilename = autosavefilename;
                 _PDFCreator.cOptions = opt;
 
-                if (!ReadyState)
+                if (!PrintingFinished)
                     throw new Exception("PdfCreator printing timeout");
 
                 _PDFCreator.cPrinterStop = true;
@@ -144,21 +151,30 @@ namespace ChmProcessorLib
             }
         }
 
-        private void timer_Tick(object sender, System.EventArgs e)
+        /// <summary>
+        /// Called when the timeout timer has exceeded its time
+        /// </summary>
+        private void PrintTimeoutTimer_Tick(object sender, System.EventArgs e)
         {
-            timer.Enabled = false;
+            PrintTimeoutTimer.Enabled = false;
         }
 
+        /// <summary>
+        /// Called when the printing ends
+        /// </summary>
         private void _PDFCreator_eReady()
         {
             _PDFCreator.cPrinterStop = true;
-            ReadyState = true;
+            PrintingFinished = true;
         }
 
+        /// <summary>
+        /// Called when a PDFCreater error happens
+        /// </summary>
         private void _PDFCreator_eError()
         {
             pErr = _PDFCreator.cError;
-            ReadyState = true;
+            PrintingFinished = true;
         }
 
     }

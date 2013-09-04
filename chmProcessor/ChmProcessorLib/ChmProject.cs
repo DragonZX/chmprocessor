@@ -418,7 +418,9 @@ namespace ChmProcessorLib
         {
             // Calculate absolute paths
             // Set current dir to the project file dir
-            System.IO.Directory.SetCurrentDirectory(System.IO.Path.GetDirectoryName(filePath));
+            string directory = Path.GetDirectoryName(filePath);
+            if( directory != "" )
+                Directory.SetCurrentDirectory(directory);
 
             // go through all fields which are marked with PathAttribute
             FieldInfo[] fields = this.GetType().GetFields();
@@ -474,8 +476,11 @@ namespace ChmProcessorLib
         private void MakePathsRelative(string filePath)
         {
             // Calculate absolute paths
+
             // Set current dir to the project file dir
-            System.IO.Directory.SetCurrentDirectory(System.IO.Path.GetDirectoryName(filePath));
+            string directory = Path.GetDirectoryName(filePath);
+            if( directory != "" )
+                Directory.SetCurrentDirectory(directory);
 
             // go through all fields which are marked with PathAttribute
             FieldInfo[] fields = this.GetType().GetFields();
@@ -556,7 +561,7 @@ namespace ChmProcessorLib
             }
             catch (Exception ex)
             {
-                ui.log(ex);
+                ui.Log(ex);
                 throw new Exception("The locale ID (LCID) " + ChmLocaleID + " is not found.", ex);
             }
         }
@@ -575,7 +580,7 @@ namespace ChmProcessorLib
             }
             catch (Exception ex)
             {
-                ui.log(ex);
+                ui.Log(ex);
                 throw new Exception("The ANSI codepage " + chmCulture.TextInfo.ANSICodePage + " is not found.", ex);
             }
         }

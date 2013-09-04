@@ -41,14 +41,14 @@ namespace ChmProcessorLib
         /// <param name="text">Text to log</param>
         /// <param name="level">Level of the message. 1 for errors / warnings, 2 for information, 3
         /// for debug messages. Constant values are defined at ConsoleUserInterface</param>
-        void log(string text, int level);
+        void Log(string text, int level);
 
         /// <summary>
         /// Called by the generation process to add an exception to the log.
         /// TODO: Rename this to Log
         /// </summary>
         /// <param name="text">Exception to log</param>
-        void log(Exception exception);
+        void Log(Exception exception);
 
         /// <summary>
         /// Logs the content of a stream
