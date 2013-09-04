@@ -179,15 +179,14 @@ namespace ChmProcessor
             try
             {
                 ChmProject project = ChmProject.Open(projectFile);
-                DocumentProcessor processor = new DocumentProcessor(project);
-                processor.UI = ui;
+                DocumentProcessor processor = new DocumentProcessor(project, ui);
                 processor.GenerateHelp();
-                ui.log("DONE!", 1);
+                ui.Log("DONE!", 1);
             }
             catch (Exception ex)
             {
-                ui.log(ex);
-                ui.log("Failed", 1);
+                ui.Log(ex);
+                ui.Log("Failed", 1);
             }
         }
 

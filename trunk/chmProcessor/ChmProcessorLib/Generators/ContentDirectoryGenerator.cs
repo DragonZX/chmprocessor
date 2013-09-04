@@ -60,7 +60,7 @@ namespace ChmProcessorLib.Generators
         /// <returns>The list of copied files, with a path relative to the destination directory</returns>
         protected List<string> CreateDestinationDirectory(string dirDst, List<string> additionalFiles)
         {
-            UI.log("Creating directory " + dirDst, ConsoleUserInterface.INFO);
+            UI.Log("Creating directory " + dirDst, ConsoleUserInterface.INFO);
             // Recrear el directorio:
             try
             {
@@ -104,7 +104,7 @@ namespace ChmProcessorLib.Generators
         /// <returns>List of the created file names, without directory</returns>
         protected List<string> CreateHelpContentFiles(string destinationDirectory)
         {
-            UI.log("Generating help content files", ConsoleUserInterface.INFO);
+            UI.Log("Generating help content files", ConsoleUserInterface.INFO);
             return Document.SaveContentFiles(destinationDirectory, Decorator, Indexer);
         }
 

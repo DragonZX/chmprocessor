@@ -47,7 +47,7 @@ namespace ChmProcessorLib.Generators
         /// </summary>
         public void Generate()
         {
-            UI.log("Generating XPS file", ConsoleUserInterface.INFO);
+            UI.Log("Generating XPS file", ConsoleUserInterface.INFO);
             try
             {
                 MSWord word = new MSWord();
@@ -55,9 +55,9 @@ namespace ChmProcessorLib.Generators
             }
             catch (Exception ex)
             {
-                UI.log("Something wrong happened with the XPS generation. Remember you must to have Microsoft Office 2007 and the " +
+                UI.Log("Something wrong happened with the XPS generation. Remember you must to have Microsoft Office 2007 and the " +
                         "pdf/xps generation add-in (http://www.microsoft.com/downloads/details.aspx?FamilyID=4D951911-3E7E-4AE6-B059-A2E79ED87041&displaylang=en)", ConsoleUserInterface.ERRORWARNING);
-                UI.log(ex);
+                UI.Log(ex);
             }
         }
     }

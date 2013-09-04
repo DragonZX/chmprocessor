@@ -19,7 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using mshtml;
+using HtmlAgilityPack;
 using System.Web;
 using WebIndexLib;
 
@@ -35,7 +35,7 @@ namespace ChmProcessorLib.DocumentStructure
         /// It will be null for the root node AND the initial part of the document without any title.
         /// TODO: This member should be private
         /// </summary>
-        public IHTMLElement HeaderTag;
+        public HtmlNode HeaderTag;
 
         /// <summary>
         /// Name, without the directory, of the html file name of where this node will be stored, 
@@ -92,11 +92,11 @@ namespace ChmProcessorLib.DocumentStructure
         /// If this node will be the root for a splitted part of the original HTML document,
         /// this is the HTML body tag for this part. Otherwise, it will be null.
         /// </summary>
-        public IHTMLElement SplittedPartBody;
+        public HtmlNode SplittedPartBody;
 
         /// <summary>
         /// If SplittedPartBody is not null, this is the list with all the anchor names contained into the body of 
-        /// this node. Those names are the "name" property
+        /// this node, with lowercase. Those names are the "name" property
         /// of the tag A (a name="foo"). They are used to change internal links into the document.
         /// If SplittedPartBody is null, this will be null too.
         /// </summary>
@@ -121,17 +121,14 @@ namespace ChmProcessorLib.DocumentStructure
         /// Builds the member listOfContainedANames, with all the A name tags contained into the body member.
         /// It does a recursive search for A tags.
         /// </summary>
-        private void BuildListOfContainedANames(IHTMLElement e)
+        private void BuildListOfContainedANames(HtmlNode e)
         {
-            if (e is IHTMLAnchorElement)
-            {
-                IHTMLAnchorElement link = (IHTMLAnchorElement)e;
-                if (link.name != null)
-                    DescendantAnchorNames.Add(link.name);
-            }
+            string anchorName = ChmDocumentParser.GetAnchorName(e);
+            if (anchorName != null)
+                DescendantAnchorNames.Add(anchorName);
+
             // Do recursive search
-            IHTMLElementCollection col = (IHTMLElementCollection)e.children;
-            foreach (IHTMLElement child in col)
+            foreach (HtmlNode child in e.ChildNodes)
                 BuildListOfContainedANames(child);
         }
 
@@ -150,6 +147,7 @@ namespace ChmProcessorLib.DocumentStructure
             int i;
             for (i = 0; i < filename.Length; i++)
             {
+                // TODO: Use Char.IsLetterOrDigit here
                 char c = filename[i];
                 if (c == '-' || c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || 
                     c == '.' || ( c >= '0' && c <= '9' ) )
@@ -169,56 +167,32 @@ namespace ChmProcessorLib.DocumentStructure
             if( HeaderTag == null )
                 nombre = NumSeccion + ".htm";
             else
-                nombre = NumSeccion + "_" + HeaderTag.innerText.Trim() + ".htm";
+                nombre = NumSeccion + "_" + Title + ".htm";
             return ToSafeFilename( nombre );
         }
 
         /// <summary>
         /// Returns the level number for a header tag (H1, H2, etc)
+        /// TODO: Move this function to ChmDocumentParser class
         /// </summary>
         /// <param name="nodo">HTML tag to check</param>
         /// <returns>The header tag level. 1 if its null</returns>
-        static public int HeaderTagLevel( IHTMLElement nodo ) 
+        static public int HeaderTagLevel( HtmlNode nodo ) 
         {
             if( nodo == null )
                 return 1;
             else
-                return Int32.Parse( nodo.tagName.Substring( 1 ) );
-        }
-
-        /// <summary>
-        /// Adds a "a name="nodeName" tag as child of a node.
-        /// </summary>
-        /// <param name="node">Parent node where to add the a tag.</param>
-        /// <param name="ui">Application log. It can be null.</param>
-        /// <param name="nodeName">Value of the "name" attribute of the "a" tag added</param>
-        static private void AddARefTagToNode( IHTMLElement node, UserInterface ui , string nodeName ) {
-
-            try
-            {
-                IHTMLDocument2 doc = (IHTMLDocument2)node.document;
-                IHTMLAnchorElement aTagElement = (IHTMLAnchorElement) doc.createElement("<A NAME='" + nodeName + "'></A>");
-                ((IHTMLDOMNode)node).appendChild( (IHTMLDOMNode)aTagElement );
-
-            }
-            catch (Exception ex)
-            {
-                if (ui != null)
-                    ui.log(new Exception("There was an error trying to add the tag <a name=\"" +
-                        nodeName + "\" /> to the node " + node.outerHTML + " (wrong HTML syntax?). If " +
-                        "the source document is HTML, try to add manually an <a> tag manually. " +
-                        "The application needs a node of this kind on each section title " +
-                        "to make links to point it", ex));
-            }
+                return Int32.Parse( nodo.Name.Substring( 1 ) );
         }
 
         /// <summary>
         /// Tree section node constructor
         /// </summary>
+        /// <param name="document">The document owner of this node</param>
         /// <param name="parent">Parent section of the section to create. null if the node to create is the root section.</param>
         /// <param name="node">HTML header tag for this section</param>
         /// <param name="ui">Application log. It can be null</param>
-        public ChmDocumentNode(ChmDocumentNode parent, IHTMLElement node, UserInterface ui) 
+        public ChmDocumentNode(ChmDocument document, ChmDocumentNode parent, HtmlNode node, UserInterface ui) 
         {
             this.Parent = parent;
             this.HeaderTag = node;
@@ -226,33 +200,30 @@ namespace ChmProcessorLib.DocumentStructure
             HeaderLevel = HeaderTagLevel( node );
             DestinationFileName = "";
                 
-            // Guardar la lista de los todos las referencias de este nodo ( nodos <A> con la propiedad "name")
             AnchorNames = new List<string>();
             if( node != null ) 
             {
-                IHTMLElementCollection col = (IHTMLElementCollection) node.children;
-                foreach( IHTMLElement hijo in col ) 
+
+                // Check if the header tag has some anchor
+                foreach( HtmlNode child in node.ChildNodes ) 
                 {
-                    if (hijo is IHTMLAnchorElement)
-                    {
-                        // Remove empty spaces, because they will fail into the CHM. 
-                        // The anchors to this will be replace too after.
-                        //listaANames.Add( ((IHTMLAnchorElement)hijo).name.Replace( " " , "" ) );
-                        string processedName = ToSafeFilename( ((IHTMLAnchorElement)hijo).name );
-                        if (processedName == null || processedName.Trim() == "")
-                            // It seems on HTML 5 and XHTML <a id="foo"> is used...
-                            processedName = ToSafeFilename( hijo.id );
-                        if( processedName != null && processedName.Trim() != "" )
-                            AnchorNames.Add(processedName);
-                    }
+                    string name = ChmDocumentParser.GetAnchorName(child);
+                    if( name != null && name.Trim() != string.Empty )
+                        AnchorNames.Add(name);
+
                 }
                 if( AnchorNames.Count == 0 ) 
                 {
                     // Si no tiene ningun nombre, darle uno artificial:
-                    int numero = LatestCustomAnchorNumber++;
-                    string nombreNodo = "NODO" + numero.ToString().Trim();
-                    AddARefTagToNode(node, ui, nombreNodo);
-                    AnchorNames.Add(nombreNodo);
+                    int number = LatestCustomAnchorNumber++;
+                    string nodeName = "CHMPROCESSORNODE" + number.ToString();
+                    HtmlNode aTagElement = document.HtmlDoc.CreateElement("a");
+                    // XHTML/HTML5 uses the "id" attribute, and HTML4 "name"
+                    // There is no safe way to check if its XHTML/HTML5 or a lower version, so put both:
+                    aTagElement.SetAttributeValue("name", nodeName);
+                    aTagElement.SetAttributeValue("id", nodeName);
+                    node.ChildNodes.Append(aTagElement);
+                    AnchorNames.Add(nodeName);
                 }
             }
         }
@@ -268,23 +239,16 @@ namespace ChmProcessorLib.DocumentStructure
         }
 
         /// <summary>
-        ///  The plain text title of the section. Its not HTML encoded.
+        ///  The plain text title of the section. Its not HTML encoded and the trailing spaces 
+        ///  are removed
         /// </summary>
         public String Title 
         {
             get 
             {
-                string name = "";
-                if (HeaderTag != null)
-                {
-                    name = HeaderTag.innerText;
-                    if (name != null)
-                        /// Remove spaces for the right ordering on the topics list.
-                        name = name.Trim();
-                }
-                else
-                    name = ChmDocument.DEFAULTTILE;
-                return name;
+                // HTML agility pack has InnerText as HTML encoded...
+                // Remove spaces for the right ordering on the topics list.
+                return HttpUtility.HtmlDecode(HtmlEncodedTitle).Trim();
             }
         }
 
@@ -295,8 +259,18 @@ namespace ChmProcessorLib.DocumentStructure
         {
             get 
             {
-                //return DocumentProcessor.HtmlEncode( Title );
-                return HttpUtility.HtmlEncode(Title);
+                // HTML agility pack has InnerText as HTML encoded...
+                string name = "";
+                if (HeaderTag != null)
+                {
+                    name = HeaderTag.InnerText;
+                    if (name != null)
+                        // Remove spaces for the right ordering on the topics list.
+                        name = name.Trim();
+                }
+                else
+                    name = ChmDocument.DEFAULTTILE;
+                return name;
             }
         }
 
@@ -318,25 +292,6 @@ namespace ChmProcessorLib.DocumentStructure
                 return link;
             }
         }
-
-        /// <summary>
-        /// Destino de un href para hacer referencia a este capitulo. P.ej. "aa.htm#xxx".
-        /// No convierte los caracteres no ascii a su codigo html.
-        /// </summary>
-        /*public string HrefNoCodificado 
-        {
-            get 
-            {
-                string enlace = "";
-                if( HeaderTag != null ) 
-                {
-                    enlace = Path.GetFileName( DestinationFileName );
-                    if( ! MainAnchorName.Equals("") )
-                        enlace += "#" + MainAnchorName;
-                }
-                return enlace;
-            }
-        }*/
 
         /// <summary>
         /// The html tag A to reference this chapter.
@@ -375,7 +330,7 @@ namespace ChmProcessorLib.DocumentStructure
         /// </summary>
         /// <param name="element">El nodo HTML a buscar</param>
         /// <returns>El nodo que lo contiene. Null, si no se encontro.</returns>
-        public ChmDocumentNode BuscarNodo( IHTMLElement element , string aNameElement ) 
+        public ChmDocumentNode BuscarNodo( HtmlNode element , string aNameElement ) 
         {
 
             // Mirar si es el mismo nodo:
@@ -390,8 +345,8 @@ namespace ChmProcessorLib.DocumentStructure
                 else 
                 {
                     // Para evitar el error del about:blank en los src de las imagenes:
-                    string t1 = HeaderTag.outerHTML.Replace("about:blank" , "" ).Replace("about:" , "" );
-                    string t2 = element.outerHTML.Replace("about:blank" , "" ).Replace("about:" , "" );
+                    string t1 = HeaderTag.OuterHtml.Replace("about:blank" , "" ).Replace("about:" , "" );
+                    string t2 = element.OuterHtml.Replace("about:blank", "").Replace("about:", "");
                     if( t1.Equals(t2) )
                         return this;
                 }
@@ -459,58 +414,6 @@ namespace ChmProcessorLib.DocumentStructure
             return null;
         }
 
-        // DONT REMOVE THIS COMMENT BY NOW. ITS THE INTRINCATED ORIGINAL SOURCE TO SAVE FILES
-        /*
-        private void GuardarDocumentos(string directory, HtmlPageDecorator decorator, ChmDocumentNode nodo, List<string> archivosGenerados, WebIndex indexer) 
-        {
-            if( nodo.SplittedPartBody != null ) 
-            {
-                string texto = "";
-                if( nodo.SplittedPartBody.innerText != null )
-                    texto = nodo.SplittedPartBody.innerText.Trim();
-
-                if( !texto.Equals("") ) 
-                {
-                    bool guardar = true;
-                    string titulo = "";
-                    IHTMLElement seccion = null;
-
-                    seccion = SearchFirstCutNode( nodo.SplittedPartBody );
-                    if( seccion != null && seccion.innerText != null ) 
-                    {
-                        titulo = seccion.innerText.Trim() ;
-                        if( titulo.Length == 0 )
-                            guardar = false;
-                    }
-
-                    if( guardar ) 
-                    {
-                        // Save the section, adding header, footers, etc:
-                        string filePath = directory + Path.DirectorySeparatorChar + nodo.DestinationFileName;
-                        decorator.ProcessAndSavePage(nodo.SplittedPartBody, filePath, nodo.Title);
-
-                        if (FirstChapterContent == null)
-                        {
-                            // This is the first chapter of the document. Store it clean, because
-                            // we will need after.
-                            FirstChapterContent = nodo.SplittedPartBody.innerHTML.Replace("about:blank", "").Replace("about:", "");
-                        }
-
-                        archivosGenerados.Add(filePath);
-
-                        if (indexer != null)
-                            // Store the document at the full text search index:
-                            indexer.AddPage(nodo.DestinationFileName, nodo.Title, nodo.SplittedPartBody);
-                            
-                    }
-                }
-            }
-
-            foreach( ChmDocumentNode hijo in nodo.Children ) 
-                GuardarDocumentos( directory , decorator , hijo , archivosGenerados , indexer );
-        }
-        */
-
         /// <summary>
         /// Saves the splitted content of this node into a file, if it has any.
         /// </summary>
@@ -522,14 +425,6 @@ namespace ChmProcessorLib.DocumentStructure
         public string SaveContent(string directoryDstPath, HtmlPageDecorator decorator, WebIndex indexer)
         {
             if (SplittedPartBody == null)
-                return null;
-
-            string texto = "";
-            if (SplittedPartBody.innerText != null)
-                texto = SplittedPartBody.innerText.Trim();
-
-            // TODO: This never should happen... The parser joins empty sections...
-            if (string.IsNullOrEmpty(texto))
                 return null;
 
             // Save the section, adding header, footers, etc:
@@ -558,9 +453,7 @@ namespace ChmProcessorLib.DocumentStructure
         {
             get
             {
-                if (SplittedPartBody == null )
-                    return true;
-                string content = SplittedPartBody.innerText;
+                string content = SplittedPartBodyInnerText;
                 if (content == null)
                     return true;
                 content = content.Trim();
@@ -568,6 +461,17 @@ namespace ChmProcessorLib.DocumentStructure
             }
         }
 
+        /// <summary>
+        /// Returns the inner text of the content without HTML encoded characters.
+        /// If there is no content, its null
+        /// </summary>
+        public string SplittedPartBodyInnerText
+        {
+            get
+            {
+                return ChmDocumentParser.UnescapedInnerText(SplittedPartBody);
+            }
+        }
     }
 
 }

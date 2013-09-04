@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Configuracion xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <SourceFiles>
-    <string>.\OtherEncodingSource.htm</string>
+    <string>..\Test1.doc</string>
   </SourceFiles>
   <Compilar>true</Compilar>
-  <DirectorioDestino>.\OtherEncodingSource-project</DirectorioDestino>
+  <DirectorioDestino>..\Test1-project</DirectorioDestino>
   <HtmlCabecera />
   <HtmlPie />
-  <TituloAyuda>AppLocale test</TituloAyuda>
+  <TituloAyuda />
   <NivelCorte>0</NivelCorte>
-  <GenerarWeb>true</GenerarWeb>
+  <GenerarWeb>false</GenerarWeb>
   <ArchivosAdicionales />
   <AbrirProyecto>false</AbrirProyecto>
-  <DirectorioWeb>.\products\OtherEncodingSource-web</DirectorioWeb>
+  <DirectorioWeb>..\Test1-web</DirectorioWeb>
   <NivelArbolContenidos>0</NivelArbolContenidos>
   <NivelTemasIndice>0</NivelTemasIndice>
-  <ArchivoAyuda>.\products\OtherEncodingSource.chm</ArchivoAyuda>
+  <ArchivoAyuda>.\products\Test1.chm</ArchivoAyuda>
   <CommandLine />
-  <GeneratePdf>false</GeneratePdf>
-  <PdfPath>.\OtherEncodingSource.pdf</PdfPath>
+  <GeneratePdf>true</GeneratePdf>
+  <PdfPath>.\products\Test1.pdf</PdfPath>
   <WebKeywords />
   <WebDescription />
   <WebHeaderFile />
@@ -29,11 +29,11 @@
   <WebLanguage>English</WebLanguage>
   <ConfigurationVersion>1.6</ConfigurationVersion>
   <FullTextSearch>false</FullTextSearch>
-  <PdfGeneration>OfficeAddin</PdfGeneration>
+  <PdfGeneration>PdfCreator</PdfGeneration>
   <GenerateXps>false</GenerateXps>
-  <XpsPath>.\OtherEncodingSource.xps</XpsPath>
-  <GenerateJavaHelp>true</GenerateJavaHelp>
-  <JavaHelpPath>.\OtherEncodingSource.jar</JavaHelpPath>
+  <XpsPath>..\Test1.xps</XpsPath>
+  <GenerateJavaHelp>false</GenerateJavaHelp>
+  <JavaHelpPath>..\Test1.jar</JavaHelpPath>
   <HeadTagFile />
-  <ChmLocaleID>1049</ChmLocaleID>
+  <ChmLocaleID>3082</ChmLocaleID>
 </Configuracion>

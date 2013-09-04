@@ -67,20 +67,20 @@ namespace ChmProcessorLib.Generators
 
         public void Generate(List<string> additionalFiles)
         {
-            UI.log("Generating Java Help", ConsoleUserInterface.INFO);
+            UI.Log("Generating Java Help", ConsoleUserInterface.INFO);
 
             // Create directory, content files and additional files
             CreateDestinationDirectory(JavaHelpDirectoryGeneration, additionalFiles);
             CreateHelpContentFiles(JavaHelpDirectoryGeneration);
 
-            UI.log("Generating java help xml files", ConsoleUserInterface.INFO);
+            UI.Log("Generating java help xml files", ConsoleUserInterface.INFO);
             GenerateJavaHelpSetFile();
             GenerateJavaHelpIndex();
             GenerateJavaHelpMapFile();
             GenerateJavaHelpTOC();
 
-            UI.log("Building the search index", ConsoleUserInterface.INFO);
-            UI.log(AppSettings.JavaHelpIndexerPath + " .", ConsoleUserInterface.INFO);
+            UI.Log("Building the search index", ConsoleUserInterface.INFO);
+            UI.Log(AppSettings.JavaHelpIndexerPath + " .", ConsoleUserInterface.INFO);
             //DocumentProcessor.ExecuteCommandLine(AppSettings.JavaHelpIndexerPath, ".", JavaHelpDirectoryGeneration, UI);
             CommandLineExecution cmd = new CommandLineExecution(AppSettings.JavaHelpIndexerPath, ".", UI);
             cmd.Info.WorkingDirectory = JavaHelpDirectoryGeneration;
@@ -90,12 +90,12 @@ namespace ChmProcessorLib.Generators
             //java -jar E:\dev\java\javahelp\javahelp2.0\demos\bin\hsviewer.jar -helpset help.jar
             string parameters = " cvf \"" + Project.JavaHelpPath + "\" .";
             string jarPath = AppSettings.JarPath;
-            UI.log("Building jar:", ConsoleUserInterface.INFO);
+            UI.Log("Building jar:", ConsoleUserInterface.INFO);
             //UI.log(jarPath + " " + commandLine, ConsoleUserInterface.INFO);
             //DocumentProcessor.ExecuteCommandLine(jarPath, parameters, JavaHelpDirectoryGeneration, UI);
             cmd = new CommandLineExecution(jarPath, parameters, UI);
             cmd.Info.WorkingDirectory = JavaHelpDirectoryGeneration;
-            UI.log(cmd.ToString(), ConsoleUserInterface.INFO);
+            UI.Log(cmd.ToString(), ConsoleUserInterface.INFO);
             cmd.Execute();
 
             // Remove the temporal directory

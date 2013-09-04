@@ -49,7 +49,7 @@ namespace ChmProcessorLib.Generators
         {
             try
             {
-                UI.log("Generating PDF file", ConsoleUserInterface.INFO);
+                UI.Log("Generating PDF file", ConsoleUserInterface.INFO);
                 if (Project.PdfGeneration == ChmProject.PdfGenerationWay.OfficeAddin)
                 {
                     MSWord word = new MSWord();
@@ -64,13 +64,13 @@ namespace ChmProcessorLib.Generators
             catch (Exception ex)
             {
                 if (Project.PdfGeneration == ChmProject.PdfGenerationWay.OfficeAddin)
-                    UI.log("Something wrong happened with the PDF generation. Remember you must to have Microsoft Office 2007 and the" +
+                    UI.Log("Something wrong happened with the PDF generation. Remember you must to have Microsoft Office 2007 and the" +
                         "pdf/xps generation add-in (http://www.microsoft.com/downloads/details.aspx?FamilyID=4D951911-3E7E-4AE6-B059-A2E79ED87041&displaylang=en)", ConsoleUserInterface.ERRORWARNING);
                 else
-                    UI.log("Something wrong happened with the PDF generation. Remember you must to have PdfCreator (VERSION " + PdfPrinter.SUPPORTEDVERSION +
+                    UI.Log("Something wrong happened with the PDF generation. Remember you must to have PdfCreator (VERSION " + PdfPrinter.SUPPORTEDVERSION +
                         " AND ONLY THIS VERSION) installed into your computer to " +
                         "generate a PDF file. You can download it from http://www.pdfforge.org/products/pdfcreator/download", ConsoleUserInterface.ERRORWARNING);
-                UI.log(ex);
+                UI.Log(ex);
             }
         }
     }

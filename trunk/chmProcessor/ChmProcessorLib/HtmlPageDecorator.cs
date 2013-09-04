@@ -19,7 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using mshtml;
+using HtmlAgilityPack;
 using System.IO;
 
 namespace ChmProcessorLib
@@ -168,22 +168,25 @@ namespace ChmProcessorLib
         /// <returns>If a footer or a header was specified, return a copy
         /// of the original body with the footer and / or header added. If none
         /// was specified, return the original body itself.</returns>
-        private IHTMLElement AddFooterAndHeader(IHTMLElement body)
+        private HtmlNode AddFooterAndHeader(HtmlNode body)
         {
             
             if (HeaderHtmlCode == "" && FooterHtmlCode == "")
                 return body;
 
             // Clone the body:
-            IHTMLElement clonedBody = (IHTMLElement)((IHTMLDOMNode)body).cloneNode(true);
+            //IHTMLElement clonedBody = (IHTMLElement)((IHTMLDOMNode)body).cloneNode(true);
+            HtmlNode clonedBody = body.CloneNode(true);
 
             try
             {
                 // Add content headers and footers:
                 if (HeaderHtmlCode != "")
-                    clonedBody.insertAdjacentHTML("afterBegin", HeaderHtmlCode);
+                    //clonedBody.insertAdjacentHTML("afterBegin", HeaderHtmlCode);
+                    clonedBody.PrependChild(HtmlNode.CreateNode("<div>" + HeaderHtmlCode + "</div>"));
                 if (FooterHtmlCode != "")
-                    clonedBody.insertAdjacentHTML("beforeEnd", FooterHtmlCode);
+                    //clonedBody.insertAdjacentHTML("beforeEnd", FooterHtmlCode);
+                    clonedBody.AppendChild(HtmlNode.CreateNode("<div>" + FooterHtmlCode + "</div>"));
             }
             catch (Exception ex)
             {
@@ -202,10 +205,10 @@ namespace ChmProcessorLib
         /// <param name="filePath">Path where to write the HTML file</param>
         /// <param name="UI">User interface of the application</param>
         /// <param name="title">Text to put into the title tag of the page</param>
-        public void ProcessAndSavePage(IHTMLElement body, string filePath, string title)
+        public void ProcessAndSavePage(HtmlNode body, string filePath, string title)
         {
             // Make a copy of the body and add the header and footer:
-            IHTMLElement clonedBody = AddFooterAndHeader(body);
+            HtmlNode clonedBody = AddFooterAndHeader(body);
 
             StreamWriter writer;
 
@@ -221,7 +224,7 @@ namespace ChmProcessorLib
                 writer = new StreamWriter(filePath, false);
 
             writer.WriteLine( textBeforeBody.Replace(TITLETAG, "<title>" + title + "</title>") );
-            string bodyText = clonedBody.outerHTML;
+            string bodyText = clonedBody.OuterHtml;
 
             // Seems to be a bug that puts "about:blank" on links. Remove them:
             // TODO: Check if this still true....
@@ -245,13 +248,14 @@ namespace ChmProcessorLib
         /// </summary>
         /// <param name="e">Element to check</param>
         /// <returns>True if its the meta with the content-type</returns>
-        static private bool IsContentTypeTag(IHTMLElement e)
+        static private bool IsContentTypeTag(HtmlNode e)
         {
             // Check if its the "<META content="text/html; charset=XXX" http-equiv=Content-Type>" tag
             bool isContentType = false;
-            if (e is IHTMLMetaElement && ((IHTMLMetaElement)e).httpEquiv != null)
+            //if (e is IHTMLMetaElement && ((IHTMLMetaElement)e).httpEquiv != null)
+            if( e.Name.ToLower() == "meta" && e.Attributes.Contains("http-equiv") )
             {
-                string httpEquiv = ((IHTMLMetaElement)e).httpEquiv.Trim().ToLower();
+                string httpEquiv = e.Attributes["http-equiv"].Value.Trim().ToLower();
                 if (httpEquiv == "content-type")
                     isContentType = true;
             }
@@ -259,35 +263,59 @@ namespace ChmProcessorLib
         }
 
         /// <summary>
+        /// Tag meta with the conten type to override the original content type. If OutputEncoding
+        /// is null, this is an empty string
+        /// </summary>
+        private string ContentTypeMetaTag
+        {
+            get
+            {
+                if (OutputEncoding == null)
+                    return string.Empty;
+
+                return "<meta content=\"text/html; charset=" + OutputEncoding.WebName +
+                        "\" http-equiv=\"content-type\">\n";
+            }
+
+        }
+
+        /// <summary>
         /// Get a new head tag with the desired include code.
         /// </summary>
         /// <param name="head">The original head tag</param>
         /// <returns>HTML code wit the new head tag processed.</returns>
-        private string ProcessHeadTag(IHTMLElement head)
+        private string ProcessHeadTag(HtmlNode head)
         {
 
             // Copy the original <head> node:
             string newHeadText = "<head>\n";
-            IHTMLElementCollection headChidren = (IHTMLElementCollection)head.children;
-            foreach (IHTMLElement e in headChidren)
+            bool contentTypeFound = false;
+            foreach (HtmlNode e in head.ChildNodes)
             {
                 if (OutputEncoding != null && IsContentTypeTag(e))
+                {
                     // Replace the encoding:
-                    newHeadText += "<META content=\"text/html; charset=" + OutputEncoding.WebName +
-                        "\" http-equiv=Content-Type>\n";
-                else if (e is IHTMLTitleElement)
+                    newHeadText += ContentTypeMetaTag;
+                    contentTypeFound = true;
+                }
+                else if (e.Name.ToLower() == "title")
                     // Is the title. We will replace it after.
                     newHeadText += TITLETAG + "\n";
                 else
-                    newHeadText += e.outerHTML + "\n";
+                    newHeadText += e.OuterHtml + "\n";
             }
+
+            if (!contentTypeFound && OutputEncoding != null)
+                // We are going to replace the original encondig. So, make sure to declare it:
+                newHeadText += ContentTypeMetaTag;
+            
 
             // Add head includes
             if (HeadIncludeHtmlCode != "")
                 newHeadText += HeadIncludeHtmlCode + "\n";
 
             // Add some spam:
-            newHeadText += "<meta name=\"GENERATOR\" content=\"chmProcessor\" >\n";
+            newHeadText += "<meta name=\"generator\" content=\"chmProcessor\" >\n";
 
             // Add other metas
             newHeadText += MetaKeywordsTag + "\n" + MetaDescriptionTag + "\n";
@@ -302,13 +330,13 @@ namespace ChmProcessorLib
         /// This function MUST to be called before start to make calls to ProcessHeadTag.
         /// </summary>
         /// <param name="originalSourcePage">The HTML pattern page to extract the code</param>
-        public void PrepareHtmlPattern(IHTMLDocument3 originalSourcePage)
+        public void PrepareHtmlPattern(HtmlDocument originalSourcePage)
         {
 
             // Get the encoding of the pattern page:
             try
             {
-                inputEncoding = Encoding.GetEncoding(((IHTMLDocument2)originalSourcePage).charset);
+                inputEncoding = originalSourcePage.DeclaredEncoding;
             }
             catch
             {
@@ -318,47 +346,43 @@ namespace ChmProcessorLib
             bool beforeBody = true; // Are we currently before or after the "body" node?
             
             // Traverse the root nodes of the HTML page:
-            IHTMLDOMChildrenCollection col = (IHTMLDOMChildrenCollection)originalSourcePage.childNodes;
-            foreach (IHTMLElement e in col)
+            foreach (HtmlNode e in originalSourcePage.DocumentNode.ChildNodes)
             {
-                if (e is IHTMLCommentElement)
+                if (e is HtmlCommentNode)
                 {
                     // head tag and other stuff.
-                    IHTMLCommentElement com = (IHTMLCommentElement)e;
+                    HtmlCommentNode com = (HtmlCommentNode)e;
                     if (beforeBody)
-                        textBeforeBody += com.text + "\n";
+                        textBeforeBody += com.OuterHtml + "\n";
                     else
-                        textAfterBody += com.text + "\n";
+                        textAfterBody += com.OuterHtml + "\n";
                 }
-                else if (e is IHTMLHtmlElement)
+                else if (e.Name.ToLower() == "html")
                 {
                     // Copy the <html> tag (TODO: check if clone() can be used here to make the copy)
                     textBeforeBody += "<html ";
-                    IHTMLAttributeCollection atrCol = (IHTMLAttributeCollection)((IHTMLDOMNode)e).attributes;
                     // Get the attributes of the html tag:
-                    foreach (IHTMLDOMAttribute atr in atrCol)
+                    foreach (HtmlAttribute atr in e.Attributes)
                     {
-                        if (atr.specified)
-                            textBeforeBody += atr.nodeName + "=\"" + atr.nodeValue + "\"";
+                        //if (atr.specified) ?
+                        textBeforeBody += atr.Name + "=\"" + atr.Value + "\"";
                     }
                     textBeforeBody += " >\n";
 
                     // Traverse the <html> children:
-                    IHTMLElementCollection htmlChidren = (IHTMLElementCollection)e.children;
-                    foreach (IHTMLElement child in htmlChidren)
+                    foreach (HtmlNode child in e.ChildNodes)
                     {
-                        if (child is IHTMLBodyElement)
+                        if (child.Name.ToLower() == "body")
                             beforeBody = false;
-                        else if (child is IHTMLHeadElement)
+                        else if (child.Name.ToLower() == "head" )
                             textBeforeBody += ProcessHeadTag(child);
                         else if (beforeBody)
-                            textBeforeBody += child.outerHTML + "\n";
+                            textBeforeBody += child.OuterHtml + "\n";
                         else
-                            textAfterBody += child.outerHTML + "\n";
+                            textAfterBody += child.OuterHtml + "\n";
                     }
 
                     // Close the HTML tag:
-                    //textBeforeBody += "</html>\n"; < CRAP
                     textAfterBody += "</html>\n";
 
                 }
@@ -375,7 +399,7 @@ namespace ChmProcessorLib
         private void log(Exception ex)
         {
             if (ui != null)
-                ui.log(ex);
+                ui.Log(ex);
         }
     }
 }

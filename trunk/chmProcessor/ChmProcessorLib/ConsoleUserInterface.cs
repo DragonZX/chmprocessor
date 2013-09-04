@@ -65,10 +65,10 @@ namespace ChmProcessorLib
         /// </summary>
         /// <param name="text">Text to log</param>
         /// <param name="level">Log level of the message</param>
-        public void log(string text, int level)
+        public void Log(string text, int level)
         {
             if (level <= this.LogLevel)
-                log(text);
+                Log(text);
         }
 
         /// <summary>
@@ -76,7 +76,7 @@ namespace ChmProcessorLib
         /// Writes the text to the console.
         /// </summary>
         /// <param name="text">Text to log</param>
-        protected virtual void log(string text)
+        protected virtual void Log(string text)
         {
             try
             {
@@ -90,7 +90,7 @@ namespace ChmProcessorLib
         /// Its written to the console.
         /// </summary>
         /// <param name="text">Exception to log</param>
-        public virtual void log(Exception exception)
+        public virtual void Log(Exception exception)
         {
             Console.WriteLine(exception.ToString());
         }
@@ -106,7 +106,7 @@ namespace ChmProcessorLib
             string linea = reader.ReadLine();
             while (linea != null)
             {
-                ui.log(linea, logLevel);
+                ui.Log(linea, logLevel);
                 linea = reader.ReadLine();
             }
         }

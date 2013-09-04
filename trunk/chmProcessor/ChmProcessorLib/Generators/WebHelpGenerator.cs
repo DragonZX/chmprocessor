@@ -43,7 +43,7 @@ namespace ChmProcessorLib.Generators
         public void Generate(List<string> additionalFiles)
         {
 
-            UI.log("Generating web site", ConsoleUserInterface.INFO);
+            UI.Log("Generating web site", ConsoleUserInterface.INFO);
 
             // Create directory, and additional files
             CreateDestinationDirectory(Project.WebDirectory, additionalFiles);
@@ -142,8 +142,8 @@ namespace ChmProcessorLib.Generators
             }
             catch (Exception ex)
             {
-                UI.log("Error opening web translations file" + translationFile + ": " + ex.Message, ConsoleUserInterface.ERRORWARNING);
-                UI.log(ex);
+                UI.Log("Error opening web translations file" + translationFile + ": " + ex.Message, ConsoleUserInterface.ERRORWARNING);
+                UI.Log(ex);
             }
 
             return replacements;
@@ -188,8 +188,8 @@ namespace ChmProcessorLib.Generators
             }
             catch (Exception ex)
             {
-                UI.log("Error generating the sitemap: " + ex.Message, ConsoleUserInterface.ERRORWARNING);
-                UI.log(ex);
+                UI.Log("Error generating the sitemap: " + ex.Message, ConsoleUserInterface.ERRORWARNING);
+                UI.Log(ex);
             }
         }
 
@@ -202,13 +202,15 @@ namespace ChmProcessorLib.Generators
             if (!nodo.Href.Equals(""))
             {
                 // Verificar el nodo inicial, que puede no tener titulo:
-                string nombre = "";
+                /*string nombre = "";
                 if (nodo.HeaderTag != null)
                     nombre = nodo.HeaderTag.innerText;
                 else
                     nombre = ChmDocument.DEFAULTTILE;
                 texto = "<li><a href=\"" + nodo.Href;
-                texto += "\">" + HttpUtility.HtmlEncode(nombre) + "</a>";
+                texto += "\">" + HttpUtility.HtmlEncode(nombre) + "</a>";*/
+                texto = "<li><a href=\"" + nodo.Href;
+                texto += "\">" + nodo.HtmlEncodedTitle + "</a>";
             }
 
             if (nodo.Children.Count > 0)

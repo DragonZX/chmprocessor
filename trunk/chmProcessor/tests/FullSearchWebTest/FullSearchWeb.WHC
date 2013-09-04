@@ -8,7 +8,7 @@
   <DirectorioDestino>.\products\test-project</DirectorioDestino>
   <HtmlCabecera>..\headerchm.htm</HtmlCabecera>
   <HtmlPie>..\footerchm.htm</HtmlPie>
-  <TituloAyuda>Standard test</TituloAyuda>
+  <TituloAyuda>Full text search web</TituloAyuda>
   <NivelCorte>2</NivelCorte>
   <GenerarWeb>true</GenerarWeb>
   <ArchivosAdicionales>

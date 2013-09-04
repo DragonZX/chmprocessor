@@ -18,7 +18,7 @@
 
 using System;
 using System.IO;
-using mshtml;
+using HtmlAgilityPack;
 using System.Collections.Generic;
 using System.Web;
 using System.Text;
@@ -58,7 +58,7 @@ namespace ChmProcessorLib.DocumentStructure
         /// <summary>
         /// The original html document
         /// </summary>
-        public IHTMLDocument2 IDoc;
+        public HtmlDocument HtmlDoc;
 
         /// <summary>
         /// The root node for the document.
@@ -82,7 +82,7 @@ namespace ChmProcessorLib.DocumentStructure
         /// </summary>
         public ChmDocument()
         {
-            RootNode = new ChmDocumentNode( null , null , null );
+            RootNode = new ChmDocumentNode( this, null , null , null );
             RootNode.HeaderLevel = 0;
         }
 
@@ -90,9 +90,9 @@ namespace ChmProcessorLib.DocumentStructure
         /// Constructor
         /// <param name="iDoc">The document to parse</param>
         /// </summary>
-        public ChmDocument(IHTMLDocument2 iDoc) : this()
+        public ChmDocument(HtmlDocument htmlDocument) : this()
         {
-            IDoc = iDoc;
+            HtmlDoc = htmlDocument;
         }
 
         private void ListaArchivosGenerados(List<string> lista, ChmDocumentNode nodo) 
@@ -211,7 +211,7 @@ namespace ChmProcessorLib.DocumentStructure
                 ChmDocumentNode firstNode = FirstNodeWithContentSearch(RootNode);
                 if (firstNode == null)
                     return null;
-                return firstNode.SplittedPartBody.innerHTML.Replace("about:blank", "").Replace("about:", "");
+                return firstNode.SplittedPartBody.InnerHtml.Replace("about:blank", "").Replace("about:", "");
             }
         }
 
@@ -221,6 +221,22 @@ namespace ChmProcessorLib.DocumentStructure
         public bool IsEmpty
         {
             get { return RootNode.Children.Count == 0; }
+        }
+
+        /// <summary>
+        /// Returns the body tag of the HTML document
+        /// </summary>
+        public HtmlNode Body
+        {
+            get { return HtmlDoc.DocumentNode.SelectSingleNode("//body"); }
+        }
+
+        /// <summary>
+        /// Returns the head tag of the HTML document
+        /// </summary>
+        public HtmlNode Head
+        {
+            get { return HtmlDoc.DocumentNode.SelectSingleNode("/html/head"); }
         }
 
     }

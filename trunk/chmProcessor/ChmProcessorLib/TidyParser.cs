@@ -243,13 +243,13 @@ namespace ChmProcessorLib
         private void log(string text, int level)
         {
             if (ui != null)
-                ui.log("Tidy: " + text, level);
+                ui.Log("Tidy: " + text, level);
         }
 
         private void log(Exception ex)
         {
             if (ui != null)
-                ui.log(ex);
+                ui.Log(ex);
         }
 
     }

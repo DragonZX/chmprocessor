@@ -18,7 +18,7 @@
 
 using System;
 using System.IO;
-using mshtml;
+using HtmlAgilityPack;
 using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
@@ -50,7 +50,7 @@ namespace ChmProcessorLib
         /// <summary>
         /// The HTML source document
         /// </summary>
-        private IHTMLDocument2 IDoc;
+        private HtmlDocument HtmlDoc;
 
         /// <summary>
         /// HTML document structure
@@ -89,90 +89,9 @@ namespace ChmProcessorLib
         public ChmProject Project;
 
         /// <summary>
-        /// List of exceptions catched on the generation process.
-        /// </summary>
-        public List<Exception> GenerationExceptions = new List<Exception>();
-
-        /// <summary>
-        /// Timer to avoid html loading hang ups
-        /// </summary>
-        private System.Windows.Forms.Timer timerTimeout;
-
-        /// <summary>
         /// Handler of the user interface of the generation process.
         /// </summary>
         public UserInterface UI;
-
-        /// <summary>
-        /// Encoding to write the help workshop project files.
-        /// </summary>
-        //private Encoding helpWorkshopEncoding;
-
-        /// <summary>
-        /// Culture to put into the help workshop project file.
-        /// </summary>
-        //private CultureInfo helpWorkshopCulture;
-
-        /// <summary>
-        /// Should we replace / remove broken links?
-        /// It gets its value from <see cref="AppSettings.ReplaceBrokenLinks"/>
-        /// </summary>
-        private bool replaceBrokenLinks;
-
-        private void log(string texto, int logLevel) 
-        {
-            if (UI != null)
-                UI.log(texto, logLevel);
-        }
-
-        /// <summary>
-        /// Stores an exception into the log.
-        /// </summary>
-        /// <param name="exception">Exception to log</param>
-        private void log(Exception exception)
-        {
-            GenerationExceptions.Add(exception);
-            if (UI != null)
-                UI.log(exception);
-        }
-
-        private bool CancellRequested()
-        {
-            if (UI != null)
-                return UI.CancellRequested();
-            else
-                return false;
-        }
-
-        [ComVisible(true), ComImport(),
-        Guid("7FD52380-4E07-101B-AE2D-08002B2EC713"),
-        InterfaceTypeAttribute(ComInterfaceType.InterfaceIsIUnknown)]
-        public interface IPersistStreamInit
-        {
-            void GetClassID([In, Out] ref Guid pClassID);
-            [return: MarshalAs(UnmanagedType.I4)]
-            [PreserveSig]
-            int IsDirty();
-            [return: MarshalAs(UnmanagedType.I4)]
-            [PreserveSig]
-            int Load([In] UCOMIStream pstm);
-            [return: MarshalAs(UnmanagedType.I4)]
-            [PreserveSig]
-            int Save([In] UCOMIStream pstm, [In,
-                MarshalAs(UnmanagedType.Bool)] bool fClearDirty);
-            void GetSizeMax([Out] long pcbSize);
-            [return: MarshalAs(UnmanagedType.I4)]
-            [PreserveSig]
-            int InitNew();
-        }
-
-        /// <summary>
-        /// Timer to avoid load html file hang up
-        /// </summary>
-        private void timer_Tick(object sender, System.EventArgs e)
-        {
-            timerTimeout.Enabled = false;
-        }
 
         /// <summary>
         /// Checks if any source document is open, and join the multiple source Word documents to 
@@ -199,7 +118,7 @@ namespace ChmProcessorLib
             // Add DOC extension:
             joinedDocument += ".doc";
 
-            log("Joining documents to a single temporal file : " + joinedDocument, ConsoleUserInterface.INFO);
+            UI.Log("Joining documents to a single temporal file : " + joinedDocument, ConsoleUserInterface.INFO);
             msWord.JoinDocuments(Project.SourceFiles.ToArray(), joinedDocument);
             return joinedDocument;
         }
@@ -215,10 +134,10 @@ namespace ChmProcessorLib
 
             MainSourceFile = CheckAndJoinWordSourceFiles(msWord);
 
-            if (CancellRequested())
+            if (UI.CancellRequested())
                 return null;
 
-            log("Convert file " + MainSourceFile + " to HTML", ConsoleUserInterface.INFO);
+            UI.Log("Convert file " + MainSourceFile + " to HTML", ConsoleUserInterface.INFO);
             string nombreArchivo = Path.GetFileNameWithoutExtension(MainSourceFile);
             MSWordHtmlDirectory = Path.GetTempPath() + Path.DirectorySeparatorChar + nombreArchivo;
             if (Directory.Exists(MSWordHtmlDirectory))
@@ -264,76 +183,20 @@ namespace ChmProcessorLib
                     // There is a single source HTML file.
                     MainSourceFile = (string)Project.SourceFiles[0];
 
-                if (CancellRequested())
+                if (UI.CancellRequested())
                     return;
 
                 // TODO: Check if this should be removed.
                 if (AppSettings.UseTidyOverInput)
                     new TidyParser(UI).Parse(archivoFinal);
 
-                if (CancellRequested())
+                if (UI.CancellRequested())
                     return;
 
-                // Prepare loading:
-                HTMLDocumentClass docClass = new HTMLDocumentClass();
-                IPersistStreamInit ips = (IPersistStreamInit)docClass;
-                ips.InitNew();
+                // Load the HTML file:
+                HtmlDoc = new HtmlDocument();
+                HtmlDoc.Load(archivoFinal);
 
-                // Create a timer, to be sure that HTML file load will not be hang up (Sometime happens)
-                timerTimeout = new System.Windows.Forms.Timer();
-                timerTimeout.Tick += new System.EventHandler(this.timer_Tick);
-                timerTimeout.Interval = 60 * 1000;     // 1 minute
-                timerTimeout.Enabled = true;
-
-                // Load the file:
-                IHTMLDocument2 docLoader = (mshtml.IHTMLDocument2)docClass.createDocumentFromUrl( archivoFinal , null);
-                System.Windows.Forms.Application.DoEvents();
-                System.Threading.Thread.Sleep(1000);
-
-                String currentStatus = docLoader.readyState;
-                log("Reading file " + archivoFinal + ". Status: " + currentStatus, ConsoleUserInterface.INFO);
-                while (currentStatus != "complete" && timerTimeout.Enabled)
-                {
-                    System.Windows.Forms.Application.DoEvents();
-                    System.Threading.Thread.Sleep(500);
-                    String newStatus = docLoader.readyState;
-                    if (newStatus != currentStatus)
-                    {
-                        log("Status: " + newStatus, ConsoleUserInterface.INFO );
-                        if (currentStatus == "interactive" && newStatus == "uninitialized")
-                        {
-                            // fucking shit bug. Try to reload the file:
-                            log("Warning. Something wrong happens loading the file. Trying to reopen " + archivoFinal, ConsoleUserInterface.INFO);
-                            docClass = new HTMLDocumentClass();
-                            ips = (IPersistStreamInit)docClass;
-                            ips.InitNew();
-                            docLoader = (mshtml.IHTMLDocument2)docClass.createDocumentFromUrl(archivoFinal, null);
-                            newStatus = docLoader.readyState;
-                            log("Status: " + newStatus, ConsoleUserInterface.INFO);
-                        }
-                        currentStatus = newStatus;
-                    }
-                }
-                if (!timerTimeout.Enabled)
-                    log("Warning: time to load file expired.", ConsoleUserInterface.ERRORWARNING);
-                timerTimeout.Enabled = false;
-
-                // Get a copy of the document:
-                // TODO: Check why is needed a copy... We cannot work with the original loaded file?
-                HTMLDocumentClass newDocClass = new HTMLDocumentClass();
-                IDoc = (IHTMLDocument2)newDocClass;
-                object[] txtHtml = { ((IHTMLDocument3)docLoader).documentElement.outerHTML };
-                IDoc.writeln(txtHtml);
-                try
-                {
-                    // Needed, otherwise some characters will not be displayed well.
-                    IDoc.charset = docLoader.charset;
-                }
-                catch (Exception ex)
-                {
-                    log("Warning: Cannot set the charset \"" + docLoader.charset + "\" to the html document. Reason:" + ex.Message, ConsoleUserInterface.ERRORWARNING);
-                    log(ex);
-                }
             }
             finally
             {
@@ -349,18 +212,19 @@ namespace ChmProcessorLib
         /// Constructor
         /// </summary>
         /// <param name="project">Data about the document to convert to help.</param>
-        public DocumentProcessor( ChmProject project )
+        /// <param name="ui">Log for the help generation process</param>
+        public DocumentProcessor( ChmProject project , UserInterface ui)
         {
             this.Project = project;
             this.AdditionalFiles = new List<string>(project.ArchivosAdicionales);
-            this.replaceBrokenLinks = AppSettings.ReplaceBrokenLinks;
+            this.UI = ui;
         }
 
         private void ExecuteProjectCommandLine()
         {
             try
             {
-                UI.log("Executing '" + Project.CommandLine.Trim() + "'", ConsoleUserInterface.INFO);
+                UI.Log("Executing '" + Project.CommandLine.Trim() + "'", ConsoleUserInterface.INFO);
                 string parameters = "/C " + Project.CommandLine.Trim();
                 CommandLineExecution cmd = new CommandLineExecution("CMD.exe", parameters, UI);
                 // If execution reads std input, create a window for it: Otherwise it can
@@ -370,8 +234,8 @@ namespace ChmProcessorLib
             }
             catch (Exception ex)
             {
-                log("Error executing command line ", ConsoleUserInterface.ERRORWARNING);
-                log(ex);
+                UI.Log("Error executing command line ", ConsoleUserInterface.ERRORWARNING);
+                UI.Log(ex);
             }
         }
 
@@ -388,7 +252,7 @@ namespace ChmProcessorLib
             }
             catch (Exception ex)
             {
-                UI.log(ex);
+                UI.Log(ex);
             }
         }
 
@@ -401,7 +265,7 @@ namespace ChmProcessorLib
             }
             catch (Exception ex)
             {
-                log(ex);
+                UI.Log(ex);
             }
         }
 
@@ -414,7 +278,7 @@ namespace ChmProcessorLib
             }
             catch (Exception ex)
             {
-                log(ex);
+                UI.Log(ex);
             }
         }
 
@@ -430,7 +294,7 @@ namespace ChmProcessorLib
             }
             catch (Exception ex)
             {
-                log(ex);
+                UI.Log(ex);
             }
         }
 
@@ -442,7 +306,7 @@ namespace ChmProcessorLib
                 // Open and process source files
                 OpenSourceFiles();
 
-                if (CancellRequested())
+                if (UI.CancellRequested())
                     return;
 
                 if (IsMSWord)
@@ -454,20 +318,20 @@ namespace ChmProcessorLib
                         AdditionalFiles.Add(archivo);
                 }
 
-                if (CancellRequested())
+                if (UI.CancellRequested())
                     return;
 
                 // Build the tree structure of document titles.
-                ChmDocumentParser parser = new ChmDocumentParser(IDoc, this.UI, Project);
+                ChmDocumentParser parser = new ChmDocumentParser(HtmlDoc, this.UI, Project);
                 Document = parser.ParseDocument();
 
-                if (CancellRequested())
+                if (UI.CancellRequested())
                     return;
 
                 if (Document.IsEmpty)
                 {
                     // If the document is empty, we have finished
-                    UI.log("The document is empty. There is nothing to generate!", ConsoleUserInterface.ERRORWARNING);
+                    UI.Log("The document is empty. There is nothing to generate!", ConsoleUserInterface.ERRORWARNING);
                     return;
                 }
 
@@ -475,7 +339,7 @@ namespace ChmProcessorLib
                 // from the document
                 PrepareHtmlDecorators();
 
-                if (CancellRequested())
+                if (UI.CancellRequested())
                     return;
 
                 GenerateChm();
@@ -483,25 +347,25 @@ namespace ChmProcessorLib
                 if (Project.GenerateWeb)
                     GenerateWebSite();
 
-                if (CancellRequested())
+                if (UI.CancellRequested())
                     return;
 
                 if (Project.GenerateJavaHelp)
                     GenerateJavaHelp();
 
-                if (CancellRequested())
+                if (UI.CancellRequested())
                     return;
 
                 if (Project.GeneratePdf)
                     GeneratePdf();
 
-                if (CancellRequested())
+                if (UI.CancellRequested())
                     return;
 
                 if (Project.GenerateXps)
                     GenerateXps();
 
-                if (CancellRequested())
+                if (UI.CancellRequested())
                     return;
 
                 // Execute command line:
@@ -516,9 +380,9 @@ namespace ChmProcessorLib
             }
             catch (Exception ex)
             {
-                log("Error: " + ex.Message, ConsoleUserInterface.ERRORWARNING);
-                log(ex);
-                throw ex;
+                UI.Log("Error: " + ex.Message, ConsoleUserInterface.ERRORWARNING);
+                UI.Log(ex);
+                throw new Exception("General error: " + ex.Message, ex); ;
             }
         }
 
@@ -543,52 +407,52 @@ namespace ChmProcessorLib
 
             if (!Project.ChmHeaderFile.Equals(""))
             {
-                log("Reading chm header: " + Project.ChmHeaderFile, ConsoleUserInterface.INFO);
+                UI.Log("Reading chm header: " + Project.ChmHeaderFile, ConsoleUserInterface.INFO);
                 ChmDecorator.HeaderHtmlFile = Project.ChmHeaderFile;
             }
 
-            if (CancellRequested())
+            if (UI.CancellRequested())
                 return;
 
             if (!Project.ChmFooterFile.Equals(""))
             {
-                log("Reading chm footer: " + Project.ChmFooterFile, ConsoleUserInterface.INFO);
+                UI.Log("Reading chm footer: " + Project.ChmFooterFile, ConsoleUserInterface.INFO);
                 ChmDecorator.FooterHtmlFile = Project.ChmFooterFile;
             }
 
-            if (CancellRequested())
+            if (UI.CancellRequested())
                 return;
 
             if (Project.GenerateWeb && !Project.WebHeaderFile.Equals(""))
             {
-                log("Reading web header: " + Project.WebHeaderFile, ConsoleUserInterface.INFO);
+                UI.Log("Reading web header: " + Project.WebHeaderFile, ConsoleUserInterface.INFO);
                 WebDecorator.HeaderHtmlFile = Project.WebHeaderFile;
             }
 
-            if (CancellRequested())
+            if (UI.CancellRequested())
                 return;
 
             if (Project.GenerateWeb && !Project.WebFooterFile.Equals(""))
             {
-                log("Reading web footer: " + Project.WebFooterFile, ConsoleUserInterface.INFO);
+                UI.Log("Reading web footer: " + Project.WebFooterFile, ConsoleUserInterface.INFO);
                 WebDecorator.FooterHtmlFile = Project.WebFooterFile;
             }
 
-            if (CancellRequested())
+            if (UI.CancellRequested())
                 return;
 
             if (Project.GenerateWeb && !Project.HeadTagFile.Equals(""))
             {
-                log("Reading <header> include: " + Project.HeadTagFile, ConsoleUserInterface.INFO);
+                UI.Log("Reading <header> include: " + Project.HeadTagFile, ConsoleUserInterface.INFO);
                 WebDecorator.HeadIncludeFile = Project.HeadTagFile;
             }
 
-            if (CancellRequested())
+            if (UI.CancellRequested())
                 return;
 
             // Prepare decorators for use. Do it after extract style tags:
-            WebDecorator.PrepareHtmlPattern((IHTMLDocument3)IDoc);
-            ChmDecorator.PrepareHtmlPattern((IHTMLDocument3)IDoc);
+            WebDecorator.PrepareHtmlPattern(HtmlDoc);
+            ChmDecorator.PrepareHtmlPattern(HtmlDoc);
         }
 
         /// <summary>
@@ -605,7 +469,7 @@ namespace ChmProcessorLib
             }
             catch (Exception ex)
             {
-                UI.log(ex);
+                UI.Log(ex);
             }
         }
 

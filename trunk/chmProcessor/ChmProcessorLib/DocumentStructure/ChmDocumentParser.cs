@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using mshtml;
+using HtmlAgilityPack;
+using System.Web;
 
 namespace ChmProcessorLib.DocumentStructure
 {
@@ -44,13 +45,13 @@ namespace ChmProcessorLib.DocumentStructure
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="iDoc">The HTML document to parse</param>
+        /// <param name="htmlDoc">The HTML document to parse</param>
         /// <param name="ui">Log generation object</param>
         /// <param name="project">Information about how to split the document</param>
-        public ChmDocumentParser(IHTMLDocument2 iDoc, UserInterface ui, ChmProject project)
+        public ChmDocumentParser(HtmlDocument htmlDoc, UserInterface ui, ChmProject project)
         {
             // Create the empty document:
-            Document = new ChmDocument(iDoc);
+            Document = new ChmDocument(htmlDoc);
             UI = ui;
             Project = project;
             ReplaceBrokenLinks = AppSettings.ReplaceBrokenLinks;
@@ -62,20 +63,19 @@ namespace ChmProcessorLib.DocumentStructure
         /// <returns>The parsed dococument</returns>
         public ChmDocument ParseDocument()
         {
-            UI.log("Searching sections", ConsoleUserInterface.INFO);
+            UI.Log("Searching sections", ConsoleUserInterface.INFO);
 
             // Build a node for the content without an initial title
-            InitialNode = new ChmDocumentNode(Document.RootNode, null, UI);
+            InitialNode = new ChmDocumentNode(Document, Document.RootNode, null, UI);
             Document.RootNode.Children.Add(InitialNode);
 
             // Parse recursivelly the document headers structure by headers sections
-            ParseHeaderStructure(Document.IDoc.body);
+            ParseHeaderStructure(Document.Body);
 
             if (UI.CancellRequested())
                 return null;
 
             // By default, all document goes to the section without any title
-            //Document.RootNode.StoredAt(ChmDocument.INITIALSECTIONFILENAME);
             foreach (ChmDocumentNode child in Document.RootNode.Children)
                 child.StoredAt(ChmDocument.INITIALSECTIONFILENAME);
 
@@ -88,7 +88,7 @@ namespace ChmProcessorLib.DocumentStructure
                 return null;
 
             // Split the document content:
-            UI.log("Splitting file", ConsoleUserInterface.INFO);
+            UI.Log("Splitting file", ConsoleUserInterface.INFO);
             // TODO: This method content and all descendants are pure crap: Make a rewrite
             SplitContent();
 
@@ -96,33 +96,33 @@ namespace ChmProcessorLib.DocumentStructure
                 return null;
 
             // Join empty nodes:
-            UI.log("Joining empty document sections", ConsoleUserInterface.INFO);
+            UI.Log("Joining empty document sections", ConsoleUserInterface.INFO);
             JoinEmptyNodes();
 
             if (UI.CancellRequested())
                 return null;
 
             // Change internal document links to point to the splitted files. Optionally repair broken links.
-            UI.log("Changing internal links", ConsoleUserInterface.INFO);
+            UI.Log("Changing internal links", ConsoleUserInterface.INFO);
             ChangeInternalLinks(Document.RootNode);
 
             if (UI.CancellRequested())
                 return null;
 
-            // Create the document index
-            UI.log("Creating document index", ConsoleUserInterface.INFO);
-            CreateDocumentIndex();
-
-            if (UI.CancellRequested())
-                return null;
-
             // Extract the embedded CSS styles of the document:
-            UI.log("Extracting CSS STYLE header tags", ConsoleUserInterface.INFO);
+            UI.Log("Extracting CSS STYLE header tags", ConsoleUserInterface.INFO);
             CheckForStyleTags();
 
             // If the initial node for content without title is empty, remove it:
             if (InitialNode.EmptyTextContent)
                 Document.RootNode.Children.Remove(InitialNode);
+
+            if (UI.CancellRequested())
+                return null;
+
+            // Create the document index
+            UI.Log("Creating document index", ConsoleUserInterface.INFO);
+            CreateDocumentIndex();
 
             return Document;
         }
@@ -131,17 +131,16 @@ namespace ChmProcessorLib.DocumentStructure
         /// Make a recursive seach of all HTML header nodes into the document.
         /// </summary>
         /// <param name="currentNode">Current HTML node on the recursive search</param>
-        private void ParseHeaderStructure(IHTMLElement currentNode)
+        private void ParseHeaderStructure(HtmlNode currentNode)
         {
             if (UI.CancellRequested())
                 return;
 
-            if (currentNode is IHTMLHeaderElement)
+            if ( IsHeader(currentNode) )
                 AddHeaderNode(currentNode);
 
-            IHTMLElementCollection col = (IHTMLElementCollection)currentNode.children;
-            foreach (IHTMLElement hijo in col)
-                ParseHeaderStructure(hijo);
+            foreach( HtmlNode child in currentNode.ChildNodes )
+                ParseHeaderStructure(child);
         }
 
         /// <summary>
@@ -151,23 +150,23 @@ namespace ChmProcessorLib.DocumentStructure
         /// </summary>
         /// <param name="nodo">HTML header tag with the title of the section</param>
         /// <param name="ui">Application log. It can be null</param>
-        private void AddHeaderNode(IHTMLElement node)
+        private void AddHeaderNode(HtmlNode node)
         {
             // Ignore empty headers (line breaks, etc)
-            if (!EsHeader(node))
+            if (!IsNonEmptyHeader(node))
                 return;
 
             int headerLevel = ChmDocumentNode.HeaderTagLevel(node);
             if (LastedNodeInserted == null || headerLevel == 1)
             {
                 // Add a document main section 
-                LastedNodeInserted = new ChmDocumentNode(null, node, UI);
+                LastedNodeInserted = new ChmDocumentNode(Document, null, node, UI);
                 Document.RootNode.AddChild(LastedNodeInserted);
             }
             else
             {
                 // And a subsection
-                ChmDocumentNode newNode = new ChmDocumentNode(LastedNodeInserted, node, UI);
+                ChmDocumentNode newNode = new ChmDocumentNode(Document, LastedNodeInserted, node, UI);
                 if (LastedNodeInserted.HeaderLevel < headerLevel)
                     // Its a child section of the last inserted node
                     LastedNodeInserted.Children.Add(newNode);
@@ -199,13 +198,73 @@ namespace ChmProcessorLib.DocumentStructure
         }
 
         /// <summary>
+        /// Returns the inner text of the node unescaping HTML codes (&amp;nbsp; as example)
+        /// </summary>
+        /// <param name="node">The node to get the text</param>
+        /// <returns>The unescaped text of the node</returns>
+        static public string UnescapedInnerText(HtmlNode node)
+        {
+            if (node == null)
+                return null;
+
+            string innerTextUnescaped = node.InnerText;
+            if (innerTextUnescaped == null)
+                return null;
+            return HttpUtility.HtmlDecode(innerTextUnescaped);
+        }
+
+        /// <summary>
+        /// Returns true if the node is HTML header (h1, h2, etc)
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
+        static private bool IsHeader(HtmlNode node)
+        {
+            if (!node.Name.ToLower().StartsWith("h"))
+                return false;
+            if (node.Name.Length <= 1)
+                return false;
+            return Char.IsDigit(node.Name[1]);
+        }
+
+        static public string GetAnchorName(HtmlNode node)
+        {
+            if (node.Name.ToLower() != "a")
+                return null;
+
+            // Check for HTML4 name attribute:
+            string name = GetAttributeValue(node, "name");
+            if (name != null && name.Trim() != string.Empty)
+                return name;
+
+            // Check for XHTML id attribute:
+            name = GetAttributeValue(node, "id");
+            if (name != null && name.Trim() != string.Empty)
+            {
+                // This can be a link, not an anchor: Check it:
+                string href = GetAttributeValue(node, "href");
+                if (href != null && href.Trim() != string.Empty)
+                    return null;
+                return name;
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Returns true if the tag is a non empty (=containts some text) header (h1, h2, etc)
         /// </summary>
         /// <param name="tag">Tag to check</param>
         /// <returns>True if its a non empty header tag</returns>
-        static private bool EsHeader(IHTMLElement tag)
+        static private bool IsNonEmptyHeader(HtmlNode tag)
         {
-            return tag is IHTMLHeaderElement && tag.innerText != null && !tag.innerText.Trim().Equals("");
+            if( !IsHeader(tag) )
+                return false;
+            // HAP inner text is HTML encoded (with &nbsp; and so)
+            string innerText = UnescapedInnerText(tag);
+            if( innerText.Trim() == string.Empty )
+                return false;
+            return true;
         }
 
         /// <summary>
@@ -215,14 +274,13 @@ namespace ChmProcessorLib.DocumentStructure
         /// </summary>
         /// <param name="node">HTML node to check</param>
         /// <returns>true if the tag is a non empty cut header</returns>
-        private bool IsCutHeader(IHTMLElement node)
+        private bool IsCutHeader(HtmlNode node)
         {
             // If its a Hx node and x <= MaximumLevel, and it contains text, its a cut node:
-            if (!EsHeader(node))
+            if (!IsNonEmptyHeader(node))
                 return false;
 
-            string tagName = node.tagName.ToLower().Trim();
-            int headerLevel = int.Parse(tagName.Substring(1));
+            int headerLevel = ChmDocumentNode.HeaderTagLevel(node);
             return headerLevel <= Project.CutLevel;
         }
 
@@ -231,12 +289,9 @@ namespace ChmProcessorLib.DocumentStructure
         /// </summary>
         /// <param name="nodo">Node to clone</param>
         /// <returns>Cloned node</returns>
-        private IHTMLElement Clone(IHTMLElement nodo)
+        private HtmlNode Clone(HtmlNode nodo)
         {
-            IHTMLElement e = Document.IDoc.createElement(nodo.tagName);
-            IHTMLElement2 e2 = (IHTMLElement2)e;
-            e2.mergeAttributes(nodo);
-            return e;
+            return nodo.CloneNode(false);
         }
 
         /// <summary>
@@ -246,16 +301,16 @@ namespace ChmProcessorLib.DocumentStructure
         /// </summary>
         /// <param name="root">Root of the html subtree where to search a split</param>
         /// <returns>The first split tag node. null if none was found.</returns>
-        private IHTMLElement SearchFirstCutNode(IHTMLElement root)
+        private HtmlNode SearchFirstCutNode(HtmlNode root)
         {
+            // TODO: Check if there is some XPATH expression for this.
             if (IsCutHeader(root))
                 return root;
             else
             {
-                IHTMLElementCollection col = (IHTMLElementCollection)root.children;
-                foreach (IHTMLElement e in col)
+                foreach (HtmlNode e in root.ChildNodes)
                 {
-                    IHTMLElement seccion = SearchFirstCutNode(e);
+                    HtmlNode seccion = SearchFirstCutNode(e);
                     if (seccion != null)
                         return seccion;
                 }
@@ -263,27 +318,16 @@ namespace ChmProcessorLib.DocumentStructure
             }
         }
 
-        private IHTMLAnchorElement BuscarNodoA(IHTMLElement raiz)
+        private HtmlNode BuscarNodoA(HtmlNode raiz)
         {
-            if (raiz is IHTMLAnchorElement)
-                return (IHTMLAnchorElement)raiz;
-            else
-            {
-                IHTMLElementCollection col = (IHTMLElementCollection)raiz.children;
-                foreach (IHTMLElement e in col)
-                {
-                    IHTMLAnchorElement seccion = BuscarNodoA(e);
-                    if (seccion != null)
-                        return seccion;
-                }
-                return null;
-            }
-
+            //return raiz.SelectSingleNode("//a");
+            return raiz.SelectSingleNode(".//a");
         }
 
-        private void GuardarParte(IHTMLElement nuevoBody)
+        private void GuardarParte(HtmlNode nuevoBody)
         {
-            IHTMLElement sectionHeader = SearchFirstCutNode(nuevoBody);
+            // Get the main header of this content part:
+            HtmlNode sectionHeader = SearchFirstCutNode(nuevoBody);
             ChmDocumentNode nodeToStore = null;
             if (sectionHeader == null)
                 // If no section was found, its the first section of the document:
@@ -291,9 +335,9 @@ namespace ChmProcessorLib.DocumentStructure
             else
             {
                 string aName = "";
-                IHTMLAnchorElement a = BuscarNodoA(sectionHeader);
-                if (a != null && a.name != null)
-                    aName = ChmDocumentNode.ToSafeFilename(a.name);
+                HtmlNode a = BuscarNodoA(sectionHeader);
+                if (a != null && GetAttributeValue(a,"name") != null)
+                    aName = GetAttributeValue(a, "name");
                 nodeToStore = Document.RootNode.BuscarNodo(sectionHeader, aName);
             }
 
@@ -301,11 +345,11 @@ namespace ChmProcessorLib.DocumentStructure
             {
                 string errorMessage = "Error searching node ";
                 if (sectionHeader != null)
-                    errorMessage += sectionHeader.innerText;
+                    errorMessage += UnescapedInnerText(sectionHeader);
                 else
                     errorMessage += "<empty>";
                 Exception error = new Exception(errorMessage);
-                UI.log(error);
+                UI.Log(error);
             }
             else
             {
@@ -320,17 +364,17 @@ namespace ChmProcessorLib.DocumentStructure
         /// </summary>
         /// <param name="parent">Parent witch to add the new node</param>
         /// <param name="child">The child node to add</param>
-        private void InsertAfter(IHTMLElement parent, IHTMLElement child)
+        private void InsertAfter(HtmlNode parent, HtmlNode child)
         {
             try
             {
-                ((IHTMLDOMNode)parent).appendChild((IHTMLDOMNode)child);
+                parent.AppendChild(child);
             }
             catch (Exception ex)
             {
-                UI.log("Warning: error adding a child (" + child.tagName + ") to his parent (" +
-                     parent.tagName + "): " + ex.Message, ConsoleUserInterface.ERRORWARNING);
-                UI.log(ex);
+                UI.Log("Warning: error adding a child (" + child.Name + ") to his parent (" +
+                     parent.Name + "): " + ex.Message, ConsoleUserInterface.ERRORWARNING);
+                UI.Log(ex);
             }
         }
 
@@ -339,7 +383,7 @@ namespace ChmProcessorLib.DocumentStructure
         /// </summary>
         /// <param name="nodo">Raiz del arbol en que buscar</param>
         /// <returns>True si el arbol contiene un corte de seccion.</returns>
-        private bool WillBeBroken(IHTMLElement nodo)
+        private bool WillBeBroken(HtmlNode nodo)
         {
             return SearchFirstCutNode(nodo) != null;
         }
@@ -352,18 +396,17 @@ namespace ChmProcessorLib.DocumentStructure
         /// A list of subtrees of the HTML original tree broken by the cut level headers.
         /// If the node and their descendands have not cut level headers, the node will be returned as is.
         /// </returns>
-        private List<IHTMLElement> ProcessNode(IHTMLElement node)
+        private List<HtmlNode> ProcessNode(HtmlNode node)
         {
-            List<IHTMLElement> subtreesList = new List<IHTMLElement>();
+            List<HtmlNode> subtreesList = new List<HtmlNode>();
 
             // Check if the node will be broken on more than one piece because it contains a cut level
             // header:
             if (WillBeBroken(node))
             {
                 // It contains a cut level.
-                IHTMLElementCollection children = (IHTMLElementCollection)node.children;
-                IHTMLElement newNode = Clone(node);
-                foreach (IHTMLElement e in children)
+                HtmlNode newNode = Clone(node);
+                foreach (HtmlNode e in node.ChildNodes)
                 {
                     if (IsCutHeader(e))
                     {
@@ -374,8 +417,8 @@ namespace ChmProcessorLib.DocumentStructure
                     }
                     else
                     {
-                        List<IHTMLElement> listaHijos = ProcessNode(e);
-                        foreach (IHTMLElement hijo in listaHijos)
+                        List<HtmlNode> listaHijos = ProcessNode(e);
+                        foreach (HtmlNode hijo in listaHijos)
                         {
                             InsertAfter(newNode, hijo);
                             if (listaHijos[listaHijos.Count - 1] != hijo)
@@ -403,22 +446,21 @@ namespace ChmProcessorLib.DocumentStructure
         private void SplitContent()
         {
             // newBody is the <body> tag of the current splitted part 
-            IHTMLElement newBody = Clone(Document.IDoc.body);
-            IHTMLElementCollection col = (IHTMLElementCollection)Document.IDoc.body.children;
+            HtmlNode newBody = Clone(Document.Body);
             // Traverse root nodes:
-            foreach (IHTMLElement nodo in col)
+            foreach (HtmlNode nodo in Document.Body.ChildNodes)
             {
                 if (IsCutHeader(nodo))
                 {
                     // Found start of a new part: Store the current body part.
                     GuardarParte(newBody);
-                    newBody = Clone(Document.IDoc.body);
+                    newBody = Clone(Document.Body);
                     InsertAfter(newBody, nodo);
                 }
                 else
                 {
-                    List<IHTMLElement> lista = ProcessNode(nodo);
-                    foreach (IHTMLElement hijo in lista)
+                    List<HtmlNode> lista = ProcessNode(nodo);
+                    foreach (HtmlNode hijo in lista)
                     {
                         InsertAfter(newBody, hijo);
 
@@ -426,7 +468,7 @@ namespace ChmProcessorLib.DocumentStructure
                         {
                             // Si no es el ultimo, cerrar esta parte y abrir otra.
                             GuardarParte(newBody);
-                            newBody = Clone(Document.IDoc.body);
+                            newBody = Clone(Document.Body);
                         }
                     }
                 }
@@ -449,11 +491,11 @@ namespace ChmProcessorLib.DocumentStructure
                 if (UI.CancellRequested())
                     return;
 
-                if (nodo.HeaderTag != null && nodo.HeaderTag.innerText != null && nodo.SplittedPartBody != null)
+                if (nodo.HeaderTag != null && nodo.HeaderTag.InnerText != null && nodo.SplittedPartBody != null)
                 {
                     // Nodo con cuerpo:
 
-                    if (nodo.HeaderTag.innerText.Trim().Equals(nodo.SplittedPartBody.innerText.Trim()) &&
+                    if (UnescapedInnerText(nodo.HeaderTag).Trim() == UnescapedInnerText(nodo.SplittedPartBody).Trim() &&
                         nodo.Children.Count > 0)
                     {
                         // Nodo vacio y con hijos 
@@ -461,7 +503,7 @@ namespace ChmProcessorLib.DocumentStructure
                         if (hijo.SplittedPartBody != null)
                         {
                             // El hijo tiene cuerpo: Unificarlos.
-                            nodo.SplittedPartBody.insertAdjacentHTML("beforeEnd", hijo.SplittedPartBody.innerHTML);
+                            nodo.SplittedPartBody.AppendChildren(hijo.SplittedPartBody.ChildNodes);
                             hijo.SplittedPartBody = null;
                             hijo.ReplaceFile(nodo.DestinationFileName);
                         }
@@ -473,7 +515,7 @@ namespace ChmProcessorLib.DocumentStructure
             }
             catch (Exception ex)
             {
-                UI.log(new Exception("There was some problem when we tried to join the empty section " +
+                UI.Log(new Exception("There was some problem when we tried to join the empty section " +
                     nodo.Title + " with their children", ex));
             }
         }
@@ -523,6 +565,16 @@ namespace ChmProcessorLib.DocumentStructure
             Document.Index.Sort();
         }
 
+        static public string GetAttributeValue(HtmlNode node, string attribute) {
+            HtmlAttribute atr = node.Attributes[attribute];
+            return atr == null ? null : atr.Value;
+        }
+
+        static private void SetAttributeValue(HtmlNode node, string attribute, string value)
+        {
+            node.SetAttributeValue(attribute, value);
+        }
+
         /// <summary>
         /// Repair or remove an internal link.
         /// Given a broken internal link, it searches a section title of the document with the
@@ -531,32 +583,29 @@ namespace ChmProcessorLib.DocumentStructure
         /// will be keept.
         /// </summary>
         /// <param name="link">The broken link</param>
-        private void ReplaceBrokenLink(IHTMLAnchorElement link)
+        private void ReplaceBrokenLink(HtmlNode link)
         {
             try
             {
                 // Get the text of the link
-                string linkText = ((IHTMLElement)link).innerText.Trim();
+                string linkText = UnescapedInnerText(link).Trim();
                 // Seach a title with the same text of the link:
                 ChmDocumentNode destinationTitle = Document.SearchBySectionTitle(linkText);
                 if (destinationTitle != null)
                     // Replace the original internal broken link with this:
-                    link.href = destinationTitle.Href;
+                    SetAttributeValue( link, "href", destinationTitle.Href);
                 else
                 {
                     // No candidate title was found. Remove the link and keep its content
-                    IHTMLElementCollection linkChildren = (IHTMLElementCollection)((IHTMLElement)link).children;
-                    IHTMLDOMNode domLink = (IHTMLDOMNode)link;
-                    IHTMLDOMNode domParent = (IHTMLDOMNode) ((IHTMLElement)link).parentElement;
-                    foreach (IHTMLElement child in linkChildren)
-                        domParent.insertBefore((IHTMLDOMNode)child, domLink);
-                    domLink.removeNode(false);
+                    foreach (HtmlNode child in link.ChildNodes)
+                        link.ParentNode.InsertBefore(child, link);
+                    link.ParentNode.RemoveChild(link);
                 }
             }
             catch (Exception ex)
             {
-                UI.log("Error reparining a broken link", ConsoleUserInterface.ERRORWARNING);
-                UI.log(ex);
+                UI.Log("Error reparining a broken link", ConsoleUserInterface.ERRORWARNING);
+                UI.Log(ex);
             }
         }
 
@@ -565,43 +614,37 @@ namespace ChmProcessorLib.DocumentStructure
         /// splitted files. Optionally repair broken links.
         /// </summary>
         /// <param name="node">Current node on the recursive search</param>
-        private void ChangeInternalLinks(IHTMLElement node)
+        private void ChangeInternalLinks(HtmlNode node)
         {
             try
             {
-                if (node is IHTMLAnchorElement)
+                if (node.Name.ToLower() == "a")
                 {
-                    IHTMLAnchorElement link = (IHTMLAnchorElement)node;
-                    string href = link.href;
+                    HtmlNode link = node;
+                    string href = GetAttributeValue( link , "href" );
                     if (href != null)
                     {
                         // An hyperlink node
-
-                        // Remove the about:blank
-                        // TODO: Check if this is really needed.
-                        href = href.Replace("about:blank", "").Replace("about:", "");
-
                         if (href.StartsWith("#"))
                         {
                             // A internal link.
                             // Replace it to point to the right splitted file.
-                            string safeRef = ChmDocumentNode.ToSafeFilename(href.Substring(1));
+                            string safeRef = href.Substring(1);
                             ChmDocumentNode nodoArbol = Document.RootNode.BuscarEnlace(safeRef);
                             if (nodoArbol != null)
-                                link.href = nodoArbol.DestinationFileName + "#" + safeRef;
+                                SetAttributeValue( link , "href" , nodoArbol.DestinationFileName + "#" + safeRef );
                             else
                             {
                                 // Broken link.
-                                UI.log("WARNING: Broken link with text: '" + node.innerText + "'", ConsoleUserInterface.ERRORWARNING);
-                                //if (parent != null)
-                                if( node.parentElement != null )
+                                UI.Log("WARNING: Broken link with text: '" + node.InnerText + "'", ConsoleUserInterface.ERRORWARNING);
+                                if( node.ParentNode != null )
                                 {
-                                    String inText = node.parentElement.innerText;
+                                    String inText = UnescapedInnerText(node.ParentNode);
                                     if (inText != null)
                                     {
                                         if (inText.Length > 200)
                                             inText = inText.Substring(0, 200) + "...";
-                                        UI.log(" near of text: '" + inText + "'", ConsoleUserInterface.ERRORWARNING);
+                                        UI.Log(" near of text: '" + inText + "'", ConsoleUserInterface.ERRORWARNING);
                                     }
                                 }
                                 if (ReplaceBrokenLinks)
@@ -610,30 +653,29 @@ namespace ChmProcessorLib.DocumentStructure
 
                         }
                     }
-                    else if (link.name != null)
+                    else if ( GetAttributeValue(link , "name") != null)
                     {
                         // A HTML "boomark", the destination of a link.
-                        string safeName = ChmDocumentNode.ToSafeFilename(link.name);
-                        if (!link.name.Equals(safeName))
+                        string anchor = GetAttributeValue(link, "name");
+                        if (!anchor.Equals(anchor))
                         {
-                            // Word bug? i have found names with space characters and other bad things. 
-                            // They fail into the CHM:
-                            //link.name = link.name.Replace(" ", ""); < NOT WORKS
-                            IHTMLDOMNode domNodeParent = (IHTMLDOMNode)node.parentElement;
-                            string htmlNewNode = "<a name=" + safeName + "></a>";
-                            IHTMLDOMNode newDomNode = (IHTMLDOMNode)Document.IDoc.createElement(htmlNewNode);
-                            domNodeParent.replaceChild(newDomNode, (IHTMLDOMNode)node);
+                            string htmlNewNode = "<a name=\"" + anchor + "\"></a>";
+                            HtmlNode newDomNode = HtmlNode.CreateNode(htmlNewNode);
+                            node.ParentNode.ReplaceChild(newDomNode, node);
                         }
                     }
                 }
 
-                IHTMLElementCollection col = (IHTMLElementCollection)node.children;
-                foreach (IHTMLElement child in col)
-                    ChangeInternalLinks(child);
+                // DO NOT USE AN ENUMERATOR HERE: Childs can be modified by ChangeInternalLinks
+                /*foreach(HtmlNode child in node.ChildNodes)
+                    ChangeInternalLinks(child);*/
+                for( int i=0; i < node.ChildNodes.Count; i++ )
+                    ChangeInternalLinks(node.ChildNodes[i]);
+
             }
             catch (Exception ex)
             {
-                UI.log(ex);
+                UI.Log(ex);
             }
         }
 
@@ -656,59 +698,22 @@ namespace ChmProcessorLib.DocumentStructure
         /// </summary>
         private void CheckForStyleTags()
         {
-            IHTMLDocument3 iDoc3 = (IHTMLDocument3)Document.IDoc;
-            IHTMLDOMChildrenCollection col = (IHTMLDOMChildrenCollection)iDoc3.childNodes;
-            IHTMLHeadElement head = null;
-            IHTMLHtmlElement html = null;
-            IHTMLElement style = null;
+            HtmlNode style = Document.HtmlDoc.DocumentNode.SelectSingleNode("/html/head/style");
+            if (style == null)
+                return;
 
-            // Search the HTML tag:
-            foreach (IHTMLElement e in col)
-            {
-                if (e is IHTMLHtmlElement)
-                {
-                    html = (IHTMLHtmlElement)e;
-                    break;
-                }
-            }
+            // Remove comments and save the CSS contents:
+            Document.EmbeddedStylesTagContent = style.InnerHtml.Replace("<!--", "").Replace("-->", "");
 
-            if (html != null)
-            {
-                // Search the <HEAD> tag.
-                col = (IHTMLDOMChildrenCollection)((IHTMLDOMNode)html).childNodes;
-                foreach (IHTMLElement e in col)
-                {
-                    if (e is IHTMLHeadElement)
-                    {
-                        head = (IHTMLHeadElement)e;
-                        break;
-                    }
-                }
-            }
-
-            if (head != null)
-            {
-                // Search the first <STYLE> tag:
-                col = (IHTMLDOMChildrenCollection)((IHTMLDOMNode)head).childNodes;
-                foreach (IHTMLElement e in col)
-                {
-                    if (e is IHTMLStyleElement)
-                    {
-                        style = (IHTMLElement)e;
-                        break;
-                    }
-                }
-            }
-
-            if (style != null && style.innerHTML != null)
-            {
-                // Remove comments and save the CSS contents:
-                Document.EmbeddedStylesTagContent = style.innerHTML.Replace("<!--", "").Replace("-->", "");
-                // Replace the node by other including the CSS file.
-                IHTMLDOMNode newDomNode = (IHTMLDOMNode)Document.IDoc.createElement("<link rel=\"stylesheet\" type=\"text/css\" href=\"" + ChmDocument.EMBEDDEDCSSFILENAME + "\" >");
-                ((IHTMLDOMNode)style).replaceNode(newDomNode);
-            }
-
+            // Replace the node by other including the CSS file.
+            HtmlNode head = Document.HtmlDoc.DocumentNode.SelectSingleNode("/html/head");
+            HtmlNode link = Document.HtmlDoc.CreateElement("link");
+            link.SetAttributeValue("rel", "stylesheet");
+            link.SetAttributeValue("type", "text/css");
+            link.SetAttributeValue("href", ChmDocument.EMBEDDEDCSSFILENAME);
+            head.ReplaceChild(link, style);
+            //head.InsertAfter(link, style);
+            //head.RemoveChild(style);
         }
 
     }
