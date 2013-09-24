@@ -1,0 +1,33 @@
+﻿body {
+	font-family: Arial;
+	font-size: 12px;
+}
+
+h1 
+{
+	margin: 5px 0 5px 10px;
+	font-size: 24pt;
+	font-weight:bold;
+}
+
+.blue 
+{
+	background-color: #e5ecf9;
+}
+
+#content-tabs
+{
+	height: 100%;
+}
+
+.contentpane {}
+
+#topicsList , #searchTopic
+{
+	width:100%;
+}
+
+#searchTopic
+{
+	margin-bottom: 5px;
+}

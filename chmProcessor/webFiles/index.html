@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>%TITLE%</title>
+    <meta name="GENERATOR" content="chmProcessor" />
+    <link rel="stylesheet" href="css/layout-default-latest.css" />
+    <link rel="stylesheet" href="css/chmprocessor.css" />
+    <link rel="stylesheet" href="css/redmond/jquery-ui-1.10.3.custom.css" />
+    <script type="text/javascript" src="js/jquery-1.9.1.js"></script>
+	<script type="text/javascript" src="js/jquery-ui-1.10.3.custom.min.js"></script>
+	<script type="text/javascript" src="js/jquery.layout-latest.min.js"></script>
+	<script type="text/javascript" src="js/jquery.hotkeys.js"></script>
+	<script type="text/javascript" src="js/jquery.jstree.js"></script>
+	<script type="text/javascript">
+	    var fullSearch = %BOOLFULLSEARCH%;
+	</script>
+	<script type="text/javascript" src="js/chmprocessor.js"></script>
+</head>
+<body>
+   
+    <!--Title bar-->
+    <div class="ui-layout-north blue">
+        <h1>
+	        %TITLE%
+	    </h1>
+    </div>
+
+    <!--Current help topic content-->
+    <iframe id="mainFrame" name="mainFrame" class="ui-layout-center"
+	    width="100%" height="600" frameborder="0" scrolling="auto"
+	    src="%FIRSTPAGEURL%">
+	    <!-- If the browser does not support frames put the first topic content here -->
+	    %FIRSTPAGECONTENT%
+    </iframe>   
+    
+    <!--Table of contents, index and search panel-->
+    <div class="ui-layout-west">
+        
+        <!--Tab titles-->
+        <ul>
+            <li><a href="#tab-contents">Contents</a></li>
+            <li><a href="#tab-index">Index</a></li>
+            <li><a href="#tab-search">Search</a></li>
+        </ul>
+        
+        <!-- add wrapper that Layout will auto-size to 'fill space' -->
+        <div class="ui-layout-content ui-widget-content">
+            <!--Table of contents tab-->
+            <div id="tab-contents" class="contentpane">
+                <div id="treediv">
+                    %TREE%
+                </div>
+            </div>
+            
+            <!--Index tab-->
+            <div id="tab-index" class="contentpane">
+                <div>
+                    <input type="text" id="searchTopic" name="searchTopic"/>
+                </div>
+                %TOPICS%
+            </div>
+            
+            <!--Search tab-->
+            <div id="tab-search" class="contentpane">
+                <form name="searchform" method="post" action="search.aspx" id="searchform">
+                    <input type="text" id="searchText" style="width: 100%;" name="searchText" />
+                    <input type="submit" value="Search" id="btnSearch" name="btnSearch" />
+                    <select id="searchResult" style="width: 100%;" size="30" name="searchResult">
+                        <option></option>
+                    </select>
+                </form>
+            </div>
+            
+        </div>
+        
+    </div>
+    
+</body>
+</html>

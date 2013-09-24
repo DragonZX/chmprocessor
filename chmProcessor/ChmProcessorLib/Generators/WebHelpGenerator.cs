@@ -99,7 +99,7 @@ namespace ChmProcessorLib.Generators
         private string GenerateWebIndex()
         {
             Document.Index.Sort();
-            string index = "<select id=\"topicsList\" style=\"width:100%;\" size=\"20\" onclick=\"topicOnClick();\" ondblclick=\"topicSelected();\" >\n";
+            string index = "<select id=\"topicsList\" size=\"30\">\n";
             foreach (ChmDocumentNode node in Document.Index)
             {
                 string href = node.Href;
@@ -118,14 +118,16 @@ namespace ChmProcessorLib.Generators
         {
 
             // Generate search form HTML code:
-            string textSearch = Project.FullTextSearch ? Resources.SearchFormFullText : Resources.SearchFormSimple;
+            // TODO: Remove html resources
+            //string textSearch = Project.FullTextSearch ? Resources.SearchFormFullText : Resources.SearchFormSimple;
 
             // Create standard replacements:
             Replacements replacements = new Replacements();
-            replacements.Add("%TEXTSEARCH%" , textSearch );
+            replacements.Add("%BOOLFULLSEARCH%", Project.FullTextSearch ? "true" : "false" );
             replacements.Add("%TITLE%" , HttpUtility.HtmlEncode(Project.HelpTitle) );
             replacements.Add("%TREE%" , CreateHtmlTree( "contentsTree", "contentTree") );
             replacements.Add("%TOPICS%", GenerateWebIndex() );
+            replacements.Add("%FIRSTPAGEURL%", Document.FirstNodeWithContent.Href);
             replacements.Add("%FIRSTPAGECONTENT%", Document.FirstSplittedContent );
             replacements.Add("%WEBDESCRIPTION%", Decorator.MetaDescriptionTag);
             replacements.Add("%KEYWORDS%", Decorator.MetaKeywordsTag);
@@ -201,14 +203,6 @@ namespace ChmProcessorLib.Generators
             string texto = "";
             if (!nodo.Href.Equals(""))
             {
-                // Verificar el nodo inicial, que puede no tener titulo:
-                /*string nombre = "";
-                if (nodo.HeaderTag != null)
-                    nombre = nodo.HeaderTag.innerText;
-                else
-                    nombre = ChmDocument.DEFAULTTILE;
-                texto = "<li><a href=\"" + nodo.Href;
-                texto += "\">" + HttpUtility.HtmlEncode(nombre) + "</a>";*/
                 texto = "<li><a href=\"" + nodo.Href;
                 texto += "\">" + nodo.HtmlEncodedTitle + "</a>";
             }
