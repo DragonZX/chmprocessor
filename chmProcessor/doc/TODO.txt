@@ -22,4 +22,5 @@ IMPROVEMENTS
 - Remove all "about:blank" replacements
 - Try to replace all the web indexing stuff by lucene.
 - Remove references to PDF Creator
-
+- Documentation: Warn about chrome and local filesystem.
+- Licenses: Add jquery, layouts and tree

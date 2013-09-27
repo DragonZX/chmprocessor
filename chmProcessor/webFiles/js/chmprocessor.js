@@ -3,6 +3,7 @@
 // TODO: Change tree node expansion animation speed
 // TODO: Handle full text search
 // TODO: When a title is repeated, save the order number on the hash
+// TODO: Remove trim definition and use the jquery trim
 
 var pageLayout; // a var is required because this page utilizes: pageLayout.allowOverflow() method
 
@@ -130,6 +131,73 @@ function changeHash(newHash) {
     window.location.hash = newHash;
 }
 
+//////////////////////////////////////////////////
+// NAVIGATION LINKS (NEXT, PREVIOUS, HOME)
+//////////////////////////////////////////////////
+
+// Array with pages file names
+var pageNames = new Array();
+
+// Array with first anchor of each page
+var anchorNames = new Array();
+
+function getCurrentPageIndex() {
+    // Get the current topic page filename. This will fail on chrome local filesystem
+    try {
+        var fileName = getUrlFileName($("#mainFrame").prop("contentWindow").location.href.split("#")[0]);
+        return pageNames.indexOf(fileName);
+    }
+    catch (ex) {
+        return -1;
+    }
+}
+
+function setCurrentPageIndex(idx) {
+    if( idx < 0 || idx >= pageNames.length )
+        return;
+    selectByUrl(pageNames[idx] + "#" + anchorNames[idx]);
+}
+
+function increasePageIndex(idxIncrease) {
+    var currentIdx = getCurrentPageIndex();
+    if (currentIdx < 0)
+        return;
+    setCurrentPageIndex(currentIdx + idxIncrease);
+}
+
+// Setup of home, next and previous links
+function initializeNavigationLinks() {
+
+    // Setup arrays
+    var lastPage = null;
+    $("#treediv a").each(function() {
+        var pageHrefParts = $(this).attr("href").split("#");
+        if (!lastPage || pageHrefParts[0] != lastPage) {
+            // New page:
+            pageNames[pageNames.length] = pageHrefParts[0];
+            anchorNames[anchorNames.length] = pageHrefParts[1];
+            lastPage = pageHrefParts[0];
+        }
+    });
+
+    // Link event handlers
+    $("#lnkPrevious").click(function(e) {
+        increasePageIndex(-1);
+        e.preventDefault();
+    });
+    $("#lnkNext").click(function(e) {
+        increasePageIndex(1);
+        e.preventDefault();
+    });
+    $("#lnkHome").click(function(e) {
+        setCurrentPageIndex(0);
+        e.preventDefault();
+    });
+}
+
+//////////////////////////////////////////////////
+// PAGE INITIALIZATION
+//////////////////////////////////////////////////
 
 $(document).ready(function() {
 
@@ -158,10 +226,10 @@ $(document).ready(function() {
     // Set initial selection
     .bind("loaded.jstree", function(e, data) {
         if (getCurrentHash())
-            // There is an initial hash: Select it
+        // There is an initial hash: Select it
             hashChanged();
         else
-            // Select the first node
+        // Select the first node
             $("#treediv").jstree("select_node", $("#treediv li:first"), true)
     });
 
@@ -283,6 +351,8 @@ $(document).ready(function() {
                 selectByUrl($("#searchResult").val());
         });
 
+        initializeNavigationLinks();
+        
     }
 
     if ("onhashchange" in window) {
