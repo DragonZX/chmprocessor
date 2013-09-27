@@ -10,9 +10,15 @@ h1
 	font-weight:bold;
 }
 
-.blue 
+.header 
 {
 	background-color: #e5ecf9;
+}
+
+.header-options 
+{
+	float:right;
+	margin: 8px 10px;
 }
 
 #content-tabs
