@@ -5,7 +5,7 @@
     <meta name="GENERATOR" content="chmProcessor" />
     <link rel="stylesheet" href="css/layout-default-latest.css" />
     <link rel="stylesheet" href="css/chmprocessor.css" />
-    <link rel="stylesheet" href="css/redmond/jquery-ui-1.10.3.custom.css" />
+    <link rel="stylesheet" href="css/redmond/jquery-ui-1.10.3.custom.min.css" />
     <script type="text/javascript" src="js/jquery-1.9.1.js"></script>
 	<script type="text/javascript" src="js/jquery-ui-1.10.3.custom.min.js"></script>
 	<script type="text/javascript" src="js/jquery.layout-latest.min.js"></script>
@@ -19,11 +19,13 @@
 <body>
    
     <!--Title bar-->
-    <div class="ui-layout-north blue">
+    <div class="ui-layout-north header">
         <div class="header-options">
             <a id="lnkPrevious" href="#"><img src="go-previous.png" alt="Previous" /></a> 
             <a id="lnkNext" href="#"><img src="go-next.png" alt="Next" /></a> 
             <a id="lnkHome" href="#"><img src="go-home.png" alt="Home" /></a> 
+            <a id="lnkPrint" href="#"><img src="document-print.png" alt="Print topic" /></a>
+            <a id="lnkAbout" href="#"><img src="help-browser.png" alt="About..." /></a>
         </div>
         <h1>
 	        %TITLE%
@@ -78,6 +80,14 @@
             
         </div>
         
+    </div>
+    
+    <!--About dialog-->
+    <div id="aboutDlg" title="About...">
+        <p>
+            <img src="help-browser.png" alt="Help image" />
+            Webhelp generated with <a href="http://chmprocessor.sf.net">chmProcessor</a>
+        </p>
     </div>
     
 </body>

@@ -18,7 +18,7 @@ h1
 .header-options 
 {
 	float:right;
-	margin: 8px 10px;
+	margin: 5px 10px;
 }
 
 #content-tabs
@@ -36,4 +36,76 @@ h1
 #searchTopic
 {
 	margin-bottom: 5px;
+}
+
+#aboutDlg 
+{
+	padding: 10px 40px;
+}
+#aboutDlg img 
+{
+	vertical-align:middle;
+	margin-right:15px;
+}
+#aboutDlg a
+{
+	font-weight:bold;
+}
+
+/*
+ *	GLOBAL LAYOUT STYLES
+ */
+.ui-layout-content {
+	overflow:		auto; /* add scrolling to content-divs (panel-wrappers) */
+	border-top:		0 !important; /* tab-buttons above this DIV already has a border-bottom */
+}
+
+/*
+ *	TAB-THEME ADJUSTMENTS
+ */
+.ui-tabs-nav li {
+	white-space:	nowrap;
+}
+.ui-tabs-nav li a {
+	font-size:		1em !important;
+	padding:		4px 1.5ex 3px !important;
+}
+.ui-tabs-panel {
+	font-size:		1em !important;
+	padding:		0 1em !important;
+}
+
+/*
+ *	WEST-PANE TABS
+ *
+ *	These tabs 'fill' the pane,
+ *	so the pane-border acts as the tab-border
+ */
+.ui-layout-pane-west {
+	padding:	0 !important;
+	overflow:	hidden;
+	}
+	.ui-layout-pane-west .ui-tabs-nav {
+		/* don't need border or rounded corners - tabs 'fill' the pane */
+		border-top:		0;
+		border-left:	0;
+		border-right:	0;
+		padding-bottom:	0 !important;
+		-moz-border-radius:		0;
+		-webkit-border-radius:	0;
+	}
+	
+.ui-layout-center 
+{
+	padding:	0 !important;
+}
+
+.jstree-default.jstree-focused  
+{
+	background: url("images/ui-bg_inset-hard_100_fcfdfd_1x100.png") repeat-x scroll 50% bottom #FCFDFD !important;
+}
+
+.ui-widget {
+	font-family: Arial !important;
+	font-size: 12px !important;
 }
