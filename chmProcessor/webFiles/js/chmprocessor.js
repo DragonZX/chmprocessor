@@ -1,9 +1,10 @@
 
-// TODO: Add links to print, about, home, previous, next
+// TODO: Add links to print, about
 // TODO: Change tree node expansion animation speed
 // TODO: Handle full text search
 // TODO: When a title is repeated, save the order number on the hash
 // TODO: Remove trim definition and use the jquery trim
+// TODO: Test translations, add new needed translations
 
 var pageLayout; // a var is required because this page utilizes: pageLayout.allowOverflow() method
 
@@ -182,16 +183,26 @@ function initializeNavigationLinks() {
 
     // Link event handlers
     $("#lnkPrevious").click(function(e) {
-        increasePageIndex(-1);
         e.preventDefault();
+        increasePageIndex(-1);
     });
     $("#lnkNext").click(function(e) {
-        increasePageIndex(1);
         e.preventDefault();
+        increasePageIndex(1);
     });
     $("#lnkHome").click(function(e) {
-        setCurrentPageIndex(0);
         e.preventDefault();
+        setCurrentPageIndex(0);
+    });
+
+    // Other actions
+    $("#lnkPrint").click(function(e) {
+        e.preventDefault();
+        $("#mainFrame").focus().prop("contentWindow").print();
+    });
+    $("#lnkAbout").click(function(e) {
+        e.preventDefault();
+        $("#aboutDlg").dialog("open");
     });
 }
 
@@ -352,7 +363,18 @@ $(document).ready(function() {
         });
 
         initializeNavigationLinks();
-        
+
+        // About dialog:
+        $("#aboutDlg").dialog({
+            modal: true,
+            autoOpen: false,
+            width: "auto",
+            buttons: {
+                Ok: function() {
+                    $(this).dialog("close");
+                }
+            }
+        });
     }
 
     if ("onhashchange" in window) {
