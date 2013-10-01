@@ -1,17 +1,27 @@
+/* 
+* chmProcessor - Word converter to CHM
+* Copyright (C) 2008 Toni Bennasar Obrador
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
-// TODO: Add links to print, about
 // TODO: Change tree node expansion animation speed
 // TODO: Handle full text search
-// TODO: When a title is repeated, save the order number on the hash
-// TODO: Remove trim definition and use the jquery trim
 // TODO: Test translations, add new needed translations
 
 var pageLayout; // a var is required because this page utilizes: pageLayout.allowOverflow() method
 
-if (!String.prototype.trim) {
-    //code for trim (part of the ECMAScript 5 standard)
-    String.prototype.trim = function() { return this.replace(/^\s+|\s+$/g, ''); };
-}
 
 // Returns the last index of a character into a string. Returns < 0 if it was not found
 // character: Character to search
@@ -66,9 +76,29 @@ function selectByUrl(url) {
 // Process a tree link text
 function cleanTitleText(linkText) {
     // Remove line breaks and leading spaces
-    var cleanText = linkText.replace("\n", " ").trim();
+    var cleanText = $.trim( linkText.replace("\n", " ") );
     // Replace extra spaces by a single one
     return cleanText.replace(/\s+/g, " ");
+}
+
+function parseTitle(title) {
+    var result = new Object();
+    result.instance = 0;
+    result.title = title;
+    
+    if (title.charAt(0) != "!")
+        return result;
+    title = title.substring(1);
+    var idx = title.indexOf("!");
+    if( idx <= 0 )
+        return result;
+    var number = parseInt(title.substring(0, idx));
+    if( isNaN(number) )
+        return result;
+
+    result.instance = number - 1;
+    result.title = title.substring(idx + 1);
+    return result;
 }
 
 // Select a tree node by its title
@@ -80,16 +110,25 @@ function selectByTitle(title) {
     if (title == "")
         // Select the first node
         $("#treediv").jstree("select_node", $("#treediv li:first"), true);
-    else
+    else {
         // Select the node by title
-        $("#treediv").jstree("select_node",
-            $("#treediv a")
+
+        // Check for instance number:
+        var searchInstance = parseTitle(title);
+        var titleSelector = $("#treediv a")
             .filter(function(index) {
-                return cleanTitleText($(this).text()).toLowerCase() == title;
-            })
-            .first().parent(),
+                return cleanTitleText($(this).text()).toLowerCase() == searchInstance.title;
+            });
+        if (searchInstance.instance == 0)
+            titleSelector = titleSelector.first();
+        else
+            titleSelector = titleSelector.get(searchInstance.instance);
+            
+        $("#treediv").jstree("select_node",
+            titleSelector.parent(),
             true
         );
+    }
 }
 
 // Return the window current hash
@@ -112,14 +151,20 @@ function hashChanged() {
 }
 
 // Set a new URL hash
-// newHash: string with the new hash
-function changeHash(newHash) {
+// linkSelector: The jquery title link
+function changeHash(linkSelector) {
 
     if (!("onhashchange" in window))
         return;
 
-    newHash = cleanTitleText(newHash);
+    var newHash = cleanTitleText(linkSelector.text());
     
+    // Check if its a duplicated title
+    var titleInstance = linkSelector.prop("titleInstance");
+    if (titleInstance)
+        // Save instance number:
+        newHash = "!" + titleInstance + "!" + newHash;
+        
     // The first node should no have hash:
     if (cleanTitleText($("#treediv a:first").text()) == newHash)
         newHash = "";
@@ -171,7 +216,10 @@ function initializeNavigationLinks() {
 
     // Setup arrays
     var lastPage = null;
+    var titlesCount = new Array();
     $("#treediv a").each(function() {
+
+        // Setup arrays of each page first anchor 
         var pageHrefParts = $(this).attr("href").split("#");
         if (!lastPage || pageHrefParts[0] != lastPage) {
             // New page:
@@ -179,6 +227,17 @@ function initializeNavigationLinks() {
             anchorNames[anchorNames.length] = pageHrefParts[1];
             lastPage = pageHrefParts[0];
         }
+
+        // If there is reapeated titles, save its instance number. Used for page hash.
+        var title = cleanTitleText($(this).text());
+        var count = titlesCount[title];
+        if (!count)
+            count = 0;
+        count++;
+        if (count > 1)
+            $(this).prop("titleInstance", count);
+        titlesCount[title] = count;
+        
     });
 
     // Link event handlers
@@ -231,11 +290,15 @@ $(document).ready(function() {
         loadUrlOnFrame(url);
 
         // Set the URL hash with the title
-        changeHash(link.text());
+        changeHash(link);
 
     })
     // Set initial selection
     .bind("loaded.jstree", function(e, data) {
+
+        // Travese the tree nodes to handle repeated titles and next / previous buttons
+        initializeNavigationLinks();
+        
         if (getCurrentHash())
         // There is an initial hash: Select it
             hashChanged();
@@ -361,8 +424,6 @@ $(document).ready(function() {
             // Enter was pressed: Load the selected URL:
                 selectByUrl($("#searchResult").val());
         });
-
-        initializeNavigationLinks();
 
         // About dialog:
         $("#aboutDlg").dialog({
