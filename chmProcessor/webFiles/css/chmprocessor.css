@@ -102,7 +102,7 @@ h1
 
 .jstree-default.jstree-focused  
 {
-	background: url("images/ui-bg_inset-hard_100_fcfdfd_1x100.png") repeat-x scroll 50% bottom #FCFDFD !important;
+	background: transparent !important;
 }
 
 .ui-widget {

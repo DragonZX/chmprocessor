@@ -16,8 +16,6 @@
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// TODO: Change tree node expansion animation speed
-// TODO: Handle full text search
 // TODO: Test translations, add new needed translations
 
 var pageLayout; // a var is required because this page utilizes: pageLayout.allowOverflow() method
@@ -276,7 +274,9 @@ $(document).ready(function() {
         // the `plugins` array allows you to configure the active plugins on this instance
         "plugins": ["themes", "html_data", "ui", "hotkeys"],
         // Single selection
-        "ui": { "select_limit": 1 }
+        "ui": { "select_limit": 1 },
+        // Open/close node animation duration
+        "core": { "animation": 100 }
     })
     // Tree node selection event:
     .bind("select_node.jstree", function(event, data) {
@@ -298,7 +298,7 @@ $(document).ready(function() {
 
         // Travese the tree nodes to handle repeated titles and next / previous buttons
         initializeNavigationLinks();
-        
+
         if (getCurrentHash())
         // There is an initial hash: Select it
             hashChanged();
@@ -382,7 +382,11 @@ $(document).ready(function() {
     if (fullSearch) {
         // Hide the result list:
         $("#searchResult").remove();
-        // TODO: Set the submit destination for the search form
+        // Handle the submit event:
+        $("#searchform").submit(function(e) {
+            e.preventDefault();
+            loadUrlOnFrame("search.aspx?q=" + encodeURIComponent($("#searchText").val()));
+        });
     }
     else {
         // Handle the search form submit event:
@@ -424,20 +428,20 @@ $(document).ready(function() {
             // Enter was pressed: Load the selected URL:
                 selectByUrl($("#searchResult").val());
         });
-
-        // About dialog:
-        $("#aboutDlg").dialog({
-            modal: true,
-            autoOpen: false,
-            width: "auto",
-            buttons: {
-                Ok: function() {
-                    $(this).dialog("close");
-                }
-            }
-        });
     }
 
+    // About dialog:
+    $("#aboutDlg").dialog({
+        modal: true,
+        autoOpen: false,
+        width: "auto",
+        buttons: {
+            Ok: function() {
+                $(this).dialog("close");
+            }
+        }
+    });
+    
     if ("onhashchange" in window) {
         // Browser supports hash change: Add the event handler
         window.onhashchange = hashChanged;
