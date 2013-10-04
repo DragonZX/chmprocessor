@@ -2,7 +2,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
     <title>%TITLE%</title>
-    <meta name="GENERATOR" content="chmProcessor" />
+    %WEBDESCRIPTION%
+    %KEYWORDS%
+    <meta name="generator" content="chmProcessor" />
     <link rel="stylesheet" href="css/layout-default-latest.css" />
     <link rel="stylesheet" href="css/chmprocessor.css" />
     <link rel="stylesheet" href="css/redmond/jquery-ui-1.10.3.custom.min.css" />
@@ -21,10 +23,10 @@
     <!--Title bar-->
     <div class="ui-layout-north header">
         <div class="header-options">
-            <a id="lnkPrevious" href="#"><img src="go-previous.png" alt="Previous" /></a> 
-            <a id="lnkNext" href="#"><img src="go-next.png" alt="Next" /></a> 
+            <a id="lnkPrevious" title="%Previous%" href="#"><img src="go-previous.png" alt="%Previous%" /></a> 
+            <a id="lnkNext" title="%Next%" href="#"><img src="go-next.png" alt="%Next%" /></a> 
             <a id="lnkHome" href="#"><img src="go-home.png" alt="Home" /></a> 
-            <a id="lnkPrint" href="#"><img src="document-print.png" alt="Print topic" /></a>
+            <a id="lnkPrint" title="%Print topic%" href="#"><img src="document-print.png" alt="%Print topic%" /></a>
             <a id="lnkAbout" href="#"><img src="help-browser.png" alt="About..." /></a>
         </div>
         <h1>
@@ -45,9 +47,9 @@
         
         <!--Tab titles-->
         <ul>
-            <li><a href="#tab-contents">Contents</a></li>
-            <li><a href="#tab-index">Index</a></li>
-            <li><a href="#tab-search">Search</a></li>
+            <li><a href="#tab-contents">%Contents%</a></li>
+            <li><a href="#tab-index">%Topics%</a></li>
+            <li><a href="#tab-search">%Search%</a></li>
         </ul>
         
         <!-- add wrapper that Layout will auto-size to 'fill space' -->
@@ -71,7 +73,7 @@
             <div id="tab-search" class="contentpane">
                 <form name="searchform" method="post" action="search.aspx" id="searchform">
                     <input type="text" id="searchText" style="width: 100%;" name="searchText" />
-                    <input type="submit" value="Search" id="btnSearch" name="btnSearch" />
+                    <input type="submit" value="%Search%" id="btnSearch" name="btnSearch" />
                     <select id="searchResult" style="width: 100%;" size="30" name="searchResult">
                         <option></option>
                     </select>
@@ -86,7 +88,7 @@
     <div id="aboutDlg" title="About...">
         <p>
             <img src="help-browser.png" alt="Help image" />
-            Webhelp generated with <a href="http://chmprocessor.sf.net">chmProcessor</a>
+            %Generated with% <a href="http://chmprocessor.sf.net">chmProcessor</a>
         </p>
     </div>
     
