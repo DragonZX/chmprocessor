@@ -7,7 +7,7 @@
   <DirectorioDestino>.\chmProcessor-project</DirectorioDestino>
   <HtmlCabecera />
   <HtmlPie>.\footer.htm</HtmlPie>
-  <TituloAyuda>chmProcessor. A Html / Word converter to Compiled HTML Help (CHM)</TituloAyuda>
+  <TituloAyuda>chmProcessor</TituloAyuda>
   <NivelCorte>0</NivelCorte>
   <GenerarWeb>true</GenerarWeb>
   <ArchivosAdicionales>
@@ -30,7 +30,7 @@
   <WebBase>http://chmprocessor.sourceforge.net</WebBase>
   <ChangeFrequency>monthly</ChangeFrequency>
   <WebLanguage>English</WebLanguage>
-  <ConfigurationVersion>1.6</ConfigurationVersion>
+  <ConfigurationVersion>1.7</ConfigurationVersion>
   <FullTextSearch>false</FullTextSearch>
   <PdfGeneration>PdfCreator</PdfGeneration>
   <GenerateXps>false</GenerateXps>
@@ -39,4 +39,6 @@
   <JavaHelpPath>.\web\chmProcessorDocumentation.jar</JavaHelpPath>
   <HeadTagFile>.\headInclude.htm</HeadTagFile>
   <ChmLocaleID>9</ChmLocaleID>
+  <WebTemplateName>jQuery</WebTemplateName>
+  <CustomTemplateDirectory />
 </Configuracion>

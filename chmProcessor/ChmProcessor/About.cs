@@ -42,6 +42,9 @@ namespace ChmProcessor
         private LinkLabel lnkSqlite;
         private LinkLabel lnkTango;
         private PictureBox pictureBox1;
+        private LinkLabel LnkJQuery;
+        private LinkLabel LnkLayout;
+        private LinkLabel LnkJsTree;
 		/// <summary>
 		/// Variable del diseñador requerida.
 		/// </summary>
@@ -101,12 +104,16 @@ namespace ChmProcessor
             this.lnkSqlite = new System.Windows.Forms.LinkLabel();
             this.lnkTango = new System.Windows.Forms.LinkLabel();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.LnkJQuery = new System.Windows.Forms.LinkLabel();
+            this.LnkLayout = new System.Windows.Forms.LinkLabel();
+            this.LnkJsTree = new System.Windows.Forms.LinkLabel();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // btnOk
             // 
-            this.btnOk.Location = new System.Drawing.Point(218, 380);
+            this.btnOk.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.btnOk.Location = new System.Drawing.Point(225, 400);
             this.btnOk.Name = "btnOk";
             this.btnOk.Size = new System.Drawing.Size(88, 32);
             this.btnOk.TabIndex = 0;
@@ -115,18 +122,22 @@ namespace ChmProcessor
             // 
             // label1
             // 
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(86, 12);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(426, 16);
+            this.label1.Size = new System.Drawing.Size(441, 16);
             this.label1.TabIndex = 1;
-            this.label1.Text = "chmProcessor - A Html / Word converter to Compiled HTML Help v1.6.3";
+            this.label1.Text = "chmProcessor - A Html / Word converter to Compiled HTML Help v1.7";
             // 
             // label2
             // 
+            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.label2.Location = new System.Drawing.Point(86, 28);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(426, 34);
+            this.label2.Size = new System.Drawing.Size(441, 34);
             this.label2.TabIndex = 2;
             this.label2.Text = "(C) 2008 Toni Bennasar Obrador, Mike Hudgell, Paolo Moretti, Jozsef Bekes, Luc Va" +
                 "n Asch";
@@ -151,18 +162,22 @@ namespace ChmProcessor
             // 
             // txtLicencia
             // 
+            this.txtLicencia.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.txtLicencia.Location = new System.Drawing.Point(11, 103);
             this.txtLicencia.Multiline = true;
             this.txtLicencia.Name = "txtLicencia";
             this.txtLicencia.ReadOnly = true;
             this.txtLicencia.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.txtLicencia.Size = new System.Drawing.Size(501, 226);
+            this.txtLicencia.Size = new System.Drawing.Size(516, 246);
             this.txtLicencia.TabIndex = 5;
             // 
             // label3
             // 
+            this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(11, 342);
+            this.label3.Location = new System.Drawing.Point(11, 362);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(95, 13);
             this.label3.TabIndex = 6;
@@ -170,8 +185,9 @@ namespace ChmProcessor
             // 
             // lnkTidy
             // 
+            this.lnkTidy.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lnkTidy.AutoSize = true;
-            this.lnkTidy.Location = new System.Drawing.Point(112, 342);
+            this.lnkTidy.Location = new System.Drawing.Point(112, 362);
             this.lnkTidy.Name = "lnkTidy";
             this.lnkTidy.Size = new System.Drawing.Size(27, 13);
             this.lnkTidy.TabIndex = 7;
@@ -181,8 +197,9 @@ namespace ChmProcessor
             // 
             // lnkSqlite
             // 
+            this.lnkSqlite.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lnkSqlite.AutoSize = true;
-            this.lnkSqlite.Location = new System.Drawing.Point(145, 342);
+            this.lnkSqlite.Location = new System.Drawing.Point(145, 362);
             this.lnkSqlite.Name = "lnkSqlite";
             this.lnkSqlite.Size = new System.Drawing.Size(33, 13);
             this.lnkSqlite.TabIndex = 8;
@@ -192,8 +209,9 @@ namespace ChmProcessor
             // 
             // lnkTango
             // 
+            this.lnkTango.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lnkTango.AutoSize = true;
-            this.lnkTango.Location = new System.Drawing.Point(184, 342);
+            this.lnkTango.Location = new System.Drawing.Point(184, 362);
             this.lnkTango.Name = "lnkTango";
             this.lnkTango.Size = new System.Drawing.Size(67, 13);
             this.lnkTango.TabIndex = 9;
@@ -210,12 +228,50 @@ namespace ChmProcessor
             this.pictureBox1.TabIndex = 10;
             this.pictureBox1.TabStop = false;
             // 
+            // LnkJQuery
+            // 
+            this.LnkJQuery.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.LnkJQuery.AutoSize = true;
+            this.LnkJQuery.Location = new System.Drawing.Point(258, 361);
+            this.LnkJQuery.Name = "LnkJQuery";
+            this.LnkJQuery.Size = new System.Drawing.Size(37, 13);
+            this.LnkJQuery.TabIndex = 11;
+            this.LnkJQuery.TabStop = true;
+            this.LnkJQuery.Text = "jQuery";
+            this.LnkJQuery.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LnkJQuery_LinkClicked);
+            // 
+            // LnkLayout
+            // 
+            this.LnkLayout.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.LnkLayout.AutoSize = true;
+            this.LnkLayout.Location = new System.Drawing.Point(301, 362);
+            this.LnkLayout.Name = "LnkLayout";
+            this.LnkLayout.Size = new System.Drawing.Size(121, 13);
+            this.LnkLayout.TabIndex = 12;
+            this.LnkLayout.TabStop = true;
+            this.LnkLayout.Text = "jQuery UI Layout Plug-in";
+            this.LnkLayout.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LnkLayout_LinkClicked);
+            // 
+            // LnkJsTree
+            // 
+            this.LnkJsTree.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.LnkJsTree.AutoSize = true;
+            this.LnkJsTree.Location = new System.Drawing.Point(428, 362);
+            this.LnkJsTree.Name = "LnkJsTree";
+            this.LnkJsTree.Size = new System.Drawing.Size(36, 13);
+            this.LnkJsTree.TabIndex = 13;
+            this.LnkJsTree.TabStop = true;
+            this.LnkJsTree.Text = "jsTree";
+            this.LnkJsTree.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LnkJsTree_LinkClicked);
+            // 
             // About
             // 
             this.AcceptButton = this.btnOk;
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
-            this.ClientSize = new System.Drawing.Size(524, 424);
-            this.ControlBox = false;
+            this.ClientSize = new System.Drawing.Size(539, 444);
+            this.Controls.Add(this.LnkJsTree);
+            this.Controls.Add(this.LnkLayout);
+            this.Controls.Add(this.LnkJQuery);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.lnkTango);
             this.Controls.Add(this.lnkSqlite);
@@ -227,7 +283,6 @@ namespace ChmProcessor
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.btnOk);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "About";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
@@ -262,6 +317,21 @@ namespace ChmProcessor
         private void lnkTango_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             Process.Start("http://tango.freedesktop.org/Tango_Desktop_Project");
+        }
+
+        private void LnkJQuery_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Process.Start("http://jquery.com");
+        }
+
+        private void LnkLayout_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Process.Start("http://layout.jquery-dev.net/index.cfm");
+        }
+
+        private void LnkJsTree_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Process.Start("http://www.jstree.com/");
         }
 
 	}

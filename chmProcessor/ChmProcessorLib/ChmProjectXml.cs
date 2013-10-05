@@ -129,6 +129,13 @@ namespace ChmProcessorLib
                 CreateXmlNode(root, "HeadTagFile", "");
             }
 
+            if (version < 1.7)
+            {
+                // New properties to store the webhelp template. Use the previous
+                CreateXmlNode(root, "WebTemplateName", "Frames");
+                CreateXmlNode(root, "CustomTemplateDirectory", string.Empty);
+            }
+
             // Set the current version:
             versionNode.InnerText = XmlConvert.ToString(ChmProject.CURRENTFILEVERSION);
 
