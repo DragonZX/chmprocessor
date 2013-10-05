@@ -27,6 +27,7 @@ using Microsoft.Win32;
 using System.IO;
 using System.Diagnostics;
 using ChmProcessorLib;
+using ChmProcessorLib.Generators;
 using System.Text;
 using System.Globalization;
 
@@ -34,6 +35,7 @@ namespace ChmProcessor
 {
 	/// <summary>
 	/// Main window.
+    /// TODO: All controls name should have first letter uppercase... (God save java)
 	/// </summary>
 	public class ChmProcessorForm : System.Windows.Forms.Form
 	{
@@ -179,6 +181,11 @@ namespace ChmProcessor
         private LinkLabel lnkHeadInclude;
         private ComboBox cmbChmLanguage;
         private Label label14;
+        private Button BtnSelTemplateDir;
+        private TextBox TxtTemplateDir;
+        private Label label16;
+        private ComboBox CmbWebTemplate;
+        private LinkLabel LnkWebTemplate;
         private ToolStripStatusLabel labStatus;
         #endregion
 
@@ -197,6 +204,13 @@ namespace ChmProcessor
             cmbChangeFrequency.Items.Add(ChmProject.FrequencyOfChange.monthly);
             cmbChangeFrequency.Items.Add(ChmProject.FrequencyOfChange.yearly);
             cmbChangeFrequency.Items.Add(ChmProject.FrequencyOfChange.never);
+
+            // Setup web templates directory
+            CmbWebTemplate.Items.Clear();
+            foreach (string templateName in WebHelpGenerator.GetStandardTemplateNames())
+                CmbWebTemplate.Items.Add(templateName);
+            CmbWebTemplate.Items.Add(ChmProject.WEBTEMPLATE_CUSTOM);
+            CmbWebTemplate.SelectedItem = ChmProject.WEBTEMPLATE_DEFAULT;
 
             // Setup the CHM languages combo box 
             // Fill it with all supported "windows codepage" encodings. Its the only way i found
@@ -433,6 +447,11 @@ namespace ChmProcessor
             this.radCompilar = new System.Windows.Forms.RadioButton();
             this.chkAbrirProyecto = new System.Windows.Forms.CheckBox();
             this.tabWeb = new System.Windows.Forms.TabPage();
+            this.LnkWebTemplate = new System.Windows.Forms.LinkLabel();
+            this.BtnSelTemplateDir = new System.Windows.Forms.Button();
+            this.TxtTemplateDir = new System.Windows.Forms.TextBox();
+            this.label16 = new System.Windows.Forms.Label();
+            this.CmbWebTemplate = new System.Windows.Forms.ComboBox();
             this.txtHeadInclude = new System.Windows.Forms.TextBox();
             this.btnSelHeadInclude = new System.Windows.Forms.Button();
             this.lnkHeadInclude = new System.Windows.Forms.LinkLabel();
@@ -521,9 +540,10 @@ namespace ChmProcessor
             // 
             // btnProcesar
             // 
+            this.btnProcesar.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.btnProcesar.Image = ((System.Drawing.Image)(resources.GetObject("btnProcesar.Image")));
             this.btnProcesar.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.btnProcesar.Location = new System.Drawing.Point(264, 466);
+            this.btnProcesar.Location = new System.Drawing.Point(267, 513);
             this.btnProcesar.Name = "btnProcesar";
             this.btnProcesar.Size = new System.Drawing.Size(206, 36);
             this.btnProcesar.TabIndex = 21;
@@ -654,9 +674,9 @@ namespace ChmProcessor
             this.stsStatus.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.labModified,
             this.labStatus});
-            this.stsStatus.Location = new System.Drawing.Point(0, 505);
+            this.stsStatus.Location = new System.Drawing.Point(0, 552);
             this.stsStatus.Name = "stsStatus";
-            this.stsStatus.Size = new System.Drawing.Size(735, 22);
+            this.stsStatus.Size = new System.Drawing.Size(740, 22);
             this.stsStatus.SizingGrip = false;
             this.stsStatus.TabIndex = 48;
             this.stsStatus.Text = "statusStrip1";
@@ -675,15 +695,17 @@ namespace ChmProcessor
             // 
             // tabControl1
             // 
+            this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.tabControl1.Controls.Add(this.tabChm);
             this.tabControl1.Controls.Add(this.tabWeb);
             this.tabControl1.Controls.Add(this.tabPdf);
             this.tabControl1.Controls.Add(this.tabJavaHelp);
             this.tabControl1.Controls.Add(this.tabOther);
-            this.tabControl1.Location = new System.Drawing.Point(12, 202);
+            this.tabControl1.Location = new System.Drawing.Point(12, 207);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(691, 258);
+            this.tabControl1.Size = new System.Drawing.Size(716, 300);
             this.tabControl1.TabIndex = 19;
             // 
             // tabChm
@@ -708,18 +730,20 @@ namespace ChmProcessor
             this.tabChm.Location = new System.Drawing.Point(4, 22);
             this.tabChm.Name = "tabChm";
             this.tabChm.Padding = new System.Windows.Forms.Padding(3);
-            this.tabChm.Size = new System.Drawing.Size(683, 232);
+            this.tabChm.Size = new System.Drawing.Size(708, 274);
             this.tabChm.TabIndex = 0;
             this.tabChm.Text = "Compiled Help (CHM)";
             this.tabChm.UseVisualStyleBackColor = true;
             // 
             // cmbChmLanguage
             // 
+            this.cmbChmLanguage.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.cmbChmLanguage.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbChmLanguage.FormattingEnabled = true;
-            this.cmbChmLanguage.Location = new System.Drawing.Point(242, 132);
+            this.cmbChmLanguage.Location = new System.Drawing.Point(242, 141);
             this.cmbChmLanguage.Name = "cmbChmLanguage";
-            this.cmbChmLanguage.Size = new System.Drawing.Size(418, 21);
+            this.cmbChmLanguage.Size = new System.Drawing.Size(430, 21);
             this.cmbChmLanguage.Sorted = true;
             this.cmbChmLanguage.TabIndex = 44;
             this.cmbChmLanguage.TextChanged += new System.EventHandler(this.FieldModified);
@@ -727,7 +751,7 @@ namespace ChmProcessor
             // label14
             // 
             this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(138, 135);
+            this.label14.Location = new System.Drawing.Point(138, 144);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(55, 13);
             this.label14.TabIndex = 43;
@@ -736,7 +760,7 @@ namespace ChmProcessor
             // lnkFooterFile
             // 
             this.lnkFooterFile.AutoSize = true;
-            this.lnkFooterFile.Location = new System.Drawing.Point(138, 108);
+            this.lnkFooterFile.Location = new System.Drawing.Point(138, 117);
             this.lnkFooterFile.Name = "lnkFooterFile";
             this.lnkFooterFile.Size = new System.Drawing.Size(89, 13);
             this.lnkFooterFile.TabIndex = 40;
@@ -747,7 +771,7 @@ namespace ChmProcessor
             // lnkHtmlHeader
             // 
             this.lnkHtmlHeader.AutoSize = true;
-            this.lnkHtmlHeader.Location = new System.Drawing.Point(138, 84);
+            this.lnkHtmlHeader.Location = new System.Drawing.Point(138, 93);
             this.lnkHtmlHeader.Name = "lnkHtmlHeader";
             this.lnkHtmlHeader.Size = new System.Drawing.Size(94, 13);
             this.lnkHtmlHeader.TabIndex = 37;
@@ -757,23 +781,28 @@ namespace ChmProcessor
             // 
             // txtArcPie
             // 
-            this.txtArcPie.Location = new System.Drawing.Point(242, 105);
+            this.txtArcPie.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtArcPie.Location = new System.Drawing.Point(242, 114);
             this.txtArcPie.Name = "txtArcPie";
-            this.txtArcPie.Size = new System.Drawing.Size(388, 20);
+            this.txtArcPie.Size = new System.Drawing.Size(430, 20);
             this.txtArcPie.TabIndex = 41;
             this.txtArcPie.TextChanged += new System.EventHandler(this.FieldModified);
             // 
             // txtArcCab
             // 
-            this.txtArcCab.Location = new System.Drawing.Point(242, 81);
+            this.txtArcCab.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtArcCab.Location = new System.Drawing.Point(242, 90);
             this.txtArcCab.Name = "txtArcCab";
-            this.txtArcCab.Size = new System.Drawing.Size(388, 20);
+            this.txtArcCab.Size = new System.Drawing.Size(430, 20);
             this.txtArcCab.TabIndex = 38;
             this.txtArcCab.TextChanged += new System.EventHandler(this.FieldModified);
             // 
             // btnSelPie
             // 
-            this.btnSelPie.Location = new System.Drawing.Point(636, 104);
+            this.btnSelPie.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSelPie.Location = new System.Drawing.Point(678, 113);
             this.btnSelPie.Name = "btnSelPie";
             this.btnSelPie.Size = new System.Drawing.Size(24, 21);
             this.btnSelPie.TabIndex = 42;
@@ -782,7 +811,8 @@ namespace ChmProcessor
             // 
             // btnSelCab
             // 
-            this.btnSelCab.Location = new System.Drawing.Point(636, 81);
+            this.btnSelCab.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSelCab.Location = new System.Drawing.Point(678, 90);
             this.btnSelCab.Name = "btnSelCab";
             this.btnSelCab.Size = new System.Drawing.Size(24, 20);
             this.btnSelCab.TabIndex = 39;
@@ -811,7 +841,8 @@ namespace ChmProcessor
             // 
             // btnSelArcAyuda
             // 
-            this.btnSelArcAyuda.Location = new System.Drawing.Point(636, 8);
+            this.btnSelArcAyuda.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSelArcAyuda.Location = new System.Drawing.Point(678, 7);
             this.btnSelArcAyuda.Name = "btnSelArcAyuda";
             this.btnSelArcAyuda.Size = new System.Drawing.Size(24, 21);
             this.btnSelArcAyuda.TabIndex = 31;
@@ -820,23 +851,28 @@ namespace ChmProcessor
             // 
             // txtArchivoAyuda
             // 
+            this.txtArchivoAyuda.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.txtArchivoAyuda.Location = new System.Drawing.Point(242, 8);
             this.txtArchivoAyuda.Name = "txtArchivoAyuda";
-            this.txtArchivoAyuda.Size = new System.Drawing.Size(388, 20);
+            this.txtArchivoAyuda.Size = new System.Drawing.Size(430, 20);
             this.txtArchivoAyuda.TabIndex = 30;
             this.txtArchivoAyuda.TextChanged += new System.EventHandler(this.FieldModified);
             // 
             // txtDirDst
             // 
+            this.txtDirDst.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.txtDirDst.Location = new System.Drawing.Point(242, 34);
             this.txtDirDst.Name = "txtDirDst";
-            this.txtDirDst.Size = new System.Drawing.Size(388, 20);
+            this.txtDirDst.Size = new System.Drawing.Size(430, 20);
             this.txtDirDst.TabIndex = 34;
             this.txtDirDst.TextChanged += new System.EventHandler(this.FieldModified);
             // 
             // btnSelDir
             // 
-            this.btnSelDir.Location = new System.Drawing.Point(636, 34);
+            this.btnSelDir.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSelDir.Location = new System.Drawing.Point(678, 33);
             this.btnSelDir.Name = "btnSelDir";
             this.btnSelDir.Size = new System.Drawing.Size(24, 20);
             this.btnSelDir.TabIndex = 35;
@@ -863,7 +899,7 @@ namespace ChmProcessor
             // 
             // chkAbrirProyecto
             // 
-            this.chkAbrirProyecto.Location = new System.Drawing.Point(242, 51);
+            this.chkAbrirProyecto.Location = new System.Drawing.Point(242, 60);
             this.chkAbrirProyecto.Name = "chkAbrirProyecto";
             this.chkAbrirProyecto.Size = new System.Drawing.Size(208, 24);
             this.chkAbrirProyecto.TabIndex = 36;
@@ -872,6 +908,11 @@ namespace ChmProcessor
             // 
             // tabWeb
             // 
+            this.tabWeb.Controls.Add(this.LnkWebTemplate);
+            this.tabWeb.Controls.Add(this.BtnSelTemplateDir);
+            this.tabWeb.Controls.Add(this.TxtTemplateDir);
+            this.tabWeb.Controls.Add(this.label16);
+            this.tabWeb.Controls.Add(this.CmbWebTemplate);
             this.tabWeb.Controls.Add(this.txtHeadInclude);
             this.tabWeb.Controls.Add(this.btnSelHeadInclude);
             this.tabWeb.Controls.Add(this.lnkHeadInclude);
@@ -900,22 +941,76 @@ namespace ChmProcessor
             this.tabWeb.Location = new System.Drawing.Point(4, 22);
             this.tabWeb.Name = "tabWeb";
             this.tabWeb.Padding = new System.Windows.Forms.Padding(3);
-            this.tabWeb.Size = new System.Drawing.Size(683, 232);
+            this.tabWeb.Size = new System.Drawing.Size(708, 274);
             this.tabWeb.TabIndex = 1;
             this.tabWeb.Text = "Web Help";
             this.tabWeb.UseVisualStyleBackColor = true;
             // 
+            // LnkWebTemplate
+            // 
+            this.LnkWebTemplate.AutoSize = true;
+            this.LnkWebTemplate.Location = new System.Drawing.Point(109, 221);
+            this.LnkWebTemplate.Name = "LnkWebTemplate";
+            this.LnkWebTemplate.Size = new System.Drawing.Size(73, 13);
+            this.LnkWebTemplate.TabIndex = 80;
+            this.LnkWebTemplate.TabStop = true;
+            this.LnkWebTemplate.Text = "Web template";
+            this.LnkWebTemplate.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LnkWebTemplate_LinkClicked);
+            // 
+            // BtnSelTemplateDir
+            // 
+            this.BtnSelTemplateDir.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.BtnSelTemplateDir.Location = new System.Drawing.Point(667, 244);
+            this.BtnSelTemplateDir.Name = "BtnSelTemplateDir";
+            this.BtnSelTemplateDir.Size = new System.Drawing.Size(24, 21);
+            this.BtnSelTemplateDir.TabIndex = 79;
+            this.BtnSelTemplateDir.Text = "...";
+            this.BtnSelTemplateDir.Click += new System.EventHandler(this.BtnSelTemplateDir_Click);
+            // 
+            // TxtTemplateDir
+            // 
+            this.TxtTemplateDir.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.TxtTemplateDir.Location = new System.Drawing.Point(211, 245);
+            this.TxtTemplateDir.Name = "TxtTemplateDir";
+            this.TxtTemplateDir.Size = new System.Drawing.Size(447, 20);
+            this.TxtTemplateDir.TabIndex = 78;
+            this.TxtTemplateDir.TextChanged += new System.EventHandler(this.FieldModified);
+            // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(109, 248);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(94, 13);
+            this.label16.TabIndex = 77;
+            this.label16.Text = "Template directory";
+            // 
+            // CmbWebTemplate
+            // 
+            this.CmbWebTemplate.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.CmbWebTemplate.FormattingEnabled = true;
+            this.CmbWebTemplate.Location = new System.Drawing.Point(211, 218);
+            this.CmbWebTemplate.Name = "CmbWebTemplate";
+            this.CmbWebTemplate.Size = new System.Drawing.Size(191, 21);
+            this.CmbWebTemplate.TabIndex = 76;
+            this.CmbWebTemplate.SelectedIndexChanged += new System.EventHandler(this.CmbWebTemplate_SelectedIndexChanged);
+            this.CmbWebTemplate.TextChanged += new System.EventHandler(this.FieldModified);
+            // 
             // txtHeadInclude
             // 
+            this.txtHeadInclude.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.txtHeadInclude.Location = new System.Drawing.Point(211, 163);
             this.txtHeadInclude.Name = "txtHeadInclude";
-            this.txtHeadInclude.Size = new System.Drawing.Size(426, 20);
+            this.txtHeadInclude.Size = new System.Drawing.Size(447, 20);
             this.txtHeadInclude.TabIndex = 73;
             this.txtHeadInclude.TextChanged += new System.EventHandler(this.FieldModified);
             // 
             // btnSelHeadInclude
             // 
-            this.btnSelHeadInclude.Location = new System.Drawing.Point(647, 162);
+            this.btnSelHeadInclude.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSelHeadInclude.Location = new System.Drawing.Point(668, 162);
             this.btnSelHeadInclude.Name = "btnSelHeadInclude";
             this.btnSelHeadInclude.Size = new System.Drawing.Size(24, 21);
             this.btnSelHeadInclude.TabIndex = 74;
@@ -946,8 +1041,9 @@ namespace ChmProcessor
             // 
             // chkFullSearch
             // 
+            this.chkFullSearch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.chkFullSearch.AutoSize = true;
-            this.chkFullSearch.Location = new System.Drawing.Point(394, 135);
+            this.chkFullSearch.Location = new System.Drawing.Point(415, 135);
             this.chkFullSearch.Name = "chkFullSearch";
             this.chkFullSearch.Size = new System.Drawing.Size(282, 17);
             this.chkFullSearch.TabIndex = 32;
@@ -957,11 +1053,13 @@ namespace ChmProcessor
             // 
             // cmbWebLanguage
             // 
+            this.cmbWebLanguage.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.cmbWebLanguage.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbWebLanguage.FormattingEnabled = true;
             this.cmbWebLanguage.Location = new System.Drawing.Point(211, 136);
             this.cmbWebLanguage.Name = "cmbWebLanguage";
-            this.cmbWebLanguage.Size = new System.Drawing.Size(171, 21);
+            this.cmbWebLanguage.Size = new System.Drawing.Size(192, 21);
             this.cmbWebLanguage.TabIndex = 31;
             this.cmbWebLanguage.TextChanged += new System.EventHandler(this.FieldModified);
             // 
@@ -976,9 +1074,10 @@ namespace ChmProcessor
             // 
             // cmbChangeFrequency
             // 
+            this.cmbChangeFrequency.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.cmbChangeFrequency.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbChangeFrequency.FormattingEnabled = true;
-            this.cmbChangeFrequency.Location = new System.Drawing.Point(546, 192);
+            this.cmbChangeFrequency.Location = new System.Drawing.Point(567, 192);
             this.cmbChangeFrequency.Name = "cmbChangeFrequency";
             this.cmbChangeFrequency.Size = new System.Drawing.Size(124, 21);
             this.cmbChangeFrequency.TabIndex = 36;
@@ -986,8 +1085,9 @@ namespace ChmProcessor
             // 
             // label12
             // 
+            this.label12.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(469, 198);
+            this.label12.Location = new System.Drawing.Point(490, 198);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(71, 13);
             this.label12.TabIndex = 67;
@@ -995,9 +1095,11 @@ namespace ChmProcessor
             // 
             // txtWebBase
             // 
+            this.txtWebBase.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.txtWebBase.Location = new System.Drawing.Point(269, 192);
             this.txtWebBase.Name = "txtWebBase";
-            this.txtWebBase.Size = new System.Drawing.Size(194, 20);
+            this.txtWebBase.Size = new System.Drawing.Size(215, 20);
             this.txtWebBase.TabIndex = 35;
             this.txtWebBase.TextChanged += new System.EventHandler(this.FieldModified);
             // 
@@ -1036,23 +1138,28 @@ namespace ChmProcessor
             // 
             // txtFooterWeb
             // 
+            this.txtFooterWeb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.txtFooterWeb.Location = new System.Drawing.Point(211, 110);
             this.txtFooterWeb.Name = "txtFooterWeb";
-            this.txtFooterWeb.Size = new System.Drawing.Size(426, 20);
+            this.txtFooterWeb.Size = new System.Drawing.Size(447, 20);
             this.txtFooterWeb.TabIndex = 29;
             this.txtFooterWeb.TextChanged += new System.EventHandler(this.FieldModified);
             // 
             // txtHeaderWeb
             // 
+            this.txtHeaderWeb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.txtHeaderWeb.Location = new System.Drawing.Point(211, 86);
             this.txtHeaderWeb.Name = "txtHeaderWeb";
-            this.txtHeaderWeb.Size = new System.Drawing.Size(426, 20);
+            this.txtHeaderWeb.Size = new System.Drawing.Size(447, 20);
             this.txtHeaderWeb.TabIndex = 26;
             this.txtHeaderWeb.TextChanged += new System.EventHandler(this.FieldModified);
             // 
             // btnSelFooterWeb
             // 
-            this.btnSelFooterWeb.Location = new System.Drawing.Point(646, 109);
+            this.btnSelFooterWeb.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSelFooterWeb.Location = new System.Drawing.Point(667, 109);
             this.btnSelFooterWeb.Name = "btnSelFooterWeb";
             this.btnSelFooterWeb.Size = new System.Drawing.Size(24, 21);
             this.btnSelFooterWeb.TabIndex = 30;
@@ -1061,7 +1168,8 @@ namespace ChmProcessor
             // 
             // btnSelHeaderWeb
             // 
-            this.btnSelHeaderWeb.Location = new System.Drawing.Point(646, 86);
+            this.btnSelHeaderWeb.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSelHeaderWeb.Location = new System.Drawing.Point(667, 86);
             this.btnSelHeaderWeb.Name = "btnSelHeaderWeb";
             this.btnSelHeaderWeb.Size = new System.Drawing.Size(24, 20);
             this.btnSelHeaderWeb.TabIndex = 27;
@@ -1070,9 +1178,11 @@ namespace ChmProcessor
             // 
             // txtDescription
             // 
+            this.txtDescription.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.txtDescription.Location = new System.Drawing.Point(211, 34);
             this.txtDescription.Name = "txtDescription";
-            this.txtDescription.Size = new System.Drawing.Size(459, 20);
+            this.txtDescription.Size = new System.Drawing.Size(480, 20);
             this.txtDescription.TabIndex = 22;
             this.txtDescription.TextChanged += new System.EventHandler(this.FieldModified);
             // 
@@ -1087,9 +1197,11 @@ namespace ChmProcessor
             // 
             // txtKeywords
             // 
+            this.txtKeywords.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.txtKeywords.Location = new System.Drawing.Point(211, 60);
             this.txtKeywords.Name = "txtKeywords";
-            this.txtKeywords.Size = new System.Drawing.Size(459, 20);
+            this.txtKeywords.Size = new System.Drawing.Size(480, 20);
             this.txtKeywords.TabIndex = 24;
             this.txtKeywords.TextChanged += new System.EventHandler(this.FieldModified);
             // 
@@ -1104,15 +1216,18 @@ namespace ChmProcessor
             // 
             // txtDirWeb
             // 
+            this.txtDirWeb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.txtDirWeb.Location = new System.Drawing.Point(211, 8);
             this.txtDirWeb.Name = "txtDirWeb";
-            this.txtDirWeb.Size = new System.Drawing.Size(426, 20);
+            this.txtDirWeb.Size = new System.Drawing.Size(447, 20);
             this.txtDirWeb.TabIndex = 17;
             this.txtDirWeb.TextChanged += new System.EventHandler(this.FieldModified);
             // 
             // btnSelWeb
             // 
-            this.btnSelWeb.Location = new System.Drawing.Point(646, 8);
+            this.btnSelWeb.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSelWeb.Location = new System.Drawing.Point(667, 8);
             this.btnSelWeb.Name = "btnSelWeb";
             this.btnSelWeb.Size = new System.Drawing.Size(24, 20);
             this.btnSelWeb.TabIndex = 18;
@@ -1152,22 +1267,25 @@ namespace ChmProcessor
             this.tabPdf.Controls.Add(this.lnkPdfPath);
             this.tabPdf.Location = new System.Drawing.Point(4, 22);
             this.tabPdf.Name = "tabPdf";
-            this.tabPdf.Size = new System.Drawing.Size(683, 232);
+            this.tabPdf.Size = new System.Drawing.Size(708, 274);
             this.tabPdf.TabIndex = 2;
             this.tabPdf.Text = "PDF / XPS";
             this.tabPdf.UseVisualStyleBackColor = true;
             // 
             // txtXps
             // 
+            this.txtXps.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.txtXps.Location = new System.Drawing.Point(198, 81);
             this.txtXps.Name = "txtXps";
-            this.txtXps.Size = new System.Drawing.Size(413, 20);
+            this.txtXps.Size = new System.Drawing.Size(466, 20);
             this.txtXps.TabIndex = 64;
             this.txtXps.TextChanged += new System.EventHandler(this.FieldModified);
             // 
             // btnSelXps
             // 
-            this.btnSelXps.Location = new System.Drawing.Point(617, 81);
+            this.btnSelXps.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSelXps.Location = new System.Drawing.Point(670, 79);
             this.btnSelXps.Name = "btnSelXps";
             this.btnSelXps.Size = new System.Drawing.Size(24, 20);
             this.btnSelXps.TabIndex = 65;
@@ -1187,7 +1305,7 @@ namespace ChmProcessor
             // chkGenerateXps
             // 
             this.chkGenerateXps.AutoSize = true;
-            this.chkGenerateXps.Location = new System.Drawing.Point(6, 84);
+            this.chkGenerateXps.Location = new System.Drawing.Point(7, 84);
             this.chkGenerateXps.Name = "chkGenerateXps";
             this.chkGenerateXps.Size = new System.Drawing.Size(94, 17);
             this.chkGenerateXps.TabIndex = 62;
@@ -1221,15 +1339,18 @@ namespace ChmProcessor
             // 
             // txtPdf
             // 
+            this.txtPdf.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.txtPdf.Location = new System.Drawing.Point(198, 13);
             this.txtPdf.Name = "txtPdf";
-            this.txtPdf.Size = new System.Drawing.Size(413, 20);
+            this.txtPdf.Size = new System.Drawing.Size(466, 20);
             this.txtPdf.TabIndex = 58;
             this.txtPdf.TextChanged += new System.EventHandler(this.FieldModified);
             // 
             // btnSelPdf
             // 
-            this.btnSelPdf.Location = new System.Drawing.Point(617, 13);
+            this.btnSelPdf.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSelPdf.Location = new System.Drawing.Point(671, 13);
             this.btnSelPdf.Name = "btnSelPdf";
             this.btnSelPdf.Size = new System.Drawing.Size(24, 20);
             this.btnSelPdf.TabIndex = 59;
@@ -1238,9 +1359,9 @@ namespace ChmProcessor
             // 
             // chkGenPdf
             // 
-            this.chkGenPdf.Location = new System.Drawing.Point(6, 11);
+            this.chkGenPdf.Location = new System.Drawing.Point(7, 11);
             this.chkGenPdf.Name = "chkGenPdf";
-            this.chkGenPdf.Size = new System.Drawing.Size(136, 24);
+            this.chkGenPdf.Size = new System.Drawing.Size(115, 24);
             this.chkGenPdf.TabIndex = 56;
             this.chkGenPdf.Text = "Generate PDF";
             this.chkGenPdf.CheckedChanged += new System.EventHandler(this.chkGenPdf_CheckedChanged);
@@ -1265,7 +1386,7 @@ namespace ChmProcessor
             this.tabJavaHelp.Location = new System.Drawing.Point(4, 22);
             this.tabJavaHelp.Name = "tabJavaHelp";
             this.tabJavaHelp.Padding = new System.Windows.Forms.Padding(3);
-            this.tabJavaHelp.Size = new System.Drawing.Size(683, 232);
+            this.tabJavaHelp.Size = new System.Drawing.Size(708, 274);
             this.tabJavaHelp.TabIndex = 4;
             this.tabJavaHelp.Text = "Java Help";
             this.tabJavaHelp.UseVisualStyleBackColor = true;
@@ -1291,7 +1412,8 @@ namespace ChmProcessor
             // 
             // btnSelJavaHelp
             // 
-            this.btnSelJavaHelp.Location = new System.Drawing.Point(637, 17);
+            this.btnSelJavaHelp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSelJavaHelp.Location = new System.Drawing.Point(658, 17);
             this.btnSelJavaHelp.Name = "btnSelJavaHelp";
             this.btnSelJavaHelp.Size = new System.Drawing.Size(24, 21);
             this.btnSelJavaHelp.TabIndex = 34;
@@ -1300,9 +1422,11 @@ namespace ChmProcessor
             // 
             // txtJavaHelp
             // 
+            this.txtJavaHelp.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.txtJavaHelp.Location = new System.Drawing.Point(235, 18);
             this.txtJavaHelp.Name = "txtJavaHelp";
-            this.txtJavaHelp.Size = new System.Drawing.Size(396, 20);
+            this.txtJavaHelp.Size = new System.Drawing.Size(417, 20);
             this.txtJavaHelp.TabIndex = 33;
             this.txtJavaHelp.TextChanged += new System.EventHandler(this.FieldModified);
             // 
@@ -1323,16 +1447,18 @@ namespace ChmProcessor
             this.tabOther.Controls.Add(this.label1);
             this.tabOther.Location = new System.Drawing.Point(4, 22);
             this.tabOther.Name = "tabOther";
-            this.tabOther.Size = new System.Drawing.Size(683, 232);
+            this.tabOther.Size = new System.Drawing.Size(708, 274);
             this.tabOther.TabIndex = 3;
             this.tabOther.Text = "Other";
             this.tabOther.UseVisualStyleBackColor = true;
             // 
             // txtCmdLine
             // 
+            this.txtCmdLine.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.txtCmdLine.Location = new System.Drawing.Point(220, 13);
             this.txtCmdLine.Name = "txtCmdLine";
-            this.txtCmdLine.Size = new System.Drawing.Size(452, 20);
+            this.txtCmdLine.Size = new System.Drawing.Size(473, 20);
             this.txtCmdLine.TabIndex = 59;
             this.txtCmdLine.TextChanged += new System.EventHandler(this.FieldModified);
             // 
@@ -1347,13 +1473,16 @@ namespace ChmProcessor
             // 
             // tabControl2
             // 
+            this.tabControl2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.tabControl2.Controls.Add(this.tabSourceFiles);
             this.tabControl2.Controls.Add(this.tabGeneral);
             this.tabControl2.Controls.Add(this.tabAdditionalFiles);
             this.tabControl2.Location = new System.Drawing.Point(12, 12);
             this.tabControl2.Name = "tabControl2";
             this.tabControl2.SelectedIndex = 0;
-            this.tabControl2.Size = new System.Drawing.Size(687, 184);
+            this.tabControl2.Size = new System.Drawing.Size(716, 189);
             this.tabControl2.TabIndex = 60;
             // 
             // tabSourceFiles
@@ -1367,14 +1496,15 @@ namespace ChmProcessor
             this.tabSourceFiles.Location = new System.Drawing.Point(4, 22);
             this.tabSourceFiles.Name = "tabSourceFiles";
             this.tabSourceFiles.Padding = new System.Windows.Forms.Padding(3);
-            this.tabSourceFiles.Size = new System.Drawing.Size(679, 158);
+            this.tabSourceFiles.Size = new System.Drawing.Size(708, 163);
             this.tabSourceFiles.TabIndex = 0;
             this.tabSourceFiles.Text = "Source files";
             this.tabSourceFiles.UseVisualStyleBackColor = true;
             // 
             // btnOpenSrcFiles
             // 
-            this.btnOpenSrcFiles.Location = new System.Drawing.Point(599, 127);
+            this.btnOpenSrcFiles.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnOpenSrcFiles.Location = new System.Drawing.Point(628, 127);
             this.btnOpenSrcFiles.Name = "btnOpenSrcFiles";
             this.btnOpenSrcFiles.Size = new System.Drawing.Size(75, 23);
             this.btnOpenSrcFiles.TabIndex = 5;
@@ -1384,7 +1514,8 @@ namespace ChmProcessor
             // 
             // btnMoveSrcFileDown
             // 
-            this.btnMoveSrcFileDown.Location = new System.Drawing.Point(598, 97);
+            this.btnMoveSrcFileDown.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnMoveSrcFileDown.Location = new System.Drawing.Point(627, 97);
             this.btnMoveSrcFileDown.Name = "btnMoveSrcFileDown";
             this.btnMoveSrcFileDown.Size = new System.Drawing.Size(75, 23);
             this.btnMoveSrcFileDown.TabIndex = 4;
@@ -1394,7 +1525,8 @@ namespace ChmProcessor
             // 
             // btnMoveSrcFileUp
             // 
-            this.btnMoveSrcFileUp.Location = new System.Drawing.Point(598, 64);
+            this.btnMoveSrcFileUp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnMoveSrcFileUp.Location = new System.Drawing.Point(627, 64);
             this.btnMoveSrcFileUp.Name = "btnMoveSrcFileUp";
             this.btnMoveSrcFileUp.Size = new System.Drawing.Size(75, 26);
             this.btnMoveSrcFileUp.TabIndex = 3;
@@ -1404,7 +1536,8 @@ namespace ChmProcessor
             // 
             // btnRemoveSrcFile
             // 
-            this.btnRemoveSrcFile.Location = new System.Drawing.Point(598, 35);
+            this.btnRemoveSrcFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnRemoveSrcFile.Location = new System.Drawing.Point(627, 35);
             this.btnRemoveSrcFile.Name = "btnRemoveSrcFile";
             this.btnRemoveSrcFile.Size = new System.Drawing.Size(75, 23);
             this.btnRemoveSrcFile.TabIndex = 2;
@@ -1414,18 +1547,22 @@ namespace ChmProcessor
             // 
             // lstSourceFiles
             // 
+            this.lstSourceFiles.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.lstSourceFiles.FormattingEnabled = true;
             this.lstSourceFiles.HorizontalScrollbar = true;
             this.lstSourceFiles.Location = new System.Drawing.Point(6, 6);
             this.lstSourceFiles.Name = "lstSourceFiles";
             this.lstSourceFiles.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.lstSourceFiles.Size = new System.Drawing.Size(586, 147);
+            this.lstSourceFiles.Size = new System.Drawing.Size(615, 147);
             this.lstSourceFiles.TabIndex = 1;
             this.lstSourceFiles.MouseDown += new System.Windows.Forms.MouseEventHandler(this.lstSourceFiles_MouseDown);
             // 
             // btnAddSrcFile
             // 
-            this.btnAddSrcFile.Location = new System.Drawing.Point(598, 6);
+            this.btnAddSrcFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnAddSrcFile.Location = new System.Drawing.Point(627, 6);
             this.btnAddSrcFile.Name = "btnAddSrcFile";
             this.btnAddSrcFile.Size = new System.Drawing.Size(75, 23);
             this.btnAddSrcFile.TabIndex = 0;
@@ -1449,7 +1586,7 @@ namespace ChmProcessor
             this.tabGeneral.Location = new System.Drawing.Point(4, 22);
             this.tabGeneral.Name = "tabGeneral";
             this.tabGeneral.Padding = new System.Windows.Forms.Padding(3);
-            this.tabGeneral.Size = new System.Drawing.Size(679, 158);
+            this.tabGeneral.Size = new System.Drawing.Size(708, 163);
             this.tabGeneral.TabIndex = 1;
             this.tabGeneral.Text = "General";
             this.tabGeneral.UseVisualStyleBackColor = true;
@@ -1464,9 +1601,11 @@ namespace ChmProcessor
             // 
             // txtTitAyu
             // 
+            this.txtTitAyu.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.txtTitAyu.Location = new System.Drawing.Point(84, 11);
             this.txtTitAyu.Name = "txtTitAyu";
-            this.txtTitAyu.Size = new System.Drawing.Size(554, 20);
+            this.txtTitAyu.Size = new System.Drawing.Size(605, 20);
             this.txtTitAyu.TabIndex = 50;
             this.txtTitAyu.TextChanged += new System.EventHandler(this.FieldModified);
             // 
@@ -1571,14 +1710,15 @@ namespace ChmProcessor
             this.tabAdditionalFiles.Location = new System.Drawing.Point(4, 22);
             this.tabAdditionalFiles.Name = "tabAdditionalFiles";
             this.tabAdditionalFiles.Padding = new System.Windows.Forms.Padding(3);
-            this.tabAdditionalFiles.Size = new System.Drawing.Size(679, 158);
+            this.tabAdditionalFiles.Size = new System.Drawing.Size(708, 163);
             this.tabAdditionalFiles.TabIndex = 2;
             this.tabAdditionalFiles.Text = "Additional Files";
             this.tabAdditionalFiles.UseVisualStyleBackColor = true;
             // 
             // btnBorAdi
             // 
-            this.btnBorAdi.Location = new System.Drawing.Point(561, 64);
+            this.btnBorAdi.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnBorAdi.Location = new System.Drawing.Point(590, 64);
             this.btnBorAdi.Name = "btnBorAdi";
             this.btnBorAdi.Size = new System.Drawing.Size(112, 23);
             this.btnBorAdi.TabIndex = 22;
@@ -1587,7 +1727,8 @@ namespace ChmProcessor
             // 
             // btnNueDirAdi
             // 
-            this.btnNueDirAdi.Location = new System.Drawing.Point(561, 35);
+            this.btnNueDirAdi.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnNueDirAdi.Location = new System.Drawing.Point(590, 35);
             this.btnNueDirAdi.Name = "btnNueDirAdi";
             this.btnNueDirAdi.Size = new System.Drawing.Size(112, 23);
             this.btnNueDirAdi.TabIndex = 21;
@@ -1596,7 +1737,8 @@ namespace ChmProcessor
             // 
             // btnNueArcAdi
             // 
-            this.btnNueArcAdi.Location = new System.Drawing.Point(561, 6);
+            this.btnNueArcAdi.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnNueArcAdi.Location = new System.Drawing.Point(590, 6);
             this.btnNueArcAdi.Name = "btnNueArcAdi";
             this.btnNueArcAdi.Size = new System.Drawing.Size(112, 23);
             this.btnNueArcAdi.TabIndex = 20;
@@ -1605,11 +1747,14 @@ namespace ChmProcessor
             // 
             // lstArcAdicionales
             // 
+            this.lstArcAdicionales.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.lstArcAdicionales.HorizontalScrollbar = true;
             this.lstArcAdicionales.Location = new System.Drawing.Point(6, 6);
             this.lstArcAdicionales.Name = "lstArcAdicionales";
             this.lstArcAdicionales.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.lstArcAdicionales.Size = new System.Drawing.Size(549, 147);
+            this.lstArcAdicionales.Size = new System.Drawing.Size(578, 147);
             this.lstArcAdicionales.Sorted = true;
             this.lstArcAdicionales.TabIndex = 19;
             // 
@@ -1617,14 +1762,12 @@ namespace ChmProcessor
             // 
             this.AcceptButton = this.btnProcesar;
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
-            this.ClientSize = new System.Drawing.Size(735, 527);
+            this.ClientSize = new System.Drawing.Size(740, 574);
             this.Controls.Add(this.tabControl2);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.stsStatus);
             this.Controls.Add(this.btnProcesar);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MaximizeBox = false;
             this.Menu = this.mnuPrincipal;
             this.Name = "ChmProcessorForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
@@ -1707,25 +1850,36 @@ namespace ChmProcessor
                     return;
                 }
 
-                if (chkGenWeb.Checked && !txtHeaderWeb.Text.Trim().Equals("") && !File.Exists(txtHeaderWeb.Text))
+                if (chkGenWeb.Checked)
                 {
-                    MessageBox.Show(this, "The web header file " + txtHeaderWeb.Text + " does not exist");
-                    txtHeaderWeb.Focus();
-                    return;
-                }
 
-                if (chkGenWeb.Checked && !txtFooterWeb.Text.Trim().Equals("") && !File.Exists(txtFooterWeb.Text))
-                {
-                    MessageBox.Show(this, "The web footer file " + txtFooterWeb.Text + " does not exist");
-                    txtFooterWeb.Focus();
-                    return;
-                }
+                    if (!txtHeaderWeb.Text.Trim().Equals("") && !File.Exists(txtHeaderWeb.Text))
+                    {
+                        MessageBox.Show(this, "The web header file " + txtHeaderWeb.Text + " does not exist");
+                        txtHeaderWeb.Focus();
+                        return;
+                    }
 
-                if (chkGenWeb.Checked && !txtHeadInclude.Text.Trim().Equals("") && !File.Exists(txtHeadInclude.Text.Trim()))
-                {
-                    MessageBox.Show(this, "The web <head> include file " + txtHeadInclude.Text + " does not exist");
-                    txtHeadInclude.Focus();
-                    return;
+                    if (!txtFooterWeb.Text.Trim().Equals("") && !File.Exists(txtFooterWeb.Text))
+                    {
+                        MessageBox.Show(this, "The web footer file " + txtFooterWeb.Text + " does not exist");
+                        txtFooterWeb.Focus();
+                        return;
+                    }
+
+                    if (!txtHeadInclude.Text.Trim().Equals("") && !File.Exists(txtHeadInclude.Text.Trim()))
+                    {
+                        MessageBox.Show(this, "The web <head> include file " + txtHeadInclude.Text + " does not exist");
+                        txtHeadInclude.Focus();
+                        return;
+                    }
+
+                    if (!Directory.Exists(WebHelpTemplateDir))
+                    {
+                        MessageBox.Show("The web template directory " + WebHelpTemplateDir + " does not exists");
+                        CmbWebTemplate.Focus();
+                        return;
+                    }
                 }
 
                 string compilerPath = AppSettings.CompilerPath;
@@ -2013,6 +2167,8 @@ namespace ChmProcessor
             cmbChangeFrequency.SelectedItem = cfg.ChangeFrequency;
             cmbWebLanguage.SelectedItem = cfg.WebLanguage;
             chkFullSearch.Checked = cfg.FullTextSearch;
+            CmbWebTemplate.SelectedItem = cfg.WebTemplateName;
+            TxtTemplateDir.Text = cfg.CustomTemplateDirectory;
             radPdfAddIn.Checked = (cfg.PdfGeneration == ChmProject.PdfGenerationWay.OfficeAddin);
             radPdfCreator.Checked = (cfg.PdfGeneration == ChmProject.PdfGenerationWay.PdfCreator);
             chkGenerateXps.Checked = cfg.GenerateXps;
@@ -2033,8 +2189,6 @@ namespace ChmProcessor
             chkAbrirProyecto.Checked = cfg.OpenProject;
 
             // CHM encoding:
-            /*EncodingItem encoding = chmEncodings.SearchByCodePage(cfg.ChmCodePage);
-            cmbChmLanguage.SelectedItem = encoding;*/
             cmbChmLanguage.SelectedItem = CultureInfo.GetCultureInfo(cfg.ChmLocaleID);
         }
 
@@ -2101,6 +2255,8 @@ namespace ChmProcessor
             cfg.ChangeFrequency = (ChmProject.FrequencyOfChange)cmbChangeFrequency.SelectedItem;
             cfg.WebLanguage = (string)cmbWebLanguage.SelectedItem;
             cfg.FullTextSearch = chkFullSearch.Checked;
+            cfg.WebTemplateName = CmbWebTemplate.SelectedItem as string;
+            cfg.CustomTemplateDirectory = TxtTemplateDir.Text;
             if (radPdfCreator.Checked)
                 cfg.PdfGeneration = ChmProject.PdfGenerationWay.PdfCreator;
             else
@@ -2120,7 +2276,6 @@ namespace ChmProcessor
                 cfg.ArchivosAdicionales.Add(arc);
 
             cfg.OpenProject = chkAbrirProyecto.Checked;
-            //cfg.ChmCodePage = ((EncodingItem)cmbChmLanguage.SelectedItem).EncodingInfo.CodePage;
             cfg.ChmLocaleID = ((CultureInfo)cmbChmLanguage.SelectedItem).LCID;
 
             return cfg;
@@ -2184,6 +2339,12 @@ namespace ChmProcessor
             cmbWebLanguage.Enabled = chkGenWeb.Checked;
             chkFullSearch.Enabled = chkGenWeb.Checked;
             txtHeadInclude.Enabled = chkGenWeb.Checked;
+
+            CmbWebTemplate.Enabled = 
+                BtnSelTemplateDir.Enabled =
+                TxtTemplateDir.Enabled = chkGenWeb.Checked;
+
+            CmbWebTemplate_SelectedIndexChanged(null, null);
         }
 
         private void btnSelWeb_Click(object sender, System.EventArgs e)
@@ -2620,6 +2781,48 @@ namespace ChmProcessor
         private void lnkHeadInclude_Click(object sender, EventArgs e)
         {
             OpenGeneralFile(txtHeadInclude.Text);
+        }
+
+        /// <summary>
+        /// Web template selection changed
+        /// </summary>
+        private void CmbWebTemplate_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            bool enableCustomTemplate = chkGenWeb.Checked && 
+                (CmbWebTemplate.SelectedItem as string) == ChmProject.WEBTEMPLATE_CUSTOM;
+            TxtTemplateDir.Enabled = BtnSelTemplateDir.Enabled = enableCustomTemplate;
+
+        }
+
+        /// <summary>
+        /// The currently selected webhelp template directory
+        /// </summary>
+        private string WebHelpTemplateDir
+        {
+            get
+            {
+                return WebHelpGenerator.GetTemplateDirectory(CmbWebTemplate.SelectedItem as string, TxtTemplateDir.Text.Trim());
+            }
+
+        }
+
+        /// <summary>
+        /// Web template link clicked: Open the directory with windows shell
+        /// </summary>
+        private void LnkWebTemplate_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            OpenGeneralFile(WebHelpTemplateDir);
+        }
+
+        /// <summary>
+        /// Webhelp template directory selection button pressed
+        /// </summary>
+        private void BtnSelTemplateDir_Click(object sender, EventArgs e)
+        {
+            FolderBrowserDialog dlg = new FolderBrowserDialog();
+            dlg.SelectedPath = TxtTemplateDir.Text;
+            if (dlg.ShowDialog() == DialogResult.OK)
+                TxtTemplateDir.Text = dlg.SelectedPath;
         }
 
     }

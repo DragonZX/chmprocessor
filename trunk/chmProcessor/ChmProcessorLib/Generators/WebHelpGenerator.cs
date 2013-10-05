@@ -33,6 +33,10 @@ namespace ChmProcessorLib.Generators
     public class WebHelpGenerator : ContentDirectoryGenerator
     {
 
+        /// <summary>
+        /// Application subdirectory that contains the webhelp templates
+        /// </summary>
+        private const string WEBTEMPLATESDIR = "webFiles";
 
         public WebHelpGenerator(ChmDocument document, UserInterface ui, ChmProject project, 
             HtmlPageDecorator decorator)
@@ -74,9 +78,8 @@ namespace ChmProcessorLib.Generators
             // Create text replacements
             Replacements replacements = CreateTextReplacements();
 
-            // Copy web files replacing text
-            string baseDir = Path.Combine( System.Windows.Forms.Application.StartupPath , "webFiles");
-            replacements.CopyDirectoryReplaced(baseDir, Project.WebDirectory, MSWord.HTMLEXTENSIONS, AppSettings.UseTidyOverOutput, UI, Decorator.OutputEncoding);
+            // Copy template web files replacing text
+            replacements.CopyDirectoryReplaced(Project.TemplateDirectory, Project.WebDirectory, MSWord.HTMLEXTENSIONS, AppSettings.UseTidyOverOutput, UI, Decorator.OutputEncoding);
 
             // Copy full text search files replacing text:
             if (Project.FullTextSearch)
@@ -235,6 +238,39 @@ namespace ChmProcessorLib.Generators
                 texto += CreateHtmlTree(hijo, 1) + "\n";
             texto += "</ul>\n";
             return texto;
+        }
+
+        /// <summary>
+        /// Returns the absolute directory of a webhelp template, standard or custom.
+        /// </summary>
+        /// <param name="templateName">Template name. If its == ChmProject.WEBTEMPLATE_CUSTOM,
+        /// customDirectory will be returned. Otherwise, the application template with that name
+        /// will be returned</param>
+        /// <param name="customDirectory">User defined webhelp directory</param>
+        /// <returns>The absolute directory of the webhelp template</returns>
+        static public string GetTemplateDirectory(string templateName, string customDirectory)
+        {
+            if (templateName == ChmProject.WEBTEMPLATE_CUSTOM)
+                // Custom template
+                return customDirectory;
+
+            // Standard template:
+            string path = Path.Combine(System.Windows.Forms.Application.StartupPath, WEBTEMPLATESDIR);
+            return Path.Combine(path, templateName);
+        }
+
+        /// <summary>
+        /// Returns the currently available standard webhelp templates into the application directory
+        /// </summary>
+        /// <returns>Names of the standard templates</returns>
+        static public List<string> GetStandardTemplateNames()
+        {
+            string path = Path.Combine(System.Windows.Forms.Application.StartupPath, WEBTEMPLATESDIR);
+            string[] directories = Directory.GetDirectories(path);
+            List<string> names = new List<string>();
+            foreach (string dir in directories)
+                names.Add(Path.GetFileName(dir));
+            return names;
         }
 
     }

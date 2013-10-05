@@ -1,7 +1,10 @@
 BUGS
 ------------------
 
+- chmProcessor own documentation: With there is an initial "Help content" section??? WTF. 
 - Whitespaces on CHM titles: Html test / Section "17.2.1. Using return-property to explicitly specify column/alias names" adds extra whitespaces. They should not be there.
+- Frames webhelp template selects nodes on the tree when a full text search link is pressed but
+  the jQuery template dont do it.
 - AppLocale test has some kind of bug. There is characters show as "?" on the CHM...
 
 IMPROVEMENTS
@@ -24,3 +27,6 @@ IMPROVEMENTS
 - Remove references to PDF Creator
 - Documentation: Warn about chrome and local filesystem.
 - Licenses: Add jquery, layouts and tree
+- jQuery template: If there is a single html page, hide previous, next and home buttons. If we are on
+  the last or first page, disable links for previous / next home.
+  

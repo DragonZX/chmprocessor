@@ -1,13 +1,13 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="GENERATOR" content="chmProcessor" />
-<title>%TITLE%</title>
-<link rel="stylesheet" type="text/css" href="contents.css" />
-<script type="text/javascript" src="misc.js"></script>
-<script type="text/javascript" src="tree.js"></script>
-<script type="text/javascript" src="tabs.js"></script>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="GENERATOR" content="chmProcessor" />
+    <title>%TITLE%</title>
+    <link rel="stylesheet" type="text/css" href="contents.css" />
+    <script type="text/javascript" src="misc.js"></script>
+    <script type="text/javascript" src="tree.js"></script>
+    <script type="text/javascript" src="tabs.js"></script>
 </head>
 <body>
 <a class="arialfont" id="lnk0" href="index.html">%Contents%</a> <a class="arialfont" id="lnk1" href="index.html">%Topics%</a> <a class="arialfont" id="lnk2" href="index.html">%Search%</a><br/>
@@ -22,10 +22,20 @@
 </div>
 
 <div id="searchPanel">
-%TEXTSEARCH%
+    <form name="searchform" method="post" action="search.aspx" id="searchform" onsubmit="doSearch(); return false;">
+        <p>
+            <img src="system-search.png" align="middle" alt="Search image" /> <b>%Search Text%:</b><br />
+            <input type="text" id="searchText" style="width:80%;" name="searchText" /><br />
+            <input type="submit" value="%Search%" id="Button1" name="Button1" />
+        </p>
+        <select id="searchResult" style="width:100%;" size="20" name="searchResult"></select>
+    </form>
 </div>
 
 <script type="text/javascript">
+
+    var fullSearch = %BOOLFULLSEARCH%;
+    
 	function topicOnClick() {
 	    var topicsList = document.getElementById("topicsList");
 	    if( topicsList.selectedIndex >= 0 )
@@ -33,6 +43,12 @@
 	}
 
 	function doSearch() {
+	    if (fullSearch) {
+	        // Do the submit
+	        doFullTextSearch();
+	        return;
+	    }
+	    // Do the search
 	    contentTree.searchByContent( document.getElementById("searchText").value , "searchResult" , "topicsList" );
 	}
 
@@ -71,8 +87,16 @@
 	// Create tree:	
     contentTree.create( document.getElementById( "contentsTree" ) , window.parent.document.getElementById( "frameCont" ) , window.parent.parent.location.href );
     
-    //window.parent.parent.parent.document.getElementById("mainTitle").innerHTML = document.title;
+    // Set title
     window.parent.parent.parent.document.title = document.title;
+    
+    if( fullSearch )
+        // Hide results list:
+        document.getElementById("searchResult").style.display = 'none';
+        
+    // Set double click topic event:
+    document.getElementById("topicsList").ondblclick = topicSelected;
+        
 </script>
 </body>
 </html>

@@ -26,6 +26,7 @@ using System.Diagnostics;
 using System.Xml;
 using System.Globalization;
 using System.Text;
+using ChmProcessorLib.Generators;
 
 namespace ChmProcessorLib
 {
@@ -56,9 +57,19 @@ namespace ChmProcessorLib
 	{
 
         /// <summary>
+        /// Name for the WebTemplateName property to use a custom web template
+        /// </summary>
+        public const string WEBTEMPLATE_CUSTOM = "Custom";
+
+        /// <summary>
+        /// Default WebTemplateName property value.
+        /// </summary>
+        public const string WEBTEMPLATE_DEFAULT = "jQuery";
+
+        /// <summary>
         /// Current version of the file format.
         /// </summary>
-        public const double CURRENTFILEVERSION = 1.6;
+        public const double CURRENTFILEVERSION = 1.7;
 
         /// <summary>
         /// Ways to generate the PDF file: With PdfCreator, or with the Office 2007 add-in.
@@ -298,12 +309,27 @@ namespace ChmProcessorLib
         /// Usefull to include, as example, the google analytics javascript code.
         /// </summary>
         [FilePathAttribute]
-        public String HeadTagFile = "";
+        public String HeadTagFile = string.Empty;
 
         /// <summary>
         /// Locale identifier (LCID) to use to generate the CHM files.
         /// </summary>
         public int ChmLocaleID = CultureInfo.CurrentCulture.LCID;
+
+        /// <summary>
+        /// Name of the web template to use to create the webhelp. 
+        /// It's the subdirectory name into "WebFiles" application directory to use for the webhelp.
+        /// If WebTemplateName == WEBTEMPLATE_CUSTOM, the property CustomTemplateDirectory contains
+        /// a path of the directory with the custom template to use.
+        /// </summary>
+        public string WebTemplateName = WEBTEMPLATE_DEFAULT;
+
+        /// <summary>
+        /// If WebTemplateName == WEBTEMPLATE_CUSTOM, this contains the directory with the webhelp
+        /// template to use for this project.
+        /// </summary>
+        [DirPathAttribute]
+        public string CustomTemplateDirectory = string.Empty;
 
         /// <summary>
         /// The directory where will be generated the help project.
@@ -322,6 +348,18 @@ namespace ChmProcessorLib
                 else
                     directory = DestinationProjectDirectory;
                 return directory;
+            }
+        }
+
+        /// <summary>
+        /// Get the absolute webhelp template directory for this project. It's based on WebTemplateName
+        /// and CustomTemplateDirectory property values
+        /// </summary>
+        public string TemplateDirectory
+        {
+            get
+            {
+                return WebHelpGenerator.GetTemplateDirectory(WebTemplateName, CustomTemplateDirectory);
             }
         }
 
@@ -562,7 +600,7 @@ namespace ChmProcessorLib
             catch (Exception ex)
             {
                 ui.Log(ex);
-                throw new Exception("The locale ID (LCID) " + ChmLocaleID + " is not found.", ex);
+                throw new Exception("The locale ID (LCID) " + ChmLocaleID + " was not found.", ex);
             }
         }
 
@@ -581,8 +619,9 @@ namespace ChmProcessorLib
             catch (Exception ex)
             {
                 ui.Log(ex);
-                throw new Exception("The ANSI codepage " + chmCulture.TextInfo.ANSICodePage + " is not found.", ex);
+                throw new Exception("The ANSI codepage " + chmCulture.TextInfo.ANSICodePage + " was not found.", ex);
             }
         }
+
 	}
 }
