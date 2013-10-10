@@ -8,11 +8,10 @@ This directory containts a set of tests to check the application.
 - HtmlSourceTest:		Generate help from a HTML file
 - InitialContentNoTitleTest:	Generate help of a content without an initial title
 - NoTitlesTest:			Test generation if the document has content, but any title.
-- StandardTest dir: 		Check common generation process
+- StandardTest: 		Check common generation process
+- WebTranslations:		Check webtranslations
+- SinglePageTest:		Check a single page generation, with and without initial-no-section text
 
 
-TODO: Add tests for:
-- Broken links
-- Add non ASCII characters on topic titles of the standard test
+TODO: Add a bat to generate all tests....
 
-TODO: Add a bat to clean the previously generated tests

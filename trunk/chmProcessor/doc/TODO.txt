@@ -29,4 +29,6 @@ IMPROVEMENTS
 - Licenses: Add jquery, layouts and tree
 - jQuery template: If there is a single html page, hide previous, next and home buttons. If we are on
   the last or first page, disable links for previous / next home.
-  
+- Add previous / next links on footers/headers
+- There is a hang on IsOpen function of MSWord (see web bugs)
+

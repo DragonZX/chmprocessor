@@ -114,8 +114,23 @@ namespace ChmProcessorLib.DocumentStructure
             CheckForStyleTags();
 
             // If the initial node for content without title is empty, remove it:
-            if (InitialNode.EmptyTextContent)
-                Document.RootNode.Children.Remove(InitialNode);
+            // There is two cases:
+            if (Project.CutLevel == 0)
+            {
+                // A single page will be created: All the content is into the InitialNode.
+                // If there is some title, move the content to the first one and remove the initial
+                if (Document.RootNode.Children.Count >= 2)
+                {
+                    ChmDocumentNode firstTitle = Document.RootNode.Children[1];
+                    Document.RootNode.Children.Remove(InitialNode);
+                    firstTitle.SplittedPartBody = InitialNode.SplittedPartBody;
+                }
+            }
+            else {
+                // More than one page will be created. If the initial node has no content, remove it.
+                if (InitialNode.EmptyTextContent)
+                    Document.RootNode.Children.Remove(InitialNode);
+            }
 
             if (UI.CancellRequested())
                 return null;
@@ -320,23 +335,37 @@ namespace ChmProcessorLib.DocumentStructure
 
         private HtmlNode BuscarNodoA(HtmlNode raiz)
         {
-            //return raiz.SelectSingleNode("//a");
             return raiz.SelectSingleNode(".//a");
         }
 
-        private void GuardarParte(HtmlNode nuevoBody)
+        /// <summary>
+        /// Stores a splitted document part on the node tree with the main title of the part.
+        /// </summary>
+        /// <param name="newBody">Body part to store</param>
+        private void StoreBodyPart(HtmlNode newBody)
         {
             // Get the main header of this content part:
-            HtmlNode sectionHeader = SearchFirstCutNode(nuevoBody);
+            HtmlNode sectionHeader = SearchFirstCutNode(newBody);
             ChmDocumentNode nodeToStore = null;
             if (sectionHeader == null)
-                // If no section was found, its the first section of the document:
-                nodeToStore = InitialNode;
+            {
+                //// If no section was found, it can be the first section of the document or it can be
+                //// because there no is cut headers:
+                //if (Project.CutLevel == 0 && Document.RootNode.Children.Count >= 2)
+                //{
+                //    // There is no cut headers, and there is some title into the document: 
+                //    // If the part contains any title, this content should go to the first title of the 
+                //    // document (Document.RootNode.Children[1]). I
+                //}
+
+                //if( nodeToStore == null )
+                    nodeToStore = InitialNode;
+            }
             else
             {
                 string aName = "";
                 HtmlNode a = BuscarNodoA(sectionHeader);
-                if (a != null && GetAttributeValue(a,"name") != null)
+                if (a != null && GetAttributeValue(a, "name") != null)
                     aName = GetAttributeValue(a, "name");
                 nodeToStore = Document.RootNode.BuscarNodo(sectionHeader, aName);
             }
@@ -353,7 +382,7 @@ namespace ChmProcessorLib.DocumentStructure
             }
             else
             {
-                nodeToStore.SplittedPartBody = nuevoBody;
+                nodeToStore.SplittedPartBody = newBody;
                 nodeToStore.BuildListOfContainedANames();  // Store the A name's tags of the body.
             }
         }
@@ -453,7 +482,7 @@ namespace ChmProcessorLib.DocumentStructure
                 if (IsCutHeader(nodo))
                 {
                     // Found start of a new part: Store the current body part.
-                    GuardarParte(newBody);
+                    StoreBodyPart(newBody);
                     newBody = Clone(Document.Body);
                     InsertAfter(newBody, nodo);
                 }
@@ -467,7 +496,7 @@ namespace ChmProcessorLib.DocumentStructure
                         if (lista[lista.Count - 1] != hijo)
                         {
                             // Si no es el ultimo, cerrar esta parte y abrir otra.
-                            GuardarParte(newBody);
+                            StoreBodyPart(newBody);
                             newBody = Clone(Document.Body);
                         }
                     }
@@ -476,7 +505,7 @@ namespace ChmProcessorLib.DocumentStructure
                 if (UI.CancellRequested())
                     return;
             }
-            GuardarParte(newBody);
+            StoreBodyPart(newBody);
         }
 
         /// <summary>
