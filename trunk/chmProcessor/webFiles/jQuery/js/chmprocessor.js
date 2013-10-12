@@ -64,11 +64,23 @@ function loadUrlOnFrame(url) {
 function selectByUrl(url) {
     var fileName = getUrlFileName(url);
     fileName = decodeURIComponent(fileName); // Needed if the hash part(xxx on a.html#xxx) contains spaces, it happens with word generated hashes
-    // Do tree selection
+    // Do tree selection, with hash:
     var linkSelected = $('#treediv a[href="' + fileName + '"]').first();
-    $("#treediv").jstree("select_node", linkSelected.parent(), true);
-    // Load the URL on the frame
-    loadUrlOnFrame(fileName);
+    var loadFrame = true;
+    if (linkSelected.length == 0) {
+        // Not found: Do the selection without hash:
+        var parts = fileName.split("#");
+        linkSelected = $('#treediv a[href^="' + parts[0] + '"]').first();
+        loadFrame = false;
+    }
+    $("#treediv").jstree("select_node", linkSelected.parent(), loadFrame);
+    if (loadFrame)
+        // Load the URL on the frame
+        loadUrlOnFrame(fileName);
+    else if( fileName.indexOf("search.aspx") == 0 ) {
+        // We are on the full text search page. Set the hash:
+        changeHash(fileName);
+    }
 };
 
 // Process a tree link text
@@ -120,7 +132,7 @@ function selectByTitle(title) {
         if (searchInstance.instance == 0)
             titleSelector = titleSelector.first();
         else
-            titleSelector = titleSelector.get(searchInstance.instance);
+            titleSelector = titleSelector.eq(searchInstance.instance);
             
         $("#treediv").jstree("select_node",
             titleSelector.parent(),
@@ -145,32 +157,45 @@ function getCurrentHash() {
 function hashChanged() {
     var title = getCurrentHash();
     title = decodeURIComponent(title);
-    selectByTitle(title);
+    if (title.indexOf("search.aspx") == 0)
+        // Its a full text search URL
+        loadUrlOnFrame(title);
+    else
+        // Its a section title 
+        selectByTitle(title);
 }
 
 // Set a new URL hash
-// linkSelector: The jquery title link
+// linkSelector: The jquery tree title link, or a string with the search page URL
 function changeHash(linkSelector) {
 
     if (!("onhashchange" in window))
+        // Browser does not support hash change. Do nothing.
         return;
 
-    var newHash = cleanTitleText(linkSelector.text());
-    
-    // Check if its a duplicated title
-    var titleInstance = linkSelector.prop("titleInstance");
-    if (titleInstance)
-        // Save instance number:
-        newHash = "!" + titleInstance + "!" + newHash;
-        
-    // The first node should no have hash:
-    if (cleanTitleText($("#treediv a:first").text()) == newHash)
-        newHash = "";
+    var newHash = null;
+    if (typeof linkSelector == 'string' || linkSelector instanceof String) {
+        // Is the url to the search page:
+        newHash = linkSelector;
+    }
+    else {
+        newHash = cleanTitleText(linkSelector.text());
+
+        // Check if its a duplicated title
+        var titleInstance = linkSelector.prop("titleInstance");
+        if (titleInstance)
+            // Save instance number:
+            newHash = "!" + titleInstance + "!" + newHash;
+
+        // The first node should no have hash:
+        if (cleanTitleText($("#treediv a:first").text()) == newHash)
+            newHash = "";
+    }
 
     // Avoid to put the same hash twice
     if (window.location.hash == newHash)
-        return;
-
+        return;    
+        
     newHash = encodeURIComponent(newHash);
     window.location.hash = newHash;
 }

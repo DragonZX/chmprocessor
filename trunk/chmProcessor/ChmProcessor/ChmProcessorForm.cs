@@ -186,6 +186,7 @@ namespace ChmProcessor
         private Label label16;
         private ComboBox CmbWebTemplate;
         private LinkLabel LnkWebTemplate;
+        private Button BtnOpenAdditional;
         private ToolStripStatusLabel labStatus;
         #endregion
 
@@ -522,6 +523,7 @@ namespace ChmProcessor
             this.btnNueDirAdi = new System.Windows.Forms.Button();
             this.btnNueArcAdi = new System.Windows.Forms.Button();
             this.lstArcAdicionales = new System.Windows.Forms.ListBox();
+            this.BtnOpenAdditional = new System.Windows.Forms.Button();
             this.stsStatus.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabChm.SuspendLayout();
@@ -1597,7 +1599,7 @@ namespace ChmProcessor
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(158, 23);
             this.label2.TabIndex = 60;
-            this.label2.Text = "(0 = No Cuts. Only one topic)";
+            this.label2.Text = "(0 = No Cuts. Only one page)";
             // 
             // txtTitAyu
             // 
@@ -1657,7 +1659,7 @@ namespace ChmProcessor
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(168, 18);
             this.label9.TabIndex = 57;
-            this.label9.Text = "Index topics max. header level";
+            this.label9.Text = "Topics index max. header level";
             // 
             // label8
             // 
@@ -1703,6 +1705,7 @@ namespace ChmProcessor
             // 
             // tabAdditionalFiles
             // 
+            this.tabAdditionalFiles.Controls.Add(this.BtnOpenAdditional);
             this.tabAdditionalFiles.Controls.Add(this.btnBorAdi);
             this.tabAdditionalFiles.Controls.Add(this.btnNueDirAdi);
             this.tabAdditionalFiles.Controls.Add(this.btnNueArcAdi);
@@ -1757,6 +1760,18 @@ namespace ChmProcessor
             this.lstArcAdicionales.Size = new System.Drawing.Size(578, 147);
             this.lstArcAdicionales.Sorted = true;
             this.lstArcAdicionales.TabIndex = 19;
+            this.lstArcAdicionales.DoubleClick += new System.EventHandler(this.BtnOpenAdditional_Click);
+            // 
+            // BtnOpenAdditional
+            // 
+            this.BtnOpenAdditional.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.BtnOpenAdditional.Location = new System.Drawing.Point(590, 93);
+            this.BtnOpenAdditional.Name = "BtnOpenAdditional";
+            this.BtnOpenAdditional.Size = new System.Drawing.Size(112, 23);
+            this.BtnOpenAdditional.TabIndex = 23;
+            this.BtnOpenAdditional.Text = "Open";
+            this.BtnOpenAdditional.UseVisualStyleBackColor = true;
+            this.BtnOpenAdditional.Click += new System.EventHandler(this.BtnOpenAdditional_Click);
             // 
             // ChmProcessorForm
             // 
@@ -2096,6 +2111,15 @@ namespace ChmProcessor
                     lstArcAdicionales.Items.Remove(file);
                 Modified = true;
             }
+        }
+
+        /// <summary>
+        /// Button "Open" in additional files clicked
+        /// </summary>
+        private void BtnOpenAdditional_Click(object sender, EventArgs e)
+        {
+            foreach( string file in lstArcAdicionales.SelectedItems )
+                OpenGeneralFile(file);
         }
 
         private bool CanCloseProject()

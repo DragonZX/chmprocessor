@@ -1,6 +1,7 @@
 BUGS
 ------------------
 
+- GXALMAC help: wrong non ascii characters... (acentos)
 - chmProcessor own documentation: With there is an initial "Help content" section??? WTF. 
 - Whitespaces on CHM titles: Html test / Section "17.2.1. Using return-property to explicitly specify column/alias names" adds extra whitespaces. They should not be there.
 - Frames webhelp template selects nodes on the tree when a full text search link is pressed but
