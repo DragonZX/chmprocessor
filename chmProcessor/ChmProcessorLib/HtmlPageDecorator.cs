@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Text;
 using HtmlAgilityPack;
 using System.IO;
+using ChmProcessorLib.DocumentStructure;
 
 namespace ChmProcessorLib
 {
@@ -162,36 +163,76 @@ namespace ChmProcessorLib
         }
 
         /// <summary>
+        /// Returns the header/footer page texts with navigation links replaced
+        /// </summary>
+        /// <param name="node">Current page to calculate the navigation links</param>
+        /// <param name="document">Owner of the page</param>
+        /// <param name="headerHtmlCode">The header with links replaced</param>
+        /// <param name="footerHtmlCode">The footer with links replaced</param>
+        private void MakeLinkReplacements(ChmDocumentNode node, ChmDocument document, 
+            out string headerHtmlCode, out string footerHtmlCode) 
+        {
+            string previousLink, nextLink, homeLink;
+            previousLink = nextLink = homeLink = "#";
+
+            // Home:
+            if( document.PagesIndex.Count > 0 )
+                homeLink = document.PagesIndex[0];
+
+            int currentPageIdx = document.PagesIndex.IndexOf(node.DestinationFileName);
+            if (currentPageIdx >= 0)
+            {
+                // Previous
+                if (currentPageIdx > 0)
+                    previousLink = document.PagesIndex[currentPageIdx - 1];
+                // Next
+                if (currentPageIdx < (document.PagesIndex.Count - 1))
+                    nextLink = document.PagesIndex[currentPageIdx + 1];
+            }
+
+            // Make replacements:
+            headerHtmlCode = HeaderHtmlCode.Replace("%PREVLINK%", previousLink)
+                .Replace("%NEXTLINK%", nextLink)
+                .Replace("%HOMELINK%", homeLink);
+            footerHtmlCode = FooterHtmlCode.Replace("%PREVLINK%", previousLink)
+                .Replace("%NEXTLINK%", nextLink)
+                .Replace("%HOMELINK%", homeLink);
+        }
+
+        /// <summary>
         /// Adds footer and / or header, if its needed.
         /// </summary>
-        /// <param name="body">Original "body" tag of the page to write</param>
+        /// <param name="node">Node with the body to write</param>
+        /// <param name="document">Owner of the node</param>
         /// <returns>If a footer or a header was specified, return a copy
         /// of the original body with the footer and / or header added. If none
         /// was specified, return the original body itself.</returns>
-        private HtmlNode AddFooterAndHeader(HtmlNode body)
+        private HtmlNode AddFooterAndHeader(ChmDocumentNode node, ChmDocument document)
         {
-            
+
+            HtmlNode body = node.SplittedPartBody;
+
             if (HeaderHtmlCode == "" && FooterHtmlCode == "")
                 return body;
 
             // Clone the body:
-            //IHTMLElement clonedBody = (IHTMLElement)((IHTMLDOMNode)body).cloneNode(true);
             HtmlNode clonedBody = body.CloneNode(true);
 
             try
             {
+                // Make previous, next and home link replacements:
+                string header, footer;
+                MakeLinkReplacements(node, document, out header, out footer);
+
                 // Add content headers and footers:
                 if (HeaderHtmlCode != "")
-                    //clonedBody.insertAdjacentHTML("afterBegin", HeaderHtmlCode);
-                    clonedBody.PrependChild(HtmlNode.CreateNode("<div>" + HeaderHtmlCode + "</div>"));
+                    clonedBody.PrependChild(HtmlNode.CreateNode("<div>" + header + "</div>"));
                 if (FooterHtmlCode != "")
-                    //clonedBody.insertAdjacentHTML("beforeEnd", FooterHtmlCode);
-                    clonedBody.AppendChild(HtmlNode.CreateNode("<div>" + FooterHtmlCode + "</div>"));
+                    clonedBody.AppendChild(HtmlNode.CreateNode("<div>" + footer + "</div>"));
             }
             catch (Exception ex)
             {
-                log(new Exception("There is something wrong with your HTML header or footer. Internet " +
-                    "Explorer said NO when we tried to add them to the body", ex));
+                log(new Exception("Error adding headers / footers to node " + node, ex));
             }
 
             return clonedBody;
@@ -204,11 +245,15 @@ namespace ChmProcessorLib
         /// <param name="body">"body" tag to write into the html file</param>
         /// <param name="filePath">Path where to write the HTML file</param>
         /// <param name="UI">User interface of the application</param>
-        /// <param name="title">Text to put into the title tag of the page</param>
-        public void ProcessAndSavePage(HtmlNode body, string filePath, string title)
+        public void ProcessAndSavePage(ChmDocumentNode node, ChmDocument document, string filePath)
         {
+
+            HtmlNode body = node.SplittedPartBody;
+            if (body == null)
+                throw new Exception("The node " + node + " has no body");
+
             // Make a copy of the body and add the header and footer:
-            HtmlNode clonedBody = AddFooterAndHeader(body);
+            HtmlNode clonedBody = AddFooterAndHeader(node, document);
 
             StreamWriter writer;
 
@@ -223,11 +268,10 @@ namespace ChmProcessorLib
                 // Use the default encoding.
                 writer = new StreamWriter(filePath, false);
 
-            writer.WriteLine( textBeforeBody.Replace(TITLETAG, "<title>" + title + "</title>") );
+            writer.WriteLine( textBeforeBody.Replace(TITLETAG, "<title>" + node.Title + "</title>") );
             string bodyText = clonedBody.OuterHtml;
 
             // Seems to be a bug that puts "about:blank" on links. Remove them:
-            // TODO: Check if this still true....
             bodyText = bodyText.Replace("about:blank", "").Replace("about:", "");
             writer.WriteLine(bodyText);
             writer.WriteLine(textAfterBody);

@@ -216,7 +216,7 @@ namespace ChmProcessorLib.DocumentStructure
                 {
                     // Si no tiene ningun nombre, darle uno artificial:
                     int number = LatestCustomAnchorNumber++;
-                    string nodeName = "CHMPROCESSORNODE" + number.ToString();
+                    string nodeName = "node" + number.ToString();
                     HtmlNode aTagElement = document.HtmlDoc.CreateElement("a");
                     // XHTML/HTML5 uses the "id" attribute, and HTML4 "name"
                     // There is no safe way to check if its XHTML/HTML5 or a lower version, so put both:
@@ -417,19 +417,20 @@ namespace ChmProcessorLib.DocumentStructure
         /// <summary>
         /// Saves the splitted content of this node into a file, if it has any.
         /// </summary>
+        /// <param name="document">Owner of this node</param>
         /// <param name="directoryDstPath">Directory path where the content files will be stored</param>
         /// <param name="decorator">Tool to generate and decorate the HTML content files</param>
         /// <param name="indexer">Tool to index the saved content files. It can be null, if the content
         /// does not need to be indexed.</param>
         /// <returns>The content file name saved. Is this node has no content, it returns null</returns>
-        public string SaveContent(string directoryDstPath, HtmlPageDecorator decorator, WebIndex indexer)
+        public string SaveContent(ChmDocument document, string directoryDstPath, HtmlPageDecorator decorator, WebIndex indexer)
         {
             if (SplittedPartBody == null)
                 return null;
 
             // Save the section, adding header, footers, etc:
             string filePath = Path.Combine( directoryDstPath, DestinationFileName );
-            decorator.ProcessAndSavePage(SplittedPartBody, filePath, Title);
+            decorator.ProcessAndSavePage(this, document, filePath);
 
             if (indexer != null)
                 // Store the document at the full text search index:
@@ -471,6 +472,11 @@ namespace ChmProcessorLib.DocumentStructure
             {
                 return ChmDocumentParser.UnescapedInnerText(SplittedPartBody);
             }
+        }
+
+        public override string ToString()
+        {
+            return this.Title;
         }
     }
 
