@@ -21,14 +21,14 @@ IMPROVEMENTS
 - Add option to not create the CHM.
 - Use standard api to keep last opened files.
 - Make a BAT to clear the application registry node
+- Make a BAT to build all tests by command line
 - UI: When "add directory" is pressed on "Additional files" tab, the initial directory should be the help project file directory.
 - Remove all "about:blank" replacements
 - Try to replace all the web indexing stuff by lucene.
 - Remove references to PDF Creator
 - Documentation: Warn about chrome and local filesystem.
-- Licenses: Add jquery, layouts and tree
 - jQuery template: If there is a single html page, hide previous, next and home buttons. If we are on
   the last or first page, disable links for previous / next home.
-- Add previous / next links on footers/headers
 - There is a hang on IsOpen function of MSWord (see web bugs)
-
+- jQuery template: Handle urls without hash: Select the first node with that page name.
+- jQuery template: Handle urls without hash: Save on the hash the full text search.

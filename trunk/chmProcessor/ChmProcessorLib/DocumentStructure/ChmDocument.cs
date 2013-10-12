@@ -71,6 +71,12 @@ namespace ChmProcessorLib.DocumentStructure
         public List<ChmDocumentNode> Index;
 
         /// <summary>
+        /// List of html page names, after the document division, 
+        /// on the same order they appear on the original document
+        /// </summary>
+        public List<string> PagesIndex;
+
+        /// <summary>
         /// Word saves HTML with a embedded stye tag on the header with the document styles.
         /// This member stores the CSS declarations of this tag. Its null if that tag was not found.
         /// </summary>
@@ -138,7 +144,7 @@ namespace ChmProcessorLib.DocumentStructure
         private void SaveContentFiles(ChmDocumentNode node, List<string> savedFiles, string directoryDstPath, HtmlPageDecorator decorator, WebIndex indexer)
         {
 
-            string fileName = node.SaveContent(directoryDstPath, decorator, indexer);
+            string fileName = node.SaveContent(this, directoryDstPath, decorator, indexer);
             if (fileName != null)
                 savedFiles.Add(fileName);
 

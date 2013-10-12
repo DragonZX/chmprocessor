@@ -135,9 +135,10 @@ namespace ChmProcessorLib.DocumentStructure
             if (UI.CancellRequested())
                 return null;
 
-            // Create the document index
+            // Create the document and pages index
             UI.Log("Creating document index", ConsoleUserInterface.INFO);
             CreateDocumentIndex();
+            CreatePagesIndex();
 
             return Document;
         }
@@ -576,9 +577,11 @@ namespace ChmProcessorLib.DocumentStructure
             if (Project.MaxHeaderIndex != 0 && nodeLevel > Project.MaxHeaderIndex)
                 return;
 
+            // Add to the content index
             Document.Index.Add(node);
-            foreach (ChmDocumentNode hijo in node.Children)
-                CreateDocumentIndex(hijo, nodeLevel + 1);
+
+            foreach (ChmDocumentNode child in node.Children)
+                CreateDocumentIndex(child, nodeLevel + 1);
         }
 
         /// <summary>
@@ -592,6 +595,30 @@ namespace ChmProcessorLib.DocumentStructure
                 CreateDocumentIndex(hijo, 1);
 
             Document.Index.Sort();
+        }
+
+        /// <summary>
+        /// Creates the plain html pages index for the document
+        /// <param name="node">Current document tree node</param>
+        /// </summary>
+        private void CreatePagesIndex(ChmDocumentNode node)
+        {
+            string lastPage = Document.PagesIndex.Count > 0 ? Document.PagesIndex[Document.PagesIndex.Count - 1] : null;
+            if (lastPage != node.DestinationFileName)
+                Document.PagesIndex.Add(node.DestinationFileName);
+
+            foreach (ChmDocumentNode child in node.Children)
+                CreatePagesIndex(child);
+        }
+
+        /// <summary>
+        /// Creates the plain html pages index for the document
+        /// </summary>
+        private void CreatePagesIndex()
+        {
+            Document.PagesIndex = new List<string>();
+            foreach (ChmDocumentNode child in Document.RootNode.Children)
+                CreatePagesIndex(child);
         }
 
         static public string GetAttributeValue(HtmlNode node, string attribute) {

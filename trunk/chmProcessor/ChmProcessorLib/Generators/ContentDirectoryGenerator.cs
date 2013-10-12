@@ -83,7 +83,6 @@ namespace ChmProcessorLib.Generators
                     // Its a directory. Copy it:
                     string dst = Path.Combine( dirDst, Path.GetFileName(arc) );
                     FileSystem.CopyDirectory(arc, dst);
-                    // TODO: Should we return here all recursivelly copied files?
                 }
                 else if (File.Exists(arc))
                 {
