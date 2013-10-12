@@ -31,7 +31,7 @@
   <WebBase>http://chmprocessor.sf.net</WebBase>
   <ChangeFrequency>monthly</ChangeFrequency>
   <WebLanguage>Spanish</WebLanguage>
-  <ConfigurationVersion>1.6</ConfigurationVersion>
+  <ConfigurationVersion>1.7</ConfigurationVersion>
   <FullTextSearch>true</FullTextSearch>
   <PdfGeneration>OfficeAddin</PdfGeneration>
   <GenerateXps>false</GenerateXps>
@@ -40,4 +40,6 @@
   <JavaHelpPath>.\products\test.jar</JavaHelpPath>
   <HeadTagFile>..\headInclude.htm</HeadTagFile>
   <ChmLocaleID>3082</ChmLocaleID>
+  <WebTemplateName>jQuery</WebTemplateName>
+  <CustomTemplateDirectory />
 </Configuracion>
