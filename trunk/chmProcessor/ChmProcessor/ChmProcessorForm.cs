@@ -519,11 +519,11 @@ namespace ChmProcessor
             this.numNivelCorte = new System.Windows.Forms.NumericUpDown();
             this.label3 = new System.Windows.Forms.Label();
             this.tabAdditionalFiles = new System.Windows.Forms.TabPage();
+            this.BtnOpenAdditional = new System.Windows.Forms.Button();
             this.btnBorAdi = new System.Windows.Forms.Button();
             this.btnNueDirAdi = new System.Windows.Forms.Button();
             this.btnNueArcAdi = new System.Windows.Forms.Button();
             this.lstArcAdicionales = new System.Windows.Forms.ListBox();
-            this.BtnOpenAdditional = new System.Windows.Forms.Button();
             this.stsStatus.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabChm.SuspendLayout();
@@ -905,7 +905,7 @@ namespace ChmProcessor
             this.chkAbrirProyecto.Name = "chkAbrirProyecto";
             this.chkAbrirProyecto.Size = new System.Drawing.Size(208, 24);
             this.chkAbrirProyecto.TabIndex = 36;
-            this.chkAbrirProyecto.Text = "Open help project after generate it";
+            this.chkAbrirProyecto.Text = "Open help project after generation";
             this.chkAbrirProyecto.Click += new System.EventHandler(this.FieldModified);
             // 
             // tabWeb
@@ -1718,6 +1718,17 @@ namespace ChmProcessor
             this.tabAdditionalFiles.Text = "Additional Files";
             this.tabAdditionalFiles.UseVisualStyleBackColor = true;
             // 
+            // BtnOpenAdditional
+            // 
+            this.BtnOpenAdditional.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.BtnOpenAdditional.Location = new System.Drawing.Point(590, 93);
+            this.BtnOpenAdditional.Name = "BtnOpenAdditional";
+            this.BtnOpenAdditional.Size = new System.Drawing.Size(112, 23);
+            this.BtnOpenAdditional.TabIndex = 23;
+            this.BtnOpenAdditional.Text = "Open";
+            this.BtnOpenAdditional.UseVisualStyleBackColor = true;
+            this.BtnOpenAdditional.Click += new System.EventHandler(this.BtnOpenAdditional_Click);
+            // 
             // btnBorAdi
             // 
             this.btnBorAdi.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -1761,17 +1772,6 @@ namespace ChmProcessor
             this.lstArcAdicionales.Sorted = true;
             this.lstArcAdicionales.TabIndex = 19;
             this.lstArcAdicionales.DoubleClick += new System.EventHandler(this.BtnOpenAdditional_Click);
-            // 
-            // BtnOpenAdditional
-            // 
-            this.BtnOpenAdditional.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnOpenAdditional.Location = new System.Drawing.Point(590, 93);
-            this.BtnOpenAdditional.Name = "BtnOpenAdditional";
-            this.BtnOpenAdditional.Size = new System.Drawing.Size(112, 23);
-            this.BtnOpenAdditional.TabIndex = 23;
-            this.BtnOpenAdditional.Text = "Open";
-            this.BtnOpenAdditional.UseVisualStyleBackColor = true;
-            this.BtnOpenAdditional.Click += new System.EventHandler(this.BtnOpenAdditional_Click);
             // 
             // ChmProcessorForm
             // 

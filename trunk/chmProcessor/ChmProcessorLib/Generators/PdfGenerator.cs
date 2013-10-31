@@ -53,7 +53,8 @@ namespace ChmProcessorLib.Generators
                 if (Project.PdfGeneration == ChmProject.PdfGenerationWay.OfficeAddin)
                 {
                     MSWord word = new MSWord();
-                    word.SaveWordToPdf(MainSourceFilePath, Project.PdfPath);
+                    if( !word.SaveWordToPdf(MainSourceFilePath, Project.PdfPath) )
+                        UI.Log("Warning: There was a time out waiting to close the word document", 1);
                 }
                 else
                 {
