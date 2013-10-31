@@ -3,6 +3,11 @@
 	font-size: 12px;
 }
 
+img 
+{
+	border: 0;
+}
+
 h1 
 {
 	margin: 5px 0 5px 10px;

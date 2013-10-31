@@ -29,7 +29,7 @@
   <WebBase />
   <ChangeFrequency>monthly</ChangeFrequency>
   <WebLanguage>English</WebLanguage>
-  <ConfigurationVersion>1.6</ConfigurationVersion>
+  <ConfigurationVersion>1.7</ConfigurationVersion>
   <FullTextSearch>false</FullTextSearch>
   <PdfGeneration>OfficeAddin</PdfGeneration>
   <GenerateXps>false</GenerateXps>
@@ -38,4 +38,6 @@
   <JavaHelpPath>.\products\nhibernate.jar</JavaHelpPath>
   <HeadTagFile />
   <ChmLocaleID>3082</ChmLocaleID>
+  <WebTemplateName>jQuery</WebTemplateName>
+  <CustomTemplateDirectory />
 </Configuracion>

@@ -151,7 +151,9 @@ namespace ChmProcessorLib
             //string finalFile = dirHtml + Path.DirectorySeparatorChar + nombreArchivo + ".htm";
             string finalFile = MSWordHtmlDirectory + Path.DirectorySeparatorChar + ChmDocumentNode.ToSafeFilename(nombreArchivo) + ".htm";
 
-            msWord.SaveWordToHtml(MainSourceFile, finalFile);
+            if( !msWord.SaveWordToHtml(MainSourceFile, finalFile) )
+                UI.Log("Warning: There was a time out waiting to close the word document", 1);
+
             return finalFile;
         }
 

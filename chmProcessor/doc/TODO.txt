@@ -1,12 +1,8 @@
 BUGS
 ------------------
 
-- GXALMAC help: wrong non ascii characters... (acentos)
-- chmProcessor own documentation: With there is an initial "Help content" section??? WTF. 
-- Whitespaces on CHM titles: Html test / Section "17.2.1. Using return-property to explicitly specify column/alias names" adds extra whitespaces. They should not be there.
-- Frames webhelp template selects nodes on the tree when a full text search link is pressed but
-  the jQuery template dont do it.
 - AppLocale test has some kind of bug. There is characters show as "?" on the CHM...
+- jquery template does not work on Opera 10.10
 
 IMPROVEMENTS
 ------------------
@@ -30,6 +26,5 @@ IMPROVEMENTS
 - Documentation: Warn about chrome and local filesystem.
 - jQuery template: If there is a single html page, hide previous, next and home buttons. If we are on
   the last or first page, disable links for previous / next home.
-- There is a hang on IsOpen function of MSWord (see web bugs)
-- jQuery template: Handle urls without hash: Select the first node with that page name.
-- jQuery template: Handle urls without hash: Save on the hash the full text search.
+- jQuery template: When a node is selected, expand the selected node.
+

@@ -22,6 +22,7 @@ using System.IO;
 using HtmlAgilityPack;
 using System.Web;
 using WebIndexLib;
+using System.Text.RegularExpressions;
 
 namespace ChmProcessorLib.DocumentStructure
 {
@@ -30,6 +31,12 @@ namespace ChmProcessorLib.DocumentStructure
     /// </summary>
     public class ChmDocumentNode : IComparable
     {
+
+        /// <summary>
+        /// Html agility pack nodes has InnerText with unescaped text. 
+        /// </summary>
+        static private Regex MultispaceRemover = new Regex(@"[ ]{2,}", RegexOptions.Multiline);
+
         /// <summary>
         /// Header tag (h1,h2...) for this node.
         /// It will be null for the root node AND the initial part of the document without any title.
@@ -248,7 +255,8 @@ namespace ChmProcessorLib.DocumentStructure
             {
                 // HTML agility pack has InnerText as HTML encoded...
                 // Remove spaces for the right ordering on the topics list.
-                return HttpUtility.HtmlDecode(HtmlEncodedTitle).Trim();
+                // First, replace multispaces by a single one:
+                return MultispaceRemover.Replace(HttpUtility.HtmlDecode(HtmlEncodedTitle).Trim(), " ");
             }
         }
 

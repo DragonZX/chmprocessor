@@ -51,7 +51,8 @@ namespace ChmProcessorLib.Generators
             try
             {
                 MSWord word = new MSWord();
-                word.SaveWordToXps(MainSourceFilePath, Project.XpsPath);
+                if (!word.SaveWordToXps(MainSourceFilePath, Project.XpsPath))
+                    UI.Log("Warning: There was a time out waiting to close the word document", 1);
             }
             catch (Exception ex)
             {

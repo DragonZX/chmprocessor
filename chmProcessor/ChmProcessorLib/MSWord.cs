@@ -32,6 +32,13 @@ namespace ChmProcessorLib
 	/// </summary>
 	public class MSWord
 	{
+
+        /// <summary>
+        /// A bug has been reported with a hangup waiting to close documents.
+        /// This is the maximum time, in miliseconds, to wait for documents close.
+        /// </summary>
+        private const int MAXWAITOPENDOCUMENT = 20000;
+
         /// <summary>
         /// File extensions for MS Word files.
         /// </summary>
@@ -201,10 +208,11 @@ namespace ChmProcessorLib
         /// </summary>
         /// <param name="wordFileSrc">Absolute path of the source word document</param>
         /// <param name="htmlFileDst">Absolute path to the xps destination document</param>
-        public void SaveWordToXps(string wordFileSrc, string pdfFileDst)
+        /// <returns>False if there was a time out waiting for open documents. True if all was ok</returns>
+        public bool SaveWordToXps(string wordFileSrc, string pdfFileDst)
         {
             object format = WdSaveFormat.wdFormatXPS;
-            SaveWord(wordFileSrc, pdfFileDst, format);
+            return SaveWord(wordFileSrc, pdfFileDst, format);
         }
 
         /// <summary>
@@ -213,10 +221,11 @@ namespace ChmProcessorLib
         /// </summary>
         /// <param name="wordFileSrc">Absolute path of the source word document</param>
         /// <param name="htmlFileDst">Absolute path to the pdf destination document</param>
-        public void SaveWordToPdf(string wordFileSrc, string pdfFileDst)
+        /// <returns>False if there was a time out waiting for open documents. True if all was ok</returns>
+        public bool SaveWordToPdf(string wordFileSrc, string pdfFileDst)
         {
             object format = WdSaveFormat.wdFormatPDF;
-            SaveWord(wordFileSrc, pdfFileDst, format);
+            return SaveWord(wordFileSrc, pdfFileDst, format);
         }
 
         /// <summary>
@@ -224,10 +233,11 @@ namespace ChmProcessorLib
         /// </summary>
         /// <param name="wordFileSrc">Absolute path of the source word document</param>
         /// <param name="htmlFileDst">Absolute path to the pdf destination document</param>
-        public void SaveWordToHtml( string wordFileSrc , string htmlFileDst ) 
+        /// <returns>False if there was a time out waiting for open documents. True if all was ok</returns>
+        public bool SaveWordToHtml( string wordFileSrc , string htmlFileDst ) 
         {
             object format = WdSaveFormat.wdFormatFilteredHTML;
-            SaveWord(wordFileSrc, htmlFileDst, format);
+            return SaveWord(wordFileSrc, htmlFileDst, format);
         }
 
         /// <summary>
@@ -261,12 +271,14 @@ namespace ChmProcessorLib
         /// <param name="wordFileSrc">Path to the Word document to convert</param>
         /// <param name="htmlFileDst">Path to the converted format</param>
         /// <param name="format">Format witch to convert. One of WdSaveFormat values.</param>
-        public void SaveWord(string wordFileSrc, string htmlFileDst, object format)
+        /// <returns>False if there was a time out waiting for open documents. True if all was ok</returns>
+        public bool SaveWord(string wordFileSrc, string htmlFileDst, object format)
         {
             Document aDoc = null;
             object missing = System.Reflection.Missing.Value;
             object saveChanges = false;
 
+            int currentWaitTime = 0;
             try
             {
                 object fileName = wordFileSrc;
@@ -293,15 +305,20 @@ namespace ChmProcessorLib
 
                     // Be sure the document is closes (paranoic check to avoid bug with large files)
                     System.Windows.Forms.Application.DoEvents();
-                    Thread.Sleep(100);
-                    while (IsOpen(wordFileSrc))
+                    int waitTimeStep = 100;
+                    Thread.Sleep(waitTimeStep);
+                    currentWaitTime += waitTimeStep;
+                    while (IsOpen(wordFileSrc) && currentWaitTime < MAXWAITOPENDOCUMENT)
                     {
                         System.Windows.Forms.Application.DoEvents();
-                        Thread.Sleep(100);
+                        Thread.Sleep(waitTimeStep);
+                        currentWaitTime += waitTimeStep;
                     }
-
                 }
             }
+
+            // There was a timeout?
+            return currentWaitTime < MAXWAITOPENDOCUMENT;
         }
 
         /// <summary>

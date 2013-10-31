@@ -74,7 +74,7 @@ function selectByUrl(url) {
         loadFrame = false;
     }
     $("#treediv").jstree("select_node", linkSelected.parent(), loadFrame);
-    if (loadFrame)
+    if( loadFrame )
         // Load the URL on the frame
         loadUrlOnFrame(fileName);
     else if( fileName.indexOf("search.aspx") == 0 ) {
@@ -170,7 +170,7 @@ function hashChanged() {
 function changeHash(linkSelector) {
 
     if (!("onhashchange" in window))
-        // Browser does not support hash change. Do nothing.
+    // Browser does not support hash change. Do nothing.
         return;
 
     var newHash = null;
@@ -184,7 +184,7 @@ function changeHash(linkSelector) {
         // Check if its a duplicated title
         var titleInstance = linkSelector.prop("titleInstance");
         if (titleInstance)
-            // Save instance number:
+        // Save instance number:
             newHash = "!" + titleInstance + "!" + newHash;
 
         // The first node should no have hash:
@@ -194,10 +194,54 @@ function changeHash(linkSelector) {
 
     // Avoid to put the same hash twice
     if (window.location.hash == newHash)
-        return;    
-        
+        return;
+
     newHash = encodeURIComponent(newHash);
     window.location.hash = newHash;
+}
+
+//////////////////////////////////////////////////
+// SET INITIAL TOPIC 
+// For compatibilty with frames template ("www.example.com/help/index.html?topic=topic title")
+//////////////////////////////////////////////////
+
+// Returns the string value of the parameter strParamName on the url
+// Returns an empty string if the parameter was not found
+function getURLParam(url, strParamName) {
+
+    var strReturn = "";
+    var strHref = url;
+    var idxStart = strHref.indexOf("?");
+    if (idxStart >= 0) {
+        var strQueryString = strHref.substr(idxStart+1);
+        var aQueryString = strQueryString.split("&");
+        for (var iParam = 0; iParam < aQueryString.length; iParam++) {
+            if (aQueryString[iParam].indexOf(strParamName + "=") == 0) {
+                var aParam = aQueryString[iParam].split("=");
+                strReturn = aParam[1];
+                break;
+            }
+        }
+    }
+    return decodeURIComponent(strReturn);
+}
+
+// Sets the initial topic selection
+function setInitialTopic() {
+
+    if (getCurrentHash())
+        // There is an initial hash: Select it
+        hashChanged();
+    else {
+        // Check the old way to set the selected topic ("topic" url parameter)
+        var initialTopic = getURLParam(window.location.href, "topic");
+        if (initialTopic != "")
+            // Select the initial topic
+            selectByTitle(initialTopic);
+        else
+            // Select the first node
+            $("#treediv").jstree("select_node", $("#treediv li:first"), true);
+    }
 }
 
 //////////////////////////////////////////////////
@@ -214,7 +258,8 @@ function getCurrentPageIndex() {
     // Get the current topic page filename. This will fail on chrome local filesystem
     try {
         var fileName = getUrlFileName($("#mainFrame").prop("contentWindow").location.href.split("#")[0]);
-        return pageNames.indexOf(fileName);
+        //return pageNames.indexOf(fileName); < Fails on IE
+        return jQuery.inArray(fileName, pageNames);
     }
     catch (ex) {
         return -1;
@@ -324,12 +369,8 @@ $(document).ready(function() {
         // Travese the tree nodes to handle repeated titles and next / previous buttons
         initializeNavigationLinks();
 
-        if (getCurrentHash())
-        // There is an initial hash: Select it
-            hashChanged();
-        else
-        // Select the first node
-            $("#treediv").jstree("select_node", $("#treediv li:first"), true)
+        // Set the initial topic
+        setInitialTopic();
     });
 
     // If a link is pressed into the frame, search and select the new URL into the tree:
@@ -466,7 +507,7 @@ $(document).ready(function() {
             }
         }
     });
-    
+
     if ("onhashchange" in window) {
         // Browser supports hash change: Add the event handler
         window.onhashchange = hashChanged;

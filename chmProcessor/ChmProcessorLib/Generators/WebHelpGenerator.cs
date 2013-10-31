@@ -124,6 +124,15 @@ namespace ChmProcessorLib.Generators
             // TODO: Remove html resources
             //string textSearch = Project.FullTextSearch ? Resources.SearchFormFullText : Resources.SearchFormSimple;
 
+            // Ugly thing: On search.aspx page there can be page header an footer, and they can contain
+            // links to previous, next and home. Make a static replacement now:
+            string header = Decorator.HeaderHtmlCode.Replace(HtmlPageDecorator.HOMEPAGELINK, "#")
+                .Replace(HtmlPageDecorator.PREVIOUSPAGELINK, "#")
+                .Replace(HtmlPageDecorator.NEXTPAGELINK, "#");
+            string footer = Decorator.HeaderHtmlCode.Replace(HtmlPageDecorator.HOMEPAGELINK, "#")
+                .Replace(HtmlPageDecorator.PREVIOUSPAGELINK, "#")
+                .Replace(HtmlPageDecorator.NEXTPAGELINK, "#");
+
             // Create standard replacements:
             Replacements replacements = new Replacements();
             replacements.Add("%BOOLFULLSEARCH%", Project.FullTextSearch ? "true" : "false" );
@@ -134,8 +143,8 @@ namespace ChmProcessorLib.Generators
             replacements.Add("%FIRSTPAGECONTENT%", Document.FirstSplittedContent );
             replacements.Add("%WEBDESCRIPTION%", Decorator.MetaDescriptionTag);
             replacements.Add("%KEYWORDS%", Decorator.MetaKeywordsTag);
-            replacements.Add("%HEADER%", Decorator.HeaderHtmlCode);
-            replacements.Add("%FOOTER%", Decorator.FooterHtmlCode);
+            replacements.Add("%HEADER%", header);
+            replacements.Add("%FOOTER%", footer);
             replacements.Add("%HEADINCLUDE%", Decorator.HeadIncludeHtmlCode);
 
             // Load translation files.

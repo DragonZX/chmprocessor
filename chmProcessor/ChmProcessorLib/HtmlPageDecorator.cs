@@ -32,6 +32,21 @@ namespace ChmProcessorLib
     {
 
         /// <summary>
+        /// Text to replace with the next page url
+        /// </summary>
+        public const string NEXTPAGELINK = "%NEXTLINK%";
+
+        /// <summary>
+        /// Text to replace with the previous page url
+        /// </summary>
+        public const string PREVIOUSPAGELINK = "%PREVLINK%";
+
+        /// <summary>
+        /// Text to replace with the home page url
+        /// </summary>
+        public const string HOMEPAGELINK = "%HOMELINK%";
+
+        /// <summary>
         /// Text pattern to replace on the "textBeforeBody" field by the title tag of the page.
         /// </summary>
         static private String TITLETAG = "<%TITLE%>";
@@ -91,7 +106,7 @@ namespace ChmProcessorLib
         /// <summary>
         /// Text to add as a meta description tag. If its empty, no tag will be added
         /// </summary>
-        public string MetaDescriptionValue = "";
+        public string MetaDescriptionValue = string.Empty;
 
         /// <summary>
         /// HTML keywords meta tag, if MetaDescriptionValue is not empty. "" otherwise.
@@ -110,7 +125,7 @@ namespace ChmProcessorLib
         /// <summary>
         /// HTML code to add as header to the content of the body of the HTML page.
         /// </summary>
-        public string HeaderHtmlCode = "";
+        public string HeaderHtmlCode = string.Empty;
 
         /// <summary>
         /// Path to file for the HTML code to include as body content header.
@@ -191,12 +206,12 @@ namespace ChmProcessorLib
             }
 
             // Make replacements:
-            headerHtmlCode = HeaderHtmlCode.Replace("%PREVLINK%", previousLink)
-                .Replace("%NEXTLINK%", nextLink)
-                .Replace("%HOMELINK%", homeLink);
-            footerHtmlCode = FooterHtmlCode.Replace("%PREVLINK%", previousLink)
-                .Replace("%NEXTLINK%", nextLink)
-                .Replace("%HOMELINK%", homeLink);
+            headerHtmlCode = HeaderHtmlCode.Replace(PREVIOUSPAGELINK, previousLink)
+                .Replace(NEXTPAGELINK, nextLink)
+                .Replace(HOMEPAGELINK, homeLink);
+            footerHtmlCode = FooterHtmlCode.Replace(PREVIOUSPAGELINK, previousLink)
+                .Replace(NEXTPAGELINK, nextLink)
+                .Replace(HOMEPAGELINK, homeLink);
         }
 
         /// <summary>
