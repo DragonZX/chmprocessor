@@ -3,6 +3,8 @@ BUGS
 
 - AppLocale test has some kind of bug. There is characters show as "?" on the CHM...
 - jquery template does not work on Opera 10.10
+- The syntetic a tag for titles must to be created before the title, not after. If not, chrome dont show the title using a hash on the URL
+- file:///C:/Users/toni/Documents/REPOSITORIO/chmprocessor/trunk/chmProcessor/doc/web/index.html#Downloads fails with firefox (not with chrome...)
 
 IMPROVEMENTS
 ------------------
@@ -24,7 +26,4 @@ IMPROVEMENTS
 - Try to replace all the web indexing stuff by lucene.
 - Remove references to PDF Creator
 - Documentation: Warn about chrome and local filesystem.
-- jQuery template: If there is a single html page, hide previous, next and home buttons. If we are on
-  the last or first page, disable links for previous / next home.
-- jQuery template: When a node is selected, expand the selected node.
 

@@ -36,6 +36,6 @@
   <JavaHelpPath>..\Test1.jar</JavaHelpPath>
   <HeadTagFile />
   <ChmLocaleID>3082</ChmLocaleID>
-  <WebTemplateName>Frames</WebTemplateName>
+  <WebTemplateName>jQuery</WebTemplateName>
   <CustomTemplateDirectory />
 </Configuracion>

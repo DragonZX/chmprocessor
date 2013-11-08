@@ -6,7 +6,7 @@
   <Compilar>true</Compilar>
   <DirectorioDestino>.\chmProcessor-project</DirectorioDestino>
   <HtmlCabecera />
-  <HtmlPie>.\footer.htm</HtmlPie>
+  <HtmlPie />
   <TituloAyuda>chmProcessor</TituloAyuda>
   <NivelCorte>0</NivelCorte>
   <GenerarWeb>true</GenerarWeb>
