@@ -16,7 +16,7 @@
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// TODO: Test translations, add new needed translations
+// TODO: Add new needed translations
 
 var pageLayout; // a var is required because this page utilizes: pageLayout.allowOverflow() method
 
@@ -54,8 +54,13 @@ function loadUrlOnFrame(url) {
             return;
     }
     catch (ex) { }
-    //$("#mainFrame").attr("src", url); < This stores an history point. We dont want that
-    iframeSelector.prop("contentWindow").location.replace(url);
+
+    if ("onhashchange" in window)
+        // Browser supports hash changes. Use replace because it does not store an history browser point
+        iframeSelector.prop("contentWindow").location.replace(url);
+    else
+        // Browser does not support hash changes. Set the src attribute: It stores an history browser point
+        $("#mainFrame").attr("src", url);
 
 }
 
@@ -141,6 +146,10 @@ function selectByTitle(title) {
     }
 }
 
+//////////////////////////////////////////////////
+// URL HASH HANDLERS
+//////////////////////////////////////////////////
+
 // Return the window current hash
 function getCurrentHash() {
     // Firefox returns the hash unescaped, so decodeURIComponent fails...
@@ -170,7 +179,7 @@ function hashChanged() {
 function changeHash(linkSelector) {
 
     if (!("onhashchange" in window))
-    // Browser does not support hash change. Do nothing.
+        // Browser does not support hash change. Do nothing.
         return;
 
     var newHash = null;
@@ -266,6 +275,7 @@ function getCurrentPageIndex() {
     }
 }
 
+// Set the current selected page by its index
 function setCurrentPageIndex(idx) {
     if( idx < 0 || idx >= pageNames.length )
         return;
@@ -308,6 +318,13 @@ function initializeNavigationLinks() {
         
     });
 
+    // If there is a single page, hide navigation links:
+    if (pageNames.length <= 1) {
+        $("#lnkPrevious").hide();
+        $("#lnkNext").hide();
+        $("#lnkHome").hide();
+    }
+    
     // Link event handlers
     $("#lnkPrevious").click(function(e) {
         e.preventDefault();
@@ -352,6 +369,9 @@ $(document).ready(function() {
     .bind("select_node.jstree", function(event, data) {
         // `data.rslt.obj` is the jquery extended node that was clicked
 
+        // Open the selected node
+        $("#treediv").jstree("open_node", data.rslt.obj, false, false);
+        
         // Get the tree node link
         var link = data.rslt.obj.find("a:first");
         var url = link.attr("href");
