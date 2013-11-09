@@ -33,7 +33,8 @@ namespace ChmProcessorLib.DocumentStructure
     {
 
         /// <summary>
-        /// Html agility pack nodes has InnerText with unescaped text. 
+        /// Html agility pack nodes has InnerText with unescaped html text.
+        /// This regex searches two or more space sequences that need to be replaced by a single one.
         /// </summary>
         static private Regex MultispaceRemover = new Regex(@"[ ]{2,}", RegexOptions.Multiline);
 
@@ -229,7 +230,7 @@ namespace ChmProcessorLib.DocumentStructure
                     // There is no safe way to check if its XHTML/HTML5 or a lower version, so put both:
                     aTagElement.SetAttributeValue("name", nodeName);
                     aTagElement.SetAttributeValue("id", nodeName);
-                    node.ChildNodes.Append(aTagElement);
+                    node.ChildNodes.Insert(0, aTagElement);
                     AnchorNames.Add(nodeName);
                 }
             }

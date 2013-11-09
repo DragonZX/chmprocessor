@@ -5,8 +5,14 @@ MKDIR ChmProcessor\bin\x86\Release
 
 COPY doc\chmProcessor.chm ChmProcessor\bin\x86\Release
 COPY license.txt ChmProcessor\bin\x86\Release
+
+REM **************************
+REM COPY WEBFILES
+REM **************************
 MKDIR ChmProcessor\bin\x86\Release\webFiles
-COPY webFiles ChmProcessor\bin\x86\Release\webFiles
+XCOPY webFiles ChmProcessor\bin\x86\Release\webFiles /E /Y
+
+
 MKDIR ChmProcessor\bin\x86\Release\webTranslations
 COPY webTranslations ChmProcessor\bin\x86\Release\webTranslations
 copy ChmProcessor\dialog-information.png ChmProcessor\bin\x86\Release

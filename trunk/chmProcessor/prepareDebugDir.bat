@@ -9,8 +9,13 @@ MKDIR ChmProcessor\bin\x86\Debug
 
 COPY doc\chmProcessor.chm ChmProcessor\bin\x86\Debug
 COPY license.txt ChmProcessor\bin\x86\Debug
+
+REM **************************
+REM COPY WEBFILES
+REM **************************
 MKDIR ChmProcessor\bin\x86\Debug\webFiles
-COPY webFiles ChmProcessor\bin\x86\Debug\webFiles
+XCOPY webFiles ChmProcessor\bin\x86\Debug\webFiles /E /Y
+
 MKDIR ChmProcessor\bin\x86\Debug\webTranslations
 COPY webTranslations ChmProcessor\bin\x86\Debug\webTranslations
 copy ChmProcessor\dialog-information.png ChmProcessor\bin\x86\Debug
