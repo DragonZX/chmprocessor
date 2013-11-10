@@ -12,7 +12,6 @@
   <GenerarWeb>true</GenerarWeb>
   <ArchivosAdicionales>
     <string>.\changelog.txt</string>
-    <string>.\LSI.jpg</string>
   </ArchivosAdicionales>
   <AbrirProyecto>false</AbrirProyecto>
   <DirectorioWeb>.\web</DirectorioWeb>
