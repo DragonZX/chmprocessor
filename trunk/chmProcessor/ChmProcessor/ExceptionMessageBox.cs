@@ -149,5 +149,6 @@ namespace ChmProcessor
         {
             Close();
         }
+
     }
 }

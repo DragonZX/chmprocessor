@@ -435,7 +435,7 @@ $(document).ready(function() {
             $("#topicsList").val(
                 $("#topicsList > option")
                 .filter(function(index) {
-                    return $(this).text().toLowerCase().indexOf(currentText) == 0;
+                    return cleanTitleText($(this).text()).toLowerCase().indexOf(currentText) == 0;
                 })
                 .first()
                 .val()

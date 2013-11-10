@@ -1,4 +1,15 @@
 
+* 1.7
+
+- Code was a pile of crap: 
+	* Now almost the code is on English language (not all).
+	* Code restructuring: C# convention code (upper capitalization for members, etc) , new classes for different generations, new classes for document parsing, etc (not finished).
+- MSHTML is not longer used. Instead, the nice HTML agility pack is used.
+- Now you can choose between two web help templates: The old one with frames, and a new one, using jQuery. This one should be prettier, it has navigation buttons, and it tracks on the URL hash the currently shown help topic. 
+- Bugs fixed.
+
+
+
 * 1.6.3
 - Wrong Microsoft.mshtml.dll was distributed with 1.6.2. Now should be the right (the PIA dll)
 - Added warning messages for javahelp and word installations not found.

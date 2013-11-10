@@ -3,13 +3,14 @@ BUGS
 
 - AppLocale test has some kind of bug. There is characters show as "?" on the CHM...
 - jquery template does not work on Opera 10.10
-- file:///C:/Users/toni/Documents/REPOSITORIO/chmprocessor/trunk/chmProcessor/doc/web/index.html#Downloads fails with firefox (not with chrome...)
-- chmProcessor webhelp: If you click the "Settings" link, the section is not selected on the tree. The Load event of the frame is not executed with a hash change.
+- The reference to external files is wrong. chmProcessor documentation: The link to the changelog is wrong: If you set "./changelog.txt" it does not work: It's replaced by
+  ../../../../Documents/REPOSITORIO/Documents/REPOSITORIO/chmprocessor/trunk/chmProcessor/doc/changelog.txt, and its not found on the chm
 
+  
 IMPROVEMENTS
 ------------------
 
-- Change documentation. Think about documentate the chmprocessorlib for external use.
+- Think about documentate the chmprocessorlib for external use.
 - Remove temporal file with joined word docs.
 - If pdfcreator hangs up, if the user press cancel, exit inmediatelly. Add a referente to the user interface to the PdfPrinter class and check if the process was cancelled.
 - AppSettings should not have a bunch of static members. make two static functions, to save and load from the registry, and make non-static the other members.
@@ -25,5 +26,7 @@ IMPROVEMENTS
 - Remove all "about:blank" replacements
 - Try to replace all the web indexing stuff by lucene.
 - Remove references to PDF Creator
-- Documentation: Warn about chrome and local filesystem.
+- If an additional file (as example, the changelog.txt on the chmprocessor help) is shown on the webhelp with the jquery template, the hash history tracking is lost for this entry.
+- chmProcessor webhelp: If you click the "Settings" link, the section is not selected on the tree. The Load event of the frame is not executed with a hash change.
+
 

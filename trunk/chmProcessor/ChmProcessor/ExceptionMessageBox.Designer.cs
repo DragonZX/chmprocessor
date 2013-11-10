@@ -37,6 +37,7 @@
             this.txtMessage = new System.Windows.Forms.TextBox();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.txtDetails = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -46,7 +47,7 @@
             // 
             this.btnAccept.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnAccept.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnAccept.Location = new System.Drawing.Point(592, 345);
+            this.btnAccept.Location = new System.Drawing.Point(612, 378);
             this.btnAccept.Name = "btnAccept";
             this.btnAccept.Size = new System.Drawing.Size(75, 23);
             this.btnAccept.TabIndex = 4;
@@ -58,7 +59,7 @@
             // 
             this.lnkReportBug.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lnkReportBug.AutoSize = true;
-            this.lnkReportBug.Location = new System.Drawing.Point(13, 355);
+            this.lnkReportBug.Location = new System.Drawing.Point(13, 367);
             this.lnkReportBug.Name = "lnkReportBug";
             this.lnkReportBug.Size = new System.Drawing.Size(176, 13);
             this.lnkReportBug.TabIndex = 5;
@@ -70,17 +71,17 @@
             // 
             this.txtInner.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtInner.Location = new System.Drawing.Point(95, 319);
+            this.txtInner.Location = new System.Drawing.Point(91, 344);
             this.txtInner.Name = "txtInner";
             this.txtInner.ReadOnly = true;
-            this.txtInner.Size = new System.Drawing.Size(572, 20);
+            this.txtInner.Size = new System.Drawing.Size(596, 20);
             this.txtInner.TabIndex = 7;
             // 
             // lnkInner
             // 
             this.lnkInner.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lnkInner.AutoSize = true;
-            this.lnkInner.Location = new System.Drawing.Point(12, 322);
+            this.lnkInner.Location = new System.Drawing.Point(13, 347);
             this.lnkInner.Name = "lnkInner";
             this.lnkInner.Size = new System.Drawing.Size(44, 13);
             this.lnkInner.TabIndex = 8;
@@ -95,10 +96,10 @@
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
-            this.tabControl1.Location = new System.Drawing.Point(12, 12);
+            this.tabControl1.Location = new System.Drawing.Point(13, 12);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(655, 301);
+            this.tabControl1.Size = new System.Drawing.Size(679, 326);
             this.tabControl1.TabIndex = 9;
             // 
             // tabPage1
@@ -107,7 +108,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(647, 275);
+            this.tabPage1.Size = new System.Drawing.Size(671, 300);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Message";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -121,7 +122,7 @@
             this.txtMessage.Multiline = true;
             this.txtMessage.Name = "txtMessage";
             this.txtMessage.ReadOnly = true;
-            this.txtMessage.Size = new System.Drawing.Size(635, 263);
+            this.txtMessage.Size = new System.Drawing.Size(659, 288);
             this.txtMessage.TabIndex = 2;
             // 
             // tabPage2
@@ -130,7 +131,7 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(647, 275);
+            this.tabPage2.Size = new System.Drawing.Size(647, 272);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Details";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -151,14 +152,24 @@
             this.txtDetails.TabIndex = 4;
             this.txtDetails.WordWrap = false;
             // 
+            // label1
+            // 
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(13, 388);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(517, 13);
+            this.label1.TabIndex = 10;
+            this.label1.Text = "PLEASE, post a test case with the bug report (the WHC file, the Word/HTML documen" +
+                "t, additional files, etc)";
+            // 
             // ExceptionMessageBox
             // 
             this.AcceptButton = this.btnAccept;
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.AutoSize = true;
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Inherit;
             this.CancelButton = this.btnAccept;
-            this.ClientSize = new System.Drawing.Size(679, 380);
+            this.ClientSize = new System.Drawing.Size(703, 413);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.lnkInner);
             this.Controls.Add(this.txtInner);
@@ -190,5 +201,6 @@
         private System.Windows.Forms.TextBox txtMessage;
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.TextBox txtDetails;
+        private System.Windows.Forms.Label label1;
     }
 }
