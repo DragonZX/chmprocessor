@@ -129,7 +129,7 @@ namespace ChmProcessorLib.Generators
             string header = Decorator.HeaderHtmlCode.Replace(HtmlPageDecorator.HOMEPAGELINK, "#")
                 .Replace(HtmlPageDecorator.PREVIOUSPAGELINK, "#")
                 .Replace(HtmlPageDecorator.NEXTPAGELINK, "#");
-            string footer = Decorator.HeaderHtmlCode.Replace(HtmlPageDecorator.HOMEPAGELINK, "#")
+            string footer = Decorator.FooterHtmlCode.Replace(HtmlPageDecorator.HOMEPAGELINK, "#")
                 .Replace(HtmlPageDecorator.PREVIOUSPAGELINK, "#")
                 .Replace(HtmlPageDecorator.NEXTPAGELINK, "#");
 
