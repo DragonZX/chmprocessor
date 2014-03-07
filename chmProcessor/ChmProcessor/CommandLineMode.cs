@@ -37,16 +37,35 @@ namespace ChmProcessor
         [DllImport("kernel32.dll")]
         public static extern bool AttachConsole(int dwProcessId);
         const int ATTACH_PARENT_PROCESS = -1;
-        
-        private string projectFile = null;
 
-        private enum ConsoleOperation { Run, Generate , ShowHelp };
+        /// <summary>
+        /// Operation types to execute from the command line
+        /// </summary>
+        private enum ConsoleOperation { Run, Generate, ShowHelp };
 
-        private ConsoleOperation op = ConsoleOperation.Run;
-        private bool askConfirmations = true;
-        private bool exitAfterGenerate = false;
-        private bool outputQuiet = false;
-        private int logLevel = 3;
+        /// <summary>
+        /// File path on the command line call to the project / word / html file to generate
+        /// </summary>
+        private string ProjectFile = null;
+
+        /// <summary>
+        /// Operation defined on the command line call
+        /// </summary>
+        private ConsoleOperation Op = ConsoleOperation.Run;
+
+        /// <summary>
+        /// Should we ask questions to the user?
+        /// </summary>
+        private bool AskConfirmations = true;
+
+        /// <summary>
+        /// Exit the application after generation is finished?
+        /// </summary>
+        private bool ExitAfterGenerate = false;
+
+        private bool OutputQuiet = false;
+
+        private int LogLevel = 3;
 
         /// <summary>
         /// Shows a message to the user.
@@ -55,7 +74,7 @@ namespace ChmProcessor
         /// <param name="text">Message to show</param>
         private void Message(string text)
         {
-            if (outputQuiet)
+            if (OutputQuiet)
                 Console.WriteLine(text);
             else
                 MessageBox.Show(text);
@@ -73,15 +92,7 @@ namespace ChmProcessor
             Console.WriteLine(text);
             Console.WriteLine(exception.ToString());
 
-            /*if (outputQuiet)
-            {
-                // Write error to console
-                Console.WriteLine(text);
-                Console.WriteLine(exception.ToString());
-            }
-            else*/
-
-            if( !outputQuiet )
+            if( !OutputQuiet )
             {
                 try
                 {
@@ -131,38 +142,38 @@ namespace ChmProcessor
                     argv[i] = argv[i].ToLower();
                     if (argv[i].Equals("/g"))
                         // Generate at windows:
-                        op = ConsoleOperation.Generate;
+                        Op = ConsoleOperation.Generate;
                     else if (argv[i].Equals("/y"))
                         // Dont ask for confirmations
-                        askConfirmations = false;
+                        AskConfirmations = false;
                     else if (argv[i].Equals("/e"))
-                        exitAfterGenerate = true;
+                        ExitAfterGenerate = true;
                     else if (argv[i].Equals("/?"))
-                        op = ConsoleOperation.ShowHelp;
+                        Op = ConsoleOperation.ShowHelp;
                     else if (argv[i].Equals("/q"))
                     {
-                        outputQuiet = true;
+                        OutputQuiet = true;
                     }
                     else if (argv[i].Equals("/l1"))
                     {
-                        logLevel = 1;
+                        LogLevel = 1;
                     }
                     else if (argv[1].Equals("/l2"))
                     {
-                        logLevel = 2;
+                        LogLevel = 2;
                     }
                     else if (argv[1].Equals("/l3"))
                     {
-                        logLevel = 3;
+                        LogLevel = 3;
                     }
                     else
                     {
                         Message("Unknown option " + argv[i]);
-                        op = ConsoleOperation.ShowHelp;
+                        Op = ConsoleOperation.ShowHelp;
                     }
                 }
                 else
-                    projectFile = argv[i];
+                    ProjectFile = argv[i];
                 i++;
             }
         }
@@ -174,11 +185,11 @@ namespace ChmProcessor
         {
             // User interface that will log to the console:
             ConsoleUserInterface ui = new ConsoleUserInterface();
-            ui.LogLevel = logLevel;
+            ui.LogLevel = LogLevel;
 
             try
             {
-                ChmProject project = ChmProject.Open(projectFile);
+                ChmProject project = ChmProject.OpenChmProjectOrWord(ProjectFile);
                 DocumentProcessor processor = new DocumentProcessor(project, ui);
                 processor.GenerateHelp();
                 ui.Log("DONE!", 1);
@@ -195,7 +206,7 @@ namespace ChmProcessor
         /// </summary>
         public void Run()
         {
-            switch (op)
+            switch (Op)
             {
                 case ConsoleOperation.ShowHelp:
                     PrintUsage();
@@ -203,29 +214,29 @@ namespace ChmProcessor
 
                 case ConsoleOperation.Generate:
                     // Generate right now a help project
-                    if (projectFile == null)
+                    if (ProjectFile == null)
                     {
                         Message("Not project file specified");
                         return;
                     }
 
-                    if (outputQuiet)
+                    if (OutputQuiet)
                         GenerateOnConsole();
                     else
                     {
-                        ChmProcessorForm frm = new ChmProcessorForm(projectFile);
-                        frm.ProcessProject(askConfirmations, exitAfterGenerate, logLevel);
-                        if (!exitAfterGenerate)
+                        ChmProcessorForm frm = new ChmProcessorForm(ProjectFile);
+                        frm.ProcessProject(AskConfirmations, ExitAfterGenerate, LogLevel);
+                        if (!ExitAfterGenerate)
                             Application.Run(frm);
                     }
                     break;
 
                 case ConsoleOperation.Run:
                     // Run the user interface
-                    if (projectFile == null)
+                    if (ProjectFile == null)
                         Application.Run(new ChmProcessorForm());
                     else
-                        Application.Run(new ChmProcessorForm(projectFile));
+                        Application.Run(new ChmProcessorForm(ProjectFile));
                     break;
             }
         }
@@ -254,6 +265,7 @@ namespace ChmProcessor
         //[MTAThread]
         static void Main(string[] argv)
         {
+            // TODO: Return value to check if the generation was right.
             CommandLineMode commandLineMode = new CommandLineMode();
             try
             {

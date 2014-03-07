@@ -71,7 +71,7 @@ namespace ChmProcessorLib
         /// </summary>
         /// <param name="file">Path of file to check</param>
         /// <returns>True if the file its a word document</returns>
-        static public bool ItIsWordDocument(string file)
+        static public bool IsWordDocument(string file)
         {
             string extension = Path.GetExtension(file).ToLower();
             foreach (string ext in WORDEXTENSIONS)

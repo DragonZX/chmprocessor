@@ -168,7 +168,7 @@ namespace ChmProcessorLib
             try
             {
                 string archivoFinal = (string)Project.SourceFiles[0];
-                IsMSWord = MSWord.ItIsWordDocument(archivoFinal);
+                IsMSWord = MSWord.IsWordDocument(archivoFinal);
                 MSWordHtmlDirectory = null;
                 // Si es un documento word, convertirlo a HTML filtrado
                 if (IsMSWord)

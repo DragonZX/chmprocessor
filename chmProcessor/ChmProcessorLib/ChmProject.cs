@@ -31,10 +31,6 @@ using ChmProcessorLib.Generators;
 namespace ChmProcessorLib
 {
 
-    /*internal abstract class PathAttribute : Attribute
-    {
-    }*/
-
     /// <summary>
     /// Attribute for fields that store directory path.
     /// </summary>
@@ -390,45 +386,63 @@ namespace ChmProcessorLib
         }
 
         /// <summary>
-        /// Verify if a list of source files can be added to the current source files list.
-        /// Currently we cannot mix HTML and Word documents as source files, and only one
-        /// HTML document can be source file. Multiple Word documents can be defined as 
-        /// source documents.
+        /// Throws an exception if the source file cannot be added to the source files list.
         /// </summary>
-        /// <param name="currentSourceFiles">Current list of source files</param>
-        /// <param name="newSourceFiles">New files to add to the source files</param>
-        /// <returns>A string with the error message if the new source files cannot be
-        /// added to the source files list. null if the new source files can be added.</returns>
-        static public string CanBeAddedToSourceFiles(ArrayList currentSourceFiles, ArrayList newSourceFiles)
+        /// <param name="sourceFilePath">Source file to check</param>
+        private void CheckAddSourceFile(string sourceFilePath)
         {
-            bool currentListEmpty = currentSourceFiles.Count == 0;
-            bool currentListIsHtml = false;
-            if (!currentListEmpty)
-                currentListIsHtml = MSWord.IsHtmlDocument((string)currentSourceFiles[0]);
-            foreach (String file in newSourceFiles)
-            {
-                bool fileIsHtml = MSWord.IsHtmlDocument(file);
+            if (SourceFiles.Count == 0)
+                return;
 
-                if (currentListEmpty)
-                {
-                    currentListEmpty = false;
-                    currentListIsHtml = fileIsHtml;
-                }
-                else
-                {
-                    if ((currentListIsHtml && !fileIsHtml) || (!currentListIsHtml && fileIsHtml))
-                        return "HTML and Word documents cannot be mixed as source documents";
-                    if (fileIsHtml)
-                        return "Only one HTML document can be used as source document";
-                }
-            }
-            return null;
+            bool currentListIsHtml = MSWord.IsHtmlDocument(SourceFiles[0]);
+            bool fileIsHtml = MSWord.IsHtmlDocument(sourceFilePath);
+
+            if ((currentListIsHtml && !fileIsHtml) || (!currentListIsHtml && fileIsHtml))
+                throw new Exception("HTML and Word documents cannot be mixed as source documents");
+            if (fileIsHtml)
+                throw new Exception("Only one HTML document can be used as source document");
         }
+
+        ///// <summary>
+        ///// Verify if a list of source files can be added to the current source files list.
+        ///// Currently we cannot mix HTML and Word documents as source files, and only one
+        ///// HTML document can be source file. Multiple Word documents can be defined as 
+        ///// source documents.
+        ///// </summary>
+        ///// <param name="currentSourceFiles">Current list of source files</param>
+        ///// <param name="newSourceFiles">New files to add to the source files</param>
+        ///// <returns>A string with the error message if the new source files cannot be
+        ///// added to the source files list. null if the new source files can be added.</returns>
+        //static public string CanBeAddedToSourceFiles(List<string> currentSourceFiles, List<string> newSourceFiles)
+        //{
+        //    bool currentListEmpty = currentSourceFiles.Count == 0;
+        //    bool currentListIsHtml = false;
+        //    if (!currentListEmpty)
+        //        currentListIsHtml = MSWord.IsHtmlDocument((string)currentSourceFiles[0]);
+        //    foreach (String file in newSourceFiles)
+        //    {
+        //        bool fileIsHtml = MSWord.IsHtmlDocument(file);
+
+        //        if (currentListEmpty)
+        //        {
+        //            currentListEmpty = false;
+        //            currentListIsHtml = fileIsHtml;
+        //        }
+        //        else
+        //        {
+        //            if ((currentListIsHtml && !fileIsHtml) || (!currentListIsHtml && fileIsHtml))
+        //                return "HTML and Word documents cannot be mixed as source documents";
+        //            if (fileIsHtml)
+        //                return "Only one HTML document can be used as source document";
+        //        }
+        //    }
+        //    return null;
+        //}
 
         /// <summary>
         /// Open a xml file with a ChmProject object serialized.
         /// </summary>
-        /// <param name="archivo">Path to xml file to read.</param>
+        /// <param name="filePath">Path to xml file to read.</param>
         /// <returns>The ChmProject readed.</returns>
         static public ChmProject Open( string filePath ) 
         {
@@ -440,10 +454,96 @@ namespace ChmProcessorLib
             ChmProject cfg = xml.Deserialize();
 
             // Change relative paths to absolute:
-            //if (AppSettings.SaveRelativePaths) < do it always
-                cfg.MakePathsAbsolute(filePath);
+            cfg.MakePathsAbsolute(filePath);
 
             return cfg;
+        }
+
+        /// <summary>
+        /// Creates a default project for a HTML / Word file
+        /// </summary>
+        /// <param name="filePath">Path to the HTML / Word file</param>
+        /// <returns>The default project</returns>
+        static public ChmProject CreateProjectforHtmlWordFile(string filePath)
+        {
+            ChmProject defaultProject = new ChmProject();
+            defaultProject.AddFileAndProposePaths(filePath);
+            defaultProject.MakePathsAbsolute(filePath);
+            return defaultProject;
+        }
+
+        /// <summary>
+        /// Add a file to the source files list and, if its the first file, propose
+        /// the default paths for the generated files 
+        /// </summary>
+        /// <param name="filePath"></param>
+        public void AddFileAndProposePaths(string filePath)
+        {
+            try
+            {
+                // Convert relative paths to absolute paths:
+                filePath = Path.GetFullPath(filePath);
+            }
+            catch { }
+
+            CheckAddSourceFile(filePath);
+
+            SourceFiles.Add(filePath);
+
+            string firstFile = SourceFiles[0];
+            string basePath = Path.GetDirectoryName(firstFile);
+            basePath = Path.Combine(basePath, Path.GetFileNameWithoutExtension(firstFile));
+
+            if (string.IsNullOrEmpty(HelpFile))
+                HelpFile = basePath + ".chm";
+
+            if (string.IsNullOrEmpty(DestinationProjectDirectory))
+                DestinationProjectDirectory = basePath + "-project";
+
+            if (string.IsNullOrEmpty(WebDirectory))
+                WebDirectory = basePath + "-web";
+
+            if (string.IsNullOrEmpty(WebDirectory))
+                WebDirectory = basePath + ".pdf";
+
+            if (string.IsNullOrEmpty(PdfPath))
+                PdfPath = basePath + ".pdf";
+
+            if (string.IsNullOrEmpty(XpsPath))
+                XpsPath = basePath + ".xps";
+
+            if (string.IsNullOrEmpty(JavaHelpPath))
+                JavaHelpPath = basePath + ".jar";
+
+        }
+
+        /// <summary>
+        /// Check if a file is a ChmProject file.
+        /// </summary>
+        /// <param name="filePath">File path to check</param>
+        /// <returns>True if the file is a ChmProject file (i.e, if its extension is "whc"</returns>
+        static public bool IsChmProjectFile(string filePath)
+        {
+            string fileExtension = Path.GetExtension(filePath).ToLower();
+            return fileExtension == ".whc";
+        }
+
+        /// <summary>
+        /// Open a xml file with a ChmProject object serialized OR create a default
+        /// ChmProject for a Word/HTML file.
+        /// </summary>
+        /// <param name="filePath">Path to the ChmProject file or to the Word/Html file</param>
+        /// <returns>The ChmProject readed or the default project for the Word/Html file</returns>
+        static public ChmProject OpenChmProjectOrWord(string filePath)
+        {
+            if (IsChmProjectFile(filePath))
+                // It's a CHMProcessor file
+                return Open(filePath);
+            else if (MSWord.IsHtmlDocument(filePath) || MSWord.IsWordDocument(filePath))
+                // A word/html file
+                return CreateProjectforHtmlWordFile(filePath);
+            else
+                throw new Exception("Unknown file extension " + Path.GetExtension(filePath));
         }
 
         /// <summary>
@@ -474,7 +574,7 @@ namespace ChmProcessorLib
                         {
                             try
                             {
-                                fi.SetValue(this, System.IO.Path.GetFullPath(valueInFile.ToString()));
+                                fi.SetValue(this, Path.GetFullPath(valueInFile.ToString()));
                             }
                             catch
                             {
@@ -489,7 +589,7 @@ namespace ChmProcessorLib
                         {
                             try
                             {
-                                entries[idx] = System.IO.Path.GetFullPath(entries[idx]);
+                                entries[idx] = Path.GetFullPath(entries[idx]);
                             }
                             catch
                             {
