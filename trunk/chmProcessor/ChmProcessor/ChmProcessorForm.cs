@@ -216,9 +216,6 @@ namespace ChmProcessor
             // Setup the CHM languages combo box 
             // Fill it with all supported "windows codepage" encodings. Its the only way i found
             // that will work. Unicode does not work.
-            /*chmEncodings = EncodingItem.AvailableEncodingsForChm;
-            foreach (EncodingItem e in chmEncodings)
-                cmbChmLanguage.Items.Add( e );*/
             foreach (CultureInfo c in CultureInfo.GetCultures(CultureTypes.AllCultures))
                 cmbChmLanguage.Items.Add(c);
 
@@ -254,39 +251,38 @@ namespace ChmProcessor
             {
                 try 
                 {
-                    AbrirArchivo( archivos[0] );
+                    OpenFile( archivos[0] );
                 }
                 catch {}
             }
 		}
 
         /// <summary>
-        /// Creates the window loading a project.
+        /// Creates the window loading a project or a Word/HTML file.
         /// </summary>
-        /// <param name="filePath">Path to project to load</param>
+        /// <param name="filePath">Path to project/Word/HTHML file to load</param>
         public ChmProcessorForm(string filePath)
         {
             Initialize();
-
-            if( filePath.ToLower().EndsWith(".whc") ){
-                try 
+            try
+            {
+                if (ChmProject.IsChmProjectFile(filePath))
                 {
-                    AbrirArchivo( filePath );
-                    AgregarUltimoArchivo( filePath );
+                    // Open the CHM project
+                    OpenFile(filePath);
+                    AgregarUltimoArchivo(filePath);
                 }
-                catch( Exception ex ) 
+                else
                 {
-                    new ExceptionMessageBox("File " + filePath + " cannot be opened", ex).ShowDialog(this);
+                    // Create a default project for a Word/Html file
+                    ChmProject project = ChmProject.CreateProjectforHtmlWordFile(filePath);
+                    MapProjectToUserInterface(project);
+                    Modified = true;
                 }
             }
-            else {
-                // Check if the file is a source file instead a project file:
-                if (MSWord.IsHtmlDocument(filePath) || MSWord.ItIsWordDocument(filePath) )
-                {
-                    //txtArchivo.Text = archivo;
-                    lstSourceFiles.Items.Add(filePath);
-                    proposeHelpFile();
-                }
+            catch (Exception ex)
+            {
+                new ExceptionMessageBox("File " + filePath + " cannot be opened", ex).ShowDialog(this);
             }
         }
 
@@ -296,7 +292,7 @@ namespace ChmProcessor
         public void FileNew()
         {
             // Map default values:
-            mapProjectToUserInterface(new ChmProject());
+            MapProjectToUserInterface(new ChmProject());
 
             // Force change callbacks:
             chkGenWeb_CheckedChanged(null, null);
@@ -373,7 +369,7 @@ namespace ChmProcessor
             {
                 try 
                 {
-                    AbrirArchivo( miUltimoArchivo.Text );
+                    OpenFile( miUltimoArchivo.Text );
                     AgregarUltimoArchivo( miUltimoArchivo.Text );
                 }
                 catch( Exception ex ) 
@@ -2006,41 +2002,6 @@ namespace ChmProcessor
             ProcessProject(true , false );
         }
 
-        /// <summary>
-        /// Try to propose the help destination file from the source file.
-        /// </summary>
-        private void proposeHelpFile()
-        {
-            try
-            {
-                string sep = new string(Path.DirectorySeparatorChar, 1);
-                //if (!txtArchivo.Text.Equals(""))
-                if( lstSourceFiles.Items.Count > 0 )
-                {
-                    string firstFile = (string) lstSourceFiles.Items[0];
-                    string basePath;
-                    basePath = Path.GetDirectoryName(firstFile);
-                    if (!basePath.EndsWith(sep))
-                        basePath += Path.DirectorySeparatorChar;
-                    basePath += Path.GetFileNameWithoutExtension(firstFile);
-
-                    if (txtArchivoAyuda.Text.Equals(""))
-                        txtArchivoAyuda.Text = basePath + ".chm";
-                    if (txtDirDst.Text.Equals(""))
-                        txtDirDst.Text = basePath + "-project";
-                    if (txtDirWeb.Text.Equals(""))
-                        txtDirWeb.Text = basePath + "-web";
-                    if (txtPdf.Text.Equals(""))
-                        txtPdf.Text = basePath + ".pdf";
-                    if( txtXps.Text.Equals("") )
-                        txtXps.Text = basePath + ".xps";
-                    if (txtJavaHelp.Text.Equals(""))
-                        txtJavaHelp.Text = basePath + ".jar";
-                }
-            }
-            catch { }
-        }
-
         private void btnSelDir_Click(object sender, System.EventArgs e)
         {
             FolderBrowserDialog dlg = new FolderBrowserDialog();
@@ -2077,7 +2038,6 @@ namespace ChmProcessor
         private void btnNueArcAdi_Click(object sender, System.EventArgs e)
         {
             OpenFileDialog dialogo = new OpenFileDialog();
-            //dialogo.FileName = txtArchivo.Text;
             dialogo.Filter = "All files (*.*)|*.*" ;
             dialogo.FilterIndex = 1 ;
             dialogo.RestoreDirectory = true ;
@@ -2093,8 +2053,6 @@ namespace ChmProcessor
         private void btnNueDirAdi_Click(object sender, System.EventArgs e)
         {
             FolderBrowserDialog dlg = new FolderBrowserDialog();
-            /*if (!txtArchivo.Text.Equals(""))
-                dlg.SelectedPath = Path.GetDirectoryName(txtArchivo.Text);*/
             if (dlg.ShowDialog() == DialogResult.OK)
             {
                 lstArcAdicionales.Items.Add(dlg.SelectedPath);
@@ -2164,7 +2122,7 @@ namespace ChmProcessor
         /// Assign fields of the user interface from a project file
         /// </summary>
         /// <param name="cfg">Project object to show on the user interface</param>
-        private void mapProjectToUserInterface(ChmProject cfg)
+        private void MapProjectToUserInterface(ChmProject cfg)
         {
             //txtArchivo.Text = cfg.ArchivoOrigen;
             txtDirDst.Text = cfg.DestinationProjectDirectory;
@@ -2216,12 +2174,16 @@ namespace ChmProcessor
             cmbChmLanguage.SelectedItem = CultureInfo.GetCultureInfo(cfg.ChmLocaleID);
         }
 
-        protected void AbrirArchivo( string archivo ) 
+        /// <summary>
+        /// Open a ChmProject file
+        /// </summary>
+        /// <param name="filePath">The file to open</param>
+        protected void OpenFile( string filePath ) 
         {
-            ChmProject cfg = ChmProject.Open( archivo );
-            mapProjectToUserInterface(cfg);
+            ChmProject cfg = ChmProject.Open(filePath);
+            MapProjectToUserInterface(cfg);
             Modified = false;
-            SetNewFilename(archivo);
+            SetNewFilename(filePath);
         }
 
         private void miAbrir_Click(object sender, System.EventArgs e)
@@ -2237,7 +2199,7 @@ namespace ChmProcessor
                 {
                     try
                     {
-                        AbrirArchivo(dialogo.FileName);
+                        OpenFile(dialogo.FileName);
                         AgregarUltimoArchivo(dialogo.FileName);
                     }
                     catch (Exception ex)
@@ -2671,24 +2633,22 @@ namespace ChmProcessor
             foreach (string extension in MSWord.WORDEXTENSIONS)
                 openDialog.Filter += ";*." + extension;
 
-            //openDialog.Filter += "|All the files (*.*)|*.*";
             openDialog.FilterIndex = 1;
             openDialog.RestoreDirectory = false;
             openDialog.Multiselect = true;
             if (openDialog.ShowDialog() == DialogResult.OK)
             {
-                // Check if source files are valid:
-                ArrayList currentFiles = new ArrayList(lstSourceFiles.Items);
-                ArrayList newFiles = new ArrayList(openDialog.FileNames);
-                string errorMessage = ChmProject.CanBeAddedToSourceFiles(currentFiles , newFiles );
-                if (errorMessage == null)
+                try
                 {
-                    lstSourceFiles.Items.AddRange(openDialog.FileNames);
-                    proposeHelpFile();
-                    Modified = true;
+                    ChmProject cfg = GetCurrentProject();
+                    foreach (string file in openDialog.FileNames)
+                        cfg.AddFileAndProposePaths(file);
+                    MapProjectToUserInterface(cfg);
                 }
-                else
-                    MessageBox.Show(this, errorMessage , "Error");
+                catch (Exception ex)
+                {
+                    new ExceptionMessageBox(ex).ShowDialog();
+                }
             }
         }
 

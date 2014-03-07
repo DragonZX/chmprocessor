@@ -25,3 +25,4 @@ IMPROVEMENTS
 - Remove references to PDF Creator
 - If an additional file (as example, the changelog.txt on the chmprocessor help) is shown on the webhelp with the jquery template, the hash history tracking is lost for this entry.
 - chmProcessor webhelp: If you click the "Settings" link, the section is not selected on the tree. The Load event of the frame is not executed with a hash change.
+- Propose help title with the first html/doc title.
