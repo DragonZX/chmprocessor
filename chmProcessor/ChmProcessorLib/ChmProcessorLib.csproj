@@ -141,6 +141,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommandLine.cs" />
     <Compile Include="CommandLineExecution.cs" />
     <Compile Include="DocumentStructure\ChmDocument.cs">
       <SubType>Code</SubType>

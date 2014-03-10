@@ -35,6 +35,8 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "WebFullTextSearch", "WebFul
 		Svn.Uri = WebFullTextSearch/
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChmProcessorCmd", "ChmProcessorCmd\ChmProcessorCmd.csproj", "{A63D07F8-5051-498C-AE16-05C36843C9AA}"
+EndProject
 Global
 	GlobalSection(SubversionScc) = preSolution
 		Svn-Managed = True
@@ -105,6 +107,18 @@ Global
 		{64504A5B-D21A-45AC-B1BD-2A6E0752DC1B}.Release|Mixed Platforms.ActiveCfg = Debug|.NET
 		{64504A5B-D21A-45AC-B1BD-2A6E0752DC1B}.Release|Mixed Platforms.Build.0 = Debug|.NET
 		{64504A5B-D21A-45AC-B1BD-2A6E0752DC1B}.Release|x86.ActiveCfg = Debug|.NET
+		{A63D07F8-5051-498C-AE16-05C36843C9AA}.Debug|.NET.ActiveCfg = Debug|Any CPU
+		{A63D07F8-5051-498C-AE16-05C36843C9AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A63D07F8-5051-498C-AE16-05C36843C9AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A63D07F8-5051-498C-AE16-05C36843C9AA}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{A63D07F8-5051-498C-AE16-05C36843C9AA}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{A63D07F8-5051-498C-AE16-05C36843C9AA}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A63D07F8-5051-498C-AE16-05C36843C9AA}.Release|.NET.ActiveCfg = Release|Any CPU
+		{A63D07F8-5051-498C-AE16-05C36843C9AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A63D07F8-5051-498C-AE16-05C36843C9AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A63D07F8-5051-498C-AE16-05C36843C9AA}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{A63D07F8-5051-498C-AE16-05C36843C9AA}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{A63D07F8-5051-498C-AE16-05C36843C9AA}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
