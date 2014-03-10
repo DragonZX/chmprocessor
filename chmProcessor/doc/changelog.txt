@@ -1,4 +1,8 @@
 
+* 1.7.1
+- Fixed bug generating a Word file directly from command line
+- Added a new exe for command line generation
+
 * 1.7
 
 - Code was a pile of crap: 

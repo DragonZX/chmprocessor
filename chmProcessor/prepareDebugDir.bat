@@ -1,6 +1,6 @@
 
 REM ------------------------------------------------
-REM COPY NEEDED FILES TO DEBUG DIRECTORY
+REM COPY NEEDED FILES TO DEBUG DIRECTORY (WIN)
 REM ------------------------------------------------
 
 MKDIR ChmProcessor\bin
@@ -31,5 +31,32 @@ COPY WebFullTextSearch\Bin ChmProcessor\bin\x86\Debug\searchFiles\Bin
 COPY WebFullTextSearch\search.aspx ChmProcessor\bin\x86\Debug\searchFiles
 COPY WebFullTextSearch\search.aspx.cs ChmProcessor\bin\x86\Debug\searchFiles
 COPY WebFullTextSearch\Web.Config ChmProcessor\bin\x86\Debug\searchFiles
+
+
+REM ------------------------------------------------
+REM COPY NEEDED FILES TO DEBUG DIRECTORY (CMD)
+REM ------------------------------------------------
+
+MKDIR ChmProcessorCmd\bin
+MKDIR ChmProcessorCmd\bin\Debug
+
+REM **************************
+REM COPY WEBFILES
+REM **************************
+MKDIR ChmProcessorCmd\bin\Debug\webFiles
+XCOPY webFiles ChmProcessorCmd\bin\Debug\webFiles /E /Y
+
+MKDIR ChmProcessorCmd\bin\Debug\webTranslations
+COPY webTranslations ChmProcessorCmd\bin\Debug\webTranslations
+copy searchdb.sql ChmProcessorCmd\bin\Debug
+copy libraries\tidy.exe ChmProcessorCmd\bin\Debug
+
+REM PREPARE SEARCH FILES:
+MKDIR ChmProcessorCmd\bin\Debug\searchFiles
+MKDIR ChmProcessorCmd\bin\Debug\searchFiles\Bin
+COPY WebFullTextSearch\Bin ChmProcessorCmd\bin\Debug\searchFiles\Bin
+COPY WebFullTextSearch\search.aspx ChmProcessorCmd\bin\Debug\searchFiles
+COPY WebFullTextSearch\search.aspx.cs ChmProcessorCmd\bin\Debug\searchFiles
+COPY WebFullTextSearch\Web.Config ChmProcessorCmd\bin\Debug\searchFiles
 
 PAUSE
