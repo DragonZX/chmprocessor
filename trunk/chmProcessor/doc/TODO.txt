@@ -19,6 +19,7 @@ IMPROVEMENTS
 - Use standard api to keep last opened files.
 - Make a BAT to clear the application registry node
 - Make a BAT to build all tests by command line
+- Use NUNIT to run the tests?
 - UI: When "add directory" is pressed on "Additional files" tab, the initial directory should be the help project file directory.
 - Remove all "about:blank" replacements
 - Try to replace all the web indexing stuff by lucene.
@@ -26,3 +27,5 @@ IMPROVEMENTS
 - If an additional file (as example, the changelog.txt on the chmprocessor help) is shown on the webhelp with the jquery template, the hash history tracking is lost for this entry.
 - chmProcessor webhelp: If you click the "Settings" link, the section is not selected on the tree. The Load event of the frame is not executed with a hash change.
 - Propose help title with the first html/doc title.
+- Add more command line options to set all project information: generate web? / generate javadoc? / splite level, etc.
+- Replace bat to prepare debug / release directories for Win/Cmd projects by a ONE Powershell script, with   parameters for the destination directory
