@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuracion xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <SourceFiles>
+    <string>.\NoBody.htm</string>
+  </SourceFiles>
+  <Compilar>true</Compilar>
+  <DirectorioDestino>.\NoBody-project</DirectorioDestino>
+  <HtmlCabecera />
+  <HtmlPie />
+  <TituloAyuda>No body </TituloAyuda>
+  <NivelCorte>0</NivelCorte>
+  <GenerarWeb>false</GenerarWeb>
+  <ArchivosAdicionales />
+  <AbrirProyecto>false</AbrirProyecto>
+  <DirectorioWeb>.\NoBody-web</DirectorioWeb>
+  <NivelArbolContenidos>0</NivelArbolContenidos>
+  <NivelTemasIndice>0</NivelTemasIndice>
+  <ArchivoAyuda>.\NoBody.chm</ArchivoAyuda>
+  <CommandLine />
+  <GeneratePdf>false</GeneratePdf>
+  <PdfPath>.\NoBody.pdf</PdfPath>
+  <WebKeywords />
+  <WebDescription />
+  <WebHeaderFile />
+  <WebFooterFile />
+  <GenerateSitemap>false</GenerateSitemap>
+  <WebBase />
+  <ChangeFrequency>monthly</ChangeFrequency>
+  <WebLanguage>English</WebLanguage>
+  <ConfigurationVersion>1.7</ConfigurationVersion>
+  <FullTextSearch>false</FullTextSearch>
+  <PdfGeneration>OfficeAddin</PdfGeneration>
+  <GenerateXps>false</GenerateXps>
+  <XpsPath>.\NoBody.xps</XpsPath>
+  <GenerateJavaHelp>false</GenerateJavaHelp>
+  <JavaHelpPath>.\NoBody.jar</JavaHelpPath>
+  <HeadTagFile />
+  <ChmLocaleID>3082</ChmLocaleID>
+  <WebTemplateName>jQuery</WebTemplateName>
+  <CustomTemplateDirectory />
+</Configuracion>
