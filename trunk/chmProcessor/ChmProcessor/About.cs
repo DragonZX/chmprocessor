@@ -129,7 +129,7 @@ namespace ChmProcessor
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(441, 16);
             this.label1.TabIndex = 1;
-            this.label1.Text = "chmProcessor - A Html / Word converter to Compiled HTML Help v1.7";
+            this.label1.Text = "chmProcessor - A Html / Word converter to Compiled HTML Help v1.7.1";
             // 
             // label2
             // 

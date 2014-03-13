@@ -69,6 +69,9 @@ namespace ChmProcessorLib.DocumentStructure
             InitialNode = new ChmDocumentNode(Document, Document.RootNode, null, UI);
             Document.RootNode.Children.Add(InitialNode);
 
+            if (Document.Body == null)
+                throw new Exception("The document does not have a body tag. It's not valid HTML");
+
             // Parse recursivelly the document headers structure by headers sections
             ParseHeaderStructure(Document.Body);
 
