@@ -37,7 +37,7 @@ namespace ChmProcessorLib
         /// A bug has been reported with a hangup waiting to close documents.
         /// This is the maximum time, in miliseconds, to wait for documents close.
         /// </summary>
-        private const int MAXWAITOPENDOCUMENT = 20000;
+        private const int MAXWAITOPENDOCUMENT = 15000;
 
         /// <summary>
         /// File extensions for MS Word files.
@@ -155,18 +155,26 @@ namespace ChmProcessorLib
                             ((_Application)wordApp).Quit(ref arg1, ref arg2, ref arg3);
 
                             // Wait until Word shuts down.
-                            for(;;)
+                            if (AppSettings.WaitForWordCloseDocs)
                             {
-                                Thread.Sleep(100);
-                                try
+                                const int waitTimeStep = 100;
+                                int currentWaitTime = 0;
+                                for (; ; )
                                 {
-                                    // When word shuts down this call 
-                                    // throws an exception.
-                                    string dummy = wordApp.Version;
-                                }
-                                catch
-                                {
-                                    break;
+                                    Thread.Sleep(waitTimeStep);
+                                    currentWaitTime += waitTimeStep;
+                                    if (currentWaitTime > MAXWAITOPENDOCUMENT)
+                                        break;
+                                    try
+                                    {
+                                        // When word shuts down this call 
+                                        // throws an exception.
+                                        string dummy = wordApp.Version;
+                                    }
+                                    catch
+                                    {
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -277,8 +285,8 @@ namespace ChmProcessorLib
             Document aDoc = null;
             object missing = System.Reflection.Missing.Value;
             object saveChanges = false;
-
             int currentWaitTime = 0;
+
             try
             {
                 object fileName = wordFileSrc;
@@ -304,15 +312,18 @@ namespace ChmProcessorLib
                     ((_Document)aDoc).Close(ref saveChanges, ref missing, ref missing);
 
                     // Be sure the document is closes (paranoic check to avoid bug with large files)
-                    System.Windows.Forms.Application.DoEvents();
-                    int waitTimeStep = 100;
-                    Thread.Sleep(waitTimeStep);
-                    currentWaitTime += waitTimeStep;
-                    while (IsOpen(wordFileSrc) && currentWaitTime < MAXWAITOPENDOCUMENT)
+                    if (AppSettings.WaitForWordCloseDocs)
                     {
                         System.Windows.Forms.Application.DoEvents();
+                        const int waitTimeStep = 100;
                         Thread.Sleep(waitTimeStep);
                         currentWaitTime += waitTimeStep;
+                        while (IsOpen(wordFileSrc) && currentWaitTime < MAXWAITOPENDOCUMENT)
+                        {
+                            System.Windows.Forms.Application.DoEvents();
+                            Thread.Sleep(waitTimeStep);
+                            currentWaitTime += waitTimeStep;
+                        }
                     }
                 }
             }
@@ -321,15 +332,15 @@ namespace ChmProcessorLib
             return currentWaitTime < MAXWAITOPENDOCUMENT;
         }
 
-        /// <summary>
-        /// Close all opened documents.
-        /// </summary>
-        public void CloseAllDocuments()
-        {
-            object saveChanges = false;
-            object missing = System.Reflection.Missing.Value;
-            wordApp.Documents.Close(ref saveChanges, ref missing, ref missing);
-        }
+        ///// <summary>
+        ///// Close all opened documents.
+        ///// </summary>
+        //public void CloseAllDocuments()
+        //{
+        //    object saveChanges = false;
+        //    object missing = System.Reflection.Missing.Value;
+        //    wordApp.Documents.Close(ref saveChanges, ref missing, ref missing);
+        //}
 
         /// <summary>
         /// Creates a new document result of the join of a list of documents 

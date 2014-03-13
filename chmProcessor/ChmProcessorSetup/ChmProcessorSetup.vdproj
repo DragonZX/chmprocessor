@@ -171,6 +171,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_464232EB1A6D4DE4BFCE98570E07243D"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_4A53E78258E144E9B4F2436CE66C67E9"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -179,6 +185,12 @@
         {
         "MsmKey" = "8:_4B5D090526FD8AFAA68B6295BA464960"
         "OwnerKey" = "8:_E7D348D744D74D57BE4C3D764E2E6A86"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_4B5D090526FD8AFAA68B6295BA464960"
+        "OwnerKey" = "8:_464232EB1A6D4DE4BFCE98570E07243D"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -233,6 +245,12 @@
         {
         "MsmKey" = "8:_687D3EBA288AB1AC88772306FB799AB2"
         "OwnerKey" = "8:_4B5D090526FD8AFAA68B6295BA464960"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_687D3EBA288AB1AC88772306FB799AB2"
+        "OwnerKey" = "8:_464232EB1A6D4DE4BFCE98570E07243D"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -370,6 +388,12 @@
         "Entry"
         {
         "MsmKey" = "8:_A1A8A97AE83FD8AC862AD27469D2DF45"
+        "OwnerKey" = "8:_464232EB1A6D4DE4BFCE98570E07243D"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A1A8A97AE83FD8AC862AD27469D2DF45"
         "OwnerKey" = "8:_E7D348D744D74D57BE4C3D764E2E6A86"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -466,6 +490,12 @@
         "Entry"
         {
         "MsmKey" = "8:_B757CE91895EFA60ABB4EB3A4C838489"
+        "OwnerKey" = "8:_464232EB1A6D4DE4BFCE98570E07243D"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_B757CE91895EFA60ABB4EB3A4C838489"
         "OwnerKey" = "8:_E7D348D744D74D57BE4C3D764E2E6A86"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -479,6 +509,12 @@
         {
         "MsmKey" = "8:_C098792EDE28D24917FE4576A045B8B7"
         "OwnerKey" = "8:_FFBFD627E44BB75D2DBF3D924B1E1FF5"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_C098792EDE28D24917FE4576A045B8B7"
+        "OwnerKey" = "8:_464232EB1A6D4DE4BFCE98570E07243D"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -574,6 +610,12 @@
         "Entry"
         {
         "MsmKey" = "8:_E4336E89C966EE7D778BC729C0533AA7"
+        "OwnerKey" = "8:_464232EB1A6D4DE4BFCE98570E07243D"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_E4336E89C966EE7D778BC729C0533AA7"
         "OwnerKey" = "8:_E7D348D744D74D57BE4C3D764E2E6A86"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -628,6 +670,12 @@
         "Entry"
         {
         "MsmKey" = "8:_FFBFD627E44BB75D2DBF3D924B1E1FF5"
+        "OwnerKey" = "8:_464232EB1A6D4DE4BFCE98570E07243D"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_FFBFD627E44BB75D2DBF3D924B1E1FF5"
         "OwnerKey" = "8:_E7D348D744D74D57BE4C3D764E2E6A86"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -635,6 +683,12 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_E7D348D744D74D57BE4C3D764E2E6A86"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_464232EB1A6D4DE4BFCE98570E07243D"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -1332,7 +1386,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:ChmProcessorLib, Version=1.7.5060.32901, Culture=neutral, processorArchitecture=x86"
+            "AssemblyAsmDisplayName" = "8:ChmProcessorLib, Version=1.7.1.0, Culture=neutral, processorArchitecture=x86"
                 "ScatterAssemblies"
                 {
                     "_4B5D090526FD8AFAA68B6295BA464960"
@@ -1523,7 +1577,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:WebIndexLib, Version=1.6.0.0, Culture=neutral, processorArchitecture=x86"
+            "AssemblyAsmDisplayName" = "8:WebIndexLib, Version=1.7.1.0, Culture=neutral, processorArchitecture=x86"
                 "ScatterAssemblies"
                 {
                     "_687D3EBA288AB1AC88772306FB799AB2"
@@ -3029,14 +3083,14 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:chmProcessor"
-        "ProductCode" = "8:{2E064458-D731-46DC-9C74-E4FAF198F87A}"
-        "PackageCode" = "8:{B9A4882C-CA2C-4982-921D-500905ADDFDB}"
+        "ProductCode" = "8:{99164E56-477E-4339-BEEF-9447F645279F}"
+        "PackageCode" = "8:{A8B2D131-BCBC-4278-95C5-636005128370}"
         "UpgradeCode" = "8:{4B15581B-7387-47B1-9642-75A7B1E52B30}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:1.7"
+        "ProductVersion" = "8:1.7.1"
         "Manufacturer" = "8:ToniBSoft"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://chmprocessor.sf.net"
@@ -3562,6 +3616,34 @@
         }
         "ProjectOutput"
         {
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_464232EB1A6D4DE4BFCE98570E07243D"
+            {
+            "SourcePath" = "8:..\\ChmProcessorCmd\\obj\\Debug\\ChmProcessorCmd.exe"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_EFD050B0BC4A4E6EA11EC348692E2E00"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:"
+            "OutputGroupCanonicalName" = "8:Built"
+            "OutputProjectGuid" = "8:{A63D07F8-5051-498C-AE16-05C36843C9AA}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+            }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_E7D348D744D74D57BE4C3D764E2E6A86"
             {
             "SourcePath" = "8:..\\ChmProcessor\\obj\\x86\\Debug\\ChmProcessor.exe"

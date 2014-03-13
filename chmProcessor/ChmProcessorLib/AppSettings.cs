@@ -24,43 +24,51 @@ using System.IO;
 namespace ChmProcessorLib
 {
     /// <summary>
-    /// Application settings.
+    /// Application settings. 
     /// </summary>
+    /// <remarks>
+    /// TODO: This class should not have static members: Make them non static, and add
+    /// TODO: a static function to return an instance reading the members from the registry.
+    /// </remarks>
     public class AppSettings
     {
-        static private string COMPILERKEY = "compilerpath";
-        static private string USETIDYOVERINPUT = "usetidyinput";
-        static private string USETIDYOVEROUTPUT = "usetidyoutput";
-        static private string JDKHOME = "jdkhome";
-        static private string JAVAHELPPATH = "javahelppath";
+        private const string COMPILERKEY = "compilerpath";
+        private const string USETIDYOVERINPUT = "usetidyinput";
+        private const string USETIDYOVEROUTPUT = "usetidyoutput";
+        private const string JDKHOME = "jdkhome";
+        private const string JAVAHELPPATH = "javahelppath";
 
         /// <summary>
         /// Key that stores if we must to save project paths as relative to the project file path 
         /// A string true.toString() or false.toString().
         /// </summary>
-        static private string SAVERELATIVEPATHS = "saverelativepahts";
+        private const string SAVERELATIVEPATHS = "saverelativepahts";
 
         /// <summary>
         /// Key that stores if we must to replace/remove broken links.
         /// </summary>
-        static private string REMOVEBROKENLINKS = "removebrokenlinks";
+        private const string REMOVEBROKENLINKS = "removebrokenlinks";
 
         /// <summary>
         /// Key that stores if we must to use Microsoft AppLocale to run the CHM compiler
         /// </summary>
-        static public string USEAPPLOCALE = "useapplocale";
+        private const string USEAPPLOCALE = "useapplocale";
 
         /// <summary>
         /// Key that stores the path to the Microsoft AppLocale
         /// </summary>
-        static public string APPLOCALEPATH = "applocalepath";
+        private const string APPLOCALEPATH = "applocalepath";
+
+        /// <summary>
+        /// Key that stores if the application must wait to word until it closes the documents
+        /// </summary>
+        private const string WAITWORDCLOSEDOCS = "WaitWordCloseDocs";
 
         /// <summary>
         /// Windows registry leaf where the application stores settings
         /// </summary>
         static public string KEY = "Software\\chmProcessor";
 
-        
         /// <summary>
         /// The jar.exe absolute path on the system.
         /// </summary>
@@ -126,7 +134,7 @@ namespace ChmProcessorLib
             {
                 try
                 {
-                    RegistryKey rk = Registry.CurrentUser.OpenSubKey(KEY, true);
+                    RegistryKey rk = Registry.CurrentUser.CreateSubKey(KEY);
                     rk.SetValue(JDKHOME, value);
                 }
                 catch { }
@@ -169,7 +177,7 @@ namespace ChmProcessorLib
             {
                 try
                 {
-                    RegistryKey rk = Registry.CurrentUser.OpenSubKey(KEY, true);
+                    RegistryKey rk = Registry.CurrentUser.CreateSubKey(KEY);
                     rk.SetValue(JAVAHELPPATH, value);
                 }
                 catch { }
@@ -224,7 +232,7 @@ namespace ChmProcessorLib
             set {
                 try
                 {
-                    RegistryKey rk = Registry.CurrentUser.OpenSubKey(KEY, true);
+                    RegistryKey rk = Registry.CurrentUser.CreateSubKey(KEY);
                     rk.SetValue(COMPILERKEY, value);
                 }
                 catch { }
@@ -281,7 +289,7 @@ namespace ChmProcessorLib
         {
             try
             {
-                RegistryKey rk = Registry.CurrentUser.OpenSubKey(KEY, true);
+                RegistryKey rk = Registry.CurrentUser.CreateSubKey(KEY);
                 rk.SetValue(subkey, value);
             }
             catch { }
@@ -316,7 +324,7 @@ namespace ChmProcessorLib
         static private void SetBooleanValueRegistry(string subkey, bool value) {
             try
             {
-                RegistryKey rk = Registry.CurrentUser.OpenSubKey(KEY, true);
+                RegistryKey rk = Registry.CurrentUser.CreateSubKey(KEY);
                 rk.SetValue(subkey, value.ToString() );
             }
             catch { }
@@ -382,6 +390,25 @@ namespace ChmProcessorLib
             set
             {
                 SetStringValueRegistry(APPLOCALEPATH, value);
+            }
+        }
+
+        /// <summary>
+        /// Should the application wait Word until it closes the open documents?
+        /// </summary>
+        /// <remarks>
+        /// Should be yes, but it has been reported that sometimes the applications hangs
+        /// forever waiting for this. This allows to disable the waiting.
+        /// </remarks>
+        static public bool WaitForWordCloseDocs
+        {
+            get
+            {
+                return GetBooleanValueRegistry(WAITWORDCLOSEDOCS, true);
+            }
+            set
+            {
+                SetBooleanValueRegistry(WAITWORDCLOSEDOCS, value);
             }
         }
     }

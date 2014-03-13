@@ -52,6 +52,7 @@ namespace ChmProcessor
                 
             chkUseAppLocale.Checked = AppSettings.UseAppLocale;
             txtAppLocalePath.Text = AppSettings.AppLocalePath;
+            ChkWaitWordCloses.Checked = AppSettings.WaitForWordCloseDocs;
 
             chkUseAppLocate_CheckedChanged(null, null);
 
@@ -136,6 +137,7 @@ namespace ChmProcessor
             AppSettings.JavaHelpPath = txtJavaHelpPath.Text;
             AppSettings.SaveRelativePaths = chkSaveRelativePaths.Checked;
             AppSettings.ReplaceBrokenLinks = chkReplaceBrokenLinks.Checked;
+            AppSettings.WaitForWordCloseDocs = ChkWaitWordCloses.Checked;
 
             this.Close();
         }
