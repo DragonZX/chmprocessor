@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using HtmlAgilityPack;
 using System.Web;
+using ChmProcessorLib.Log;
 
 namespace ChmProcessorLib.DocumentStructure
 {
@@ -63,7 +64,7 @@ namespace ChmProcessorLib.DocumentStructure
         /// <returns>The parsed dococument</returns>
         public ChmDocument ParseDocument()
         {
-            UI.Log("Searching sections", ConsoleUserInterface.INFO);
+            UI.Log("Searching sections", ChmLogLevel.INFO);
 
             // Build a node for the content without an initial title
             InitialNode = new ChmDocumentNode(Document, Document.RootNode, null, UI);
@@ -91,7 +92,7 @@ namespace ChmProcessorLib.DocumentStructure
                 return null;
 
             // Split the document content:
-            UI.Log("Splitting file", ConsoleUserInterface.INFO);
+            UI.Log("Splitting file", ChmLogLevel.INFO);
             // TODO: This method content and all descendants are pure crap: Make a rewrite
             SplitContent();
 
@@ -99,21 +100,21 @@ namespace ChmProcessorLib.DocumentStructure
                 return null;
 
             // Join empty nodes:
-            UI.Log("Joining empty document sections", ConsoleUserInterface.INFO);
+            UI.Log("Joining empty document sections", ChmLogLevel.INFO);
             JoinEmptyNodes();
 
             if (UI.CancellRequested())
                 return null;
 
             // Change internal document links to point to the splitted files. Optionally repair broken links.
-            UI.Log("Changing internal links", ConsoleUserInterface.INFO);
+            UI.Log("Changing internal links", ChmLogLevel.INFO);
             ChangeInternalLinks(Document.RootNode);
 
             if (UI.CancellRequested())
                 return null;
 
             // Extract the embedded CSS styles of the document:
-            UI.Log("Extracting CSS STYLE header tags", ConsoleUserInterface.INFO);
+            UI.Log("Extracting CSS STYLE header tags", ChmLogLevel.INFO);
             CheckForStyleTags();
 
             // If the initial node for content without title is empty, remove it:
@@ -139,7 +140,7 @@ namespace ChmProcessorLib.DocumentStructure
                 return null;
 
             // Create the document and pages index
-            UI.Log("Creating document index", ConsoleUserInterface.INFO);
+            UI.Log("Creating document index", ChmLogLevel.INFO);
             CreateDocumentIndex();
             CreatePagesIndex();
 
@@ -406,7 +407,7 @@ namespace ChmProcessorLib.DocumentStructure
             catch (Exception ex)
             {
                 UI.Log("Warning: error adding a child (" + child.Name + ") to his parent (" +
-                     parent.Name + "): " + ex.Message, ConsoleUserInterface.ERRORWARNING);
+                     parent.Name + "): " + ex.Message, ChmLogLevel.WARNING);
                 UI.Log(ex);
             }
         }
@@ -663,7 +664,7 @@ namespace ChmProcessorLib.DocumentStructure
             }
             catch (Exception ex)
             {
-                UI.Log("Error reparining a broken link", ConsoleUserInterface.ERRORWARNING);
+                UI.Log("Error reparining a broken link", ChmLogLevel.ERROR);
                 UI.Log(ex);
             }
         }
@@ -695,7 +696,7 @@ namespace ChmProcessorLib.DocumentStructure
                             else
                             {
                                 // Broken link.
-                                UI.Log("WARNING: Broken link with text: '" + node.InnerText + "'", ConsoleUserInterface.ERRORWARNING);
+                                UI.Log("WARNING: Broken link with text: '" + node.InnerText + "'", ChmLogLevel.WARNING);
                                 if( node.ParentNode != null )
                                 {
                                     String inText = UnescapedInnerText(node.ParentNode);
@@ -703,7 +704,7 @@ namespace ChmProcessorLib.DocumentStructure
                                     {
                                         if (inText.Length > 200)
                                             inText = inText.Substring(0, 200) + "...";
-                                        UI.Log(" near of text: '" + inText + "'", ConsoleUserInterface.ERRORWARNING);
+                                        UI.Log(" near of text: '" + inText + "'", ChmLogLevel.WARNING);
                                     }
                                 }
                                 if (ReplaceBrokenLinks)

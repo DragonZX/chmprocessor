@@ -24,6 +24,7 @@ using WebIndexLib;
 using System.IO;
 using System.Reflection;
 using System.Web;
+using ChmProcessorLib.Log;
 
 namespace ChmProcessorLib.Generators
 {
@@ -47,7 +48,7 @@ namespace ChmProcessorLib.Generators
         public void Generate(List<string> additionalFiles)
         {
 
-            UI.Log("Generating web site", ConsoleUserInterface.INFO);
+            UI.Log("Generating web site", ChmLogLevel.INFO);
 
             // Create directory, and additional files
             CreateDestinationDirectory(Project.WebDirectory, additionalFiles);
@@ -156,7 +157,7 @@ namespace ChmProcessorLib.Generators
             }
             catch (Exception ex)
             {
-                UI.Log("Error opening web translations file" + translationFile + ": " + ex.Message, ConsoleUserInterface.ERRORWARNING);
+                UI.Log("Error opening web translations file" + translationFile + ": " + ex.Message, ChmLogLevel.ERROR);
                 UI.Log(ex);
             }
 
@@ -202,7 +203,7 @@ namespace ChmProcessorLib.Generators
             }
             catch (Exception ex)
             {
-                UI.Log("Error generating the sitemap: " + ex.Message, ConsoleUserInterface.ERRORWARNING);
+                UI.Log("Error generating the sitemap: " + ex.Message, ChmLogLevel.ERROR);
                 UI.Log(ex);
             }
         }

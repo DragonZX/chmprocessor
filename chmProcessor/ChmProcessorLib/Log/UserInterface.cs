@@ -19,7 +19,7 @@
 using System;
 using System.IO;
 
-namespace ChmProcessorLib
+namespace ChmProcessorLib.Log
 {
     /// <summary>
     /// Interface to control the process of the CHM generation.
@@ -35,17 +35,13 @@ namespace ChmProcessorLib
 
         /// <summary>
         /// Called by the generation process to add a text to the log.
-        /// TODO: Rename this to Log
-        /// TODO: Message level should be a enum
         /// </summary>
         /// <param name="text">Text to log</param>
-        /// <param name="level">Level of the message. 1 for errors / warnings, 2 for information, 3
-        /// for debug messages. Constant values are defined at ConsoleUserInterface</param>
-        void Log(string text, int level);
+        /// <param name="level">Level of the message.</param>
+        void Log(string text, ChmLogLevel level);
 
         /// <summary>
         /// Called by the generation process to add an exception to the log.
-        /// TODO: Rename this to Log
         /// </summary>
         /// <param name="text">Exception to log</param>
         void Log(Exception exception);
@@ -55,6 +51,6 @@ namespace ChmProcessorLib
         /// </summary>
         /// <param name="reader">Log with the content to read.</param>
         /// <param name="level">Level of the stream</param>
-        void LogStream(StreamReader reader, int level);
+        void LogStream(StreamReader reader, ChmLogLevel level);
     }
 }

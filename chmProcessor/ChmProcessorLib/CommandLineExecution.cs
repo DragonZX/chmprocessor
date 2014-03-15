@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
+using ChmProcessorLib.Log;
 
 namespace ChmProcessorLib
 {
@@ -69,11 +70,11 @@ namespace ChmProcessorLib
         {
             ExecutionProcess = Process.Start(Info);
             while (!ExecutionProcess.WaitForExit(MAXIMUMWAIT))
-                UI.LogStream(ExecutionProcess.StandardOutput, ConsoleUserInterface.INFO);
-            UI.LogStream(ExecutionProcess.StandardOutput, ConsoleUserInterface.INFO);
+                UI.LogStream(ExecutionProcess.StandardOutput, ChmLogLevel.DEBUG);
+            UI.LogStream(ExecutionProcess.StandardOutput, ChmLogLevel.DEBUG);
 
             if( LogStandardError )
-                UI.LogStream(ExecutionProcess.StandardError, ConsoleUserInterface.ERRORWARNING);
+                UI.LogStream(ExecutionProcess.StandardError, ChmLogLevel.ERROR);
 
             return ExecutionProcess.ExitCode;
         }

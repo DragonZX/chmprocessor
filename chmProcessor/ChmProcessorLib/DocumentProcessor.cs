@@ -29,6 +29,7 @@ using System.Globalization;
 using WebIndexLib;
 using ChmProcessorLib.DocumentStructure;
 using ChmProcessorLib.Generators;
+using ChmProcessorLib.Log;
 
 namespace ChmProcessorLib
 {
@@ -118,7 +119,7 @@ namespace ChmProcessorLib
             // Add DOC extension:
             joinedDocument += ".doc";
 
-            UI.Log("Joining documents to a single temporal file : " + joinedDocument, ConsoleUserInterface.INFO);
+            UI.Log("Joining documents to a single temporal file : " + joinedDocument, ChmLogLevel.INFO);
             msWord.JoinDocuments(Project.SourceFiles.ToArray(), joinedDocument);
             return joinedDocument;
         }
@@ -137,7 +138,7 @@ namespace ChmProcessorLib
             if (UI.CancellRequested())
                 return null;
 
-            UI.Log("Convert file " + MainSourceFile + " to HTML", ConsoleUserInterface.INFO);
+            UI.Log("Convert file " + MainSourceFile + " to HTML", ChmLogLevel.INFO);
             string nombreArchivo = Path.GetFileNameWithoutExtension(MainSourceFile);
             MSWordHtmlDirectory = Path.GetTempPath() + Path.DirectorySeparatorChar + nombreArchivo;
             if (Directory.Exists(MSWordHtmlDirectory))
@@ -152,7 +153,7 @@ namespace ChmProcessorLib
             string finalFile = MSWordHtmlDirectory + Path.DirectorySeparatorChar + ChmDocumentNode.ToSafeFilename(nombreArchivo) + ".htm";
 
             if( !msWord.SaveWordToHtml(MainSourceFile, finalFile) )
-                UI.Log("Warning: There was a time out waiting to close the word document", 1);
+                UI.Log("Warning: There was a time out waiting to close the word document", ChmLogLevel.WARNING);
 
             return finalFile;
         }
@@ -226,7 +227,7 @@ namespace ChmProcessorLib
         {
             try
             {
-                UI.Log("Executing '" + Project.CommandLine.Trim() + "'", ConsoleUserInterface.INFO);
+                UI.Log("Executing '" + Project.CommandLine.Trim() + "'", ChmLogLevel.DEBUG);
                 string parameters = "/C " + Project.CommandLine.Trim();
                 CommandLineExecution cmd = new CommandLineExecution("CMD.exe", parameters, UI);
                 // If execution reads std input, create a window for it: Otherwise it can
@@ -236,7 +237,7 @@ namespace ChmProcessorLib
             }
             catch (Exception ex)
             {
-                UI.Log("Error executing command line ", ConsoleUserInterface.ERRORWARNING);
+                UI.Log("Error executing command line ", ChmLogLevel.ERROR);
                 UI.Log(ex);
             }
         }
@@ -333,7 +334,7 @@ namespace ChmProcessorLib
                 if (Document.IsEmpty)
                 {
                     // If the document is empty, we have finished
-                    UI.Log("The document is empty. There is nothing to generate!", ConsoleUserInterface.ERRORWARNING);
+                    UI.Log("The document is empty. There is nothing to generate!", ChmLogLevel.ERROR);
                     return;
                 }
 
@@ -382,7 +383,7 @@ namespace ChmProcessorLib
             }
             catch (Exception ex)
             {
-                UI.Log("Error: " + ex.Message, ConsoleUserInterface.ERRORWARNING);
+                UI.Log("Error: " + ex.Message, ChmLogLevel.ERROR);
                 UI.Log(ex);
                 throw new Exception("General error: " + ex.Message, ex); ;
             }
@@ -409,7 +410,7 @@ namespace ChmProcessorLib
 
             if (!Project.ChmHeaderFile.Equals(""))
             {
-                UI.Log("Reading chm header: " + Project.ChmHeaderFile, ConsoleUserInterface.INFO);
+                UI.Log("Reading chm header: " + Project.ChmHeaderFile, ChmLogLevel.INFO);
                 ChmDecorator.HeaderHtmlFile = Project.ChmHeaderFile;
             }
 
@@ -418,7 +419,7 @@ namespace ChmProcessorLib
 
             if (!Project.ChmFooterFile.Equals(""))
             {
-                UI.Log("Reading chm footer: " + Project.ChmFooterFile, ConsoleUserInterface.INFO);
+                UI.Log("Reading chm footer: " + Project.ChmFooterFile, ChmLogLevel.INFO);
                 ChmDecorator.FooterHtmlFile = Project.ChmFooterFile;
             }
 
@@ -427,7 +428,7 @@ namespace ChmProcessorLib
 
             if (Project.GenerateWeb && !Project.WebHeaderFile.Equals(""))
             {
-                UI.Log("Reading web header: " + Project.WebHeaderFile, ConsoleUserInterface.INFO);
+                UI.Log("Reading web header: " + Project.WebHeaderFile, ChmLogLevel.INFO);
                 WebDecorator.HeaderHtmlFile = Project.WebHeaderFile;
             }
 
@@ -436,7 +437,7 @@ namespace ChmProcessorLib
 
             if (Project.GenerateWeb && !Project.WebFooterFile.Equals(""))
             {
-                UI.Log("Reading web footer: " + Project.WebFooterFile, ConsoleUserInterface.INFO);
+                UI.Log("Reading web footer: " + Project.WebFooterFile, ChmLogLevel.INFO);
                 WebDecorator.FooterHtmlFile = Project.WebFooterFile;
             }
 
@@ -445,7 +446,7 @@ namespace ChmProcessorLib
 
             if (Project.GenerateWeb && !Project.HeadTagFile.Equals(""))
             {
-                UI.Log("Reading <header> include: " + Project.HeadTagFile, ConsoleUserInterface.INFO);
+                UI.Log("Reading <header> include: " + Project.HeadTagFile, ChmLogLevel.INFO);
                 WebDecorator.HeadIncludeFile = Project.HeadTagFile;
             }
 

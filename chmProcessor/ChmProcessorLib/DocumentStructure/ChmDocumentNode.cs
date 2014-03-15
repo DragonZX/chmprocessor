@@ -23,6 +23,7 @@ using HtmlAgilityPack;
 using System.Web;
 using WebIndexLib;
 using System.Text.RegularExpressions;
+using ChmProcessorLib.Log;
 
 namespace ChmProcessorLib.DocumentStructure
 {

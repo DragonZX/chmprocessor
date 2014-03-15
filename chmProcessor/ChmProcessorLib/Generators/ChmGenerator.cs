@@ -23,6 +23,7 @@ using System.IO;
 using ChmProcessorLib.DocumentStructure;
 using System.Globalization;
 using System.Diagnostics;
+using ChmProcessorLib.Log;
 
 namespace ChmProcessorLib.Generators
 {
@@ -80,25 +81,6 @@ namespace ChmProcessorLib.Generators
             this.AdditionalFiles = additionalFiles;
 
             // Get the encoding and culture for the chm:
-            /*try
-            {
-                this.HelpWorkshopCulture = CultureInfo.GetCultureInfo(project.ChmLocaleID);
-            }
-            catch (Exception ex)
-            {
-                UI.log(ex);
-                throw new Exception("The locale ID (LCID) " + project.ChmLocaleID + " is not found.", ex);
-            }
-
-            try
-            {
-                this.Encoding = Encoding.GetEncoding(HelpWorkshopCulture.TextInfo.ANSICodePage);
-            }
-            catch (Exception ex)
-            {
-                UI.log(ex);
-                throw new Exception("The ANSI codepage " + HelpWorkshopCulture.TextInfo.ANSICodePage + " is not found.", ex);
-            }*/
             this.HelpWorkshopCulture = project.GetChmCulture(UI);
             this.Encoding = ChmProject.GetChmEncoding(UI, this.HelpWorkshopCulture);
         }
@@ -121,19 +103,19 @@ namespace ChmProcessorLib.Generators
             List<string> relativePaths = CreateDestinationDirectory(Project.HelpProjectDirectory, AdditionalFiles);
             CreateHelpContentFiles(Project.HelpProjectDirectory);
 
-            UI.Log("Generating table of contents", ConsoleUserInterface.INFO);
+            UI.Log("Generating table of contents", ChmLogLevel.INFO);
             GenerateTOCFile();
 
             if (UI.CancellRequested())
                 return;
 
-            UI.Log("Generating index", ConsoleUserInterface.INFO);
+            UI.Log("Generating index", ChmLogLevel.INFO);
             GenerateHelpIndex();
 
             if (UI.CancellRequested())
                 return;
 
-            UI.Log("Generating help project", ConsoleUserInterface.INFO);
+            UI.Log("Generating help project", ChmLogLevel.INFO);
             GenerateHelpProject(relativePaths);
 
             if (UI.CancellRequested())
@@ -258,7 +240,7 @@ namespace ChmProcessorLib.Generators
         /// </summary>
         private void Compile()
         {
-            UI.Log("Compiling CHM file", ConsoleUserInterface.INFO);
+            UI.Log("Compiling CHM file", ChmLogLevel.INFO);
 
             // The help compiler EXE path:
             string compilerPath = AppSettings.CompilerPath;
@@ -319,7 +301,7 @@ namespace ChmProcessorLib.Generators
             }
             else if (Project.OpenProject)
             {
-                UI.Log("Opening CHM project", ConsoleUserInterface.INFO);
+                UI.Log("Opening CHM project", ChmLogLevel.INFO);
                 try
                 {
                     // Abrir el proyecto de la ayuda
@@ -330,7 +312,7 @@ namespace ChmProcessorLib.Generators
                 catch (Exception ex)
                 {
                     UI.Log("The project " + ChmProjectPath + " cannot be opened" +
-                        ". Do you have installed the Microsoft Help Workshop ?", ConsoleUserInterface.ERRORWARNING);
+                        ". Do you have installed the Microsoft Help Workshop ?", ChmLogLevel.ERROR);
                     UI.Log(ex);
                 }
             }

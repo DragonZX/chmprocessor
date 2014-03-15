@@ -27,6 +27,7 @@ using System.Xml;
 using System.Globalization;
 using System.Text;
 using ChmProcessorLib.Generators;
+using ChmProcessorLib.Log;
 
 namespace ChmProcessorLib
 {
