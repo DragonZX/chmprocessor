@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using ChmProcessorLib.Log;
 
 namespace ChmProcessorLib.Generators
 {
@@ -47,17 +48,17 @@ namespace ChmProcessorLib.Generators
         /// </summary>
         public void Generate()
         {
-            UI.Log("Generating XPS file", ConsoleUserInterface.INFO);
+            UI.Log("Generating XPS file", ChmLogLevel.INFO);
             try
             {
                 MSWord word = new MSWord();
                 if (!word.SaveWordToXps(MainSourceFilePath, Project.XpsPath))
-                    UI.Log("Warning: There was a time out waiting to close the word document", 1);
+                    UI.Log("Warning: There was a time out waiting to close the word document", ChmLogLevel.WARNING);
             }
             catch (Exception ex)
             {
                 UI.Log("Something wrong happened with the XPS generation. Remember you must to have Microsoft Office 2007 and the " +
-                        "pdf/xps generation add-in (http://www.microsoft.com/downloads/details.aspx?FamilyID=4D951911-3E7E-4AE6-B059-A2E79ED87041&displaylang=en)", ConsoleUserInterface.ERRORWARNING);
+                        "pdf/xps generation add-in (http://www.microsoft.com/downloads/details.aspx?FamilyID=4D951911-3E7E-4AE6-B059-A2E79ED87041&displaylang=en)", ChmLogLevel.ERROR);
                 UI.Log(ex);
             }
         }

@@ -51,11 +51,6 @@ namespace ChmProcessorLib.DocumentStructure
         public const string DEFAULTTILE = "Help content";
 
         /// <summary>
-        /// Ultimo nodo insertado en el arbol.
-        /// </summary>
-        private ChmDocumentNode ultimoInsertado;
-
-        /// <summary>
         /// The original html document
         /// </summary>
         public HtmlDocument HtmlDoc;

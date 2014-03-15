@@ -141,6 +141,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChmProjectVerifier.cs" />
     <Compile Include="CommandLine.cs" />
     <Compile Include="CommandLineExecution.cs" />
     <Compile Include="DocumentStructure\ChmDocument.cs">
@@ -151,7 +152,7 @@
     </Compile>
     <Compile Include="ChmProjectXml.cs" />
     <Compile Include="ChmProject.cs" />
-    <Compile Include="ConsoleUserInterface.cs" />
+    <Compile Include="Log\ConsoleUserInterface.cs" />
     <Compile Include="DocumentStructure\ChmDocumentParser.cs" />
     <Compile Include="FileSystem.cs" />
     <Compile Include="DocumentProcessor.cs">
@@ -170,6 +171,7 @@
     <Compile Include="Generators\WebHelpGenerator.cs" />
     <Compile Include="Generators\XpsGenerator.cs" />
     <Compile Include="HtmlPageDecorator.cs" />
+    <Compile Include="Log\ChmLogLevel.cs" />
     <Compile Include="MSWord.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -180,7 +182,7 @@
     <Compile Include="Replacements.cs" />
     <Compile Include="AppSettings.cs" />
     <Compile Include="TidyParser.cs" />
-    <Compile Include="UserInterface.cs" />
+    <Compile Include="Log\UserInterface.cs" />
     <Compile Include="Zip.cs" />
   </ItemGroup>
   <ItemGroup>

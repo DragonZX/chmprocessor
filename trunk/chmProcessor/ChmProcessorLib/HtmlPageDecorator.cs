@@ -22,6 +22,7 @@ using System.Text;
 using HtmlAgilityPack;
 using System.IO;
 using ChmProcessorLib.DocumentStructure;
+using ChmProcessorLib.Log;
 
 namespace ChmProcessorLib
 {

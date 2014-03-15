@@ -30,6 +30,7 @@ using ChmProcessorLib;
 using ChmProcessorLib.Generators;
 using System.Text;
 using System.Globalization;
+using ChmProcessorLib.Log;
 
 namespace ChmProcessor
 {
@@ -1433,9 +1434,9 @@ namespace ChmProcessor
             this.chkJavaHelp.AutoSize = true;
             this.chkJavaHelp.Location = new System.Drawing.Point(6, 20);
             this.chkJavaHelp.Name = "chkJavaHelp";
-            this.chkJavaHelp.Size = new System.Drawing.Size(152, 17);
+            this.chkJavaHelp.Size = new System.Drawing.Size(121, 17);
             this.chkJavaHelp.TabIndex = 0;
-            this.chkJavaHelp.Text = "Generate Java Help (Beta)";
+            this.chkJavaHelp.Text = "Generate Java Help";
             this.chkJavaHelp.UseVisualStyleBackColor = true;
             this.chkJavaHelp.CheckedChanged += new System.EventHandler(this.chkJavaHelp_CheckedChanged);
             // 
@@ -1811,190 +1812,49 @@ namespace ChmProcessor
         }
 		#endregion
 
-        public void ProcessProject(bool askConfirmations , bool exitAfterEnd)
+        /// <summary>
+        /// Generates the help products from the current project
+        /// </summary>
+        /// <param name="askConfirmations">True if we can ask confirmations to the user</param>
+        /// <param name="exitAfterEnd">True if the generation window must be closed after the generation</param>
+        /// <returns>The minimum log level message registered in the generation</returns>
+        public ChmLogLevel ProcessProject(bool askConfirmations, bool exitAfterEnd)
         {
-            ProcessProject(askConfirmations, exitAfterEnd, 3);
+            return ProcessProject(askConfirmations, exitAfterEnd, ChmLogLevel.DEBUG);
         }
 
-        public void ProcessProject(bool askConfirmations , bool exitAfterEnd, int LogLevel)
+        /// <summary>
+        /// Generates the help products from the current project
+        /// </summary>
+        /// <param name="askConfirmations">True if we can ask confirmations to the user</param>
+        /// <param name="exitAfterEnd">True if the generation window must be closed after the generation</param>
+        /// <param name="logLevel">Maximum log level messages to show</param>
+        /// <returns>The minimum log level message registered in the generation</returns>
+        public ChmLogLevel ProcessProject(bool askConfirmations , bool exitAfterEnd, ChmLogLevel logLevel)
         {
             try
             {
-                // Verify errors:
-
-                if (lstSourceFiles.Items.Count == 0)
-                {
-                    MessageBox.Show(this, "No source file was specified.", "Error");
-                    return;
-                }
-
-                foreach (string file in lstSourceFiles.Items)
-                {
-                    if (!File.Exists(file))
-                    {
-                        MessageBox.Show(this, "The file " + file + " does not exist", "Error");
-                        lstSourceFiles.Focus();
-                        lstSourceFiles.SelectedIndices.Clear();
-                        lstSourceFiles.SelectedIndices.Add( lstSourceFiles.Items.IndexOf(file) );
-                        return;
-                    }
-                }
-
-                if (!txtArcCab.Text.Equals("") && !File.Exists(txtArcCab.Text))
-                {
-                    MessageBox.Show(this, "The header file " + txtArcCab.Text + " does not exist");
-                    txtArcCab.Focus();
-                    return;
-                }
-
-                if (!txtArcPie.Text.Equals("") && !File.Exists(txtArcPie.Text))
-                {
-                    MessageBox.Show(this, "The footer file " + txtArcPie.Text + " does not exist");
-                    txtArcPie.Focus();
-                    return;
-                }
-
-                if (radCompilar.Checked && txtArchivoAyuda.Text.Trim().Equals(""))
-                {
-                    MessageBox.Show(this, "Destination file is mandatory");
-                    txtArchivoAyuda.Focus();
-                    return;
-                }
-
-                if (chkGenWeb.Checked)
-                {
-
-                    if (!txtHeaderWeb.Text.Trim().Equals("") && !File.Exists(txtHeaderWeb.Text))
-                    {
-                        MessageBox.Show(this, "The web header file " + txtHeaderWeb.Text + " does not exist");
-                        txtHeaderWeb.Focus();
-                        return;
-                    }
-
-                    if (!txtFooterWeb.Text.Trim().Equals("") && !File.Exists(txtFooterWeb.Text))
-                    {
-                        MessageBox.Show(this, "The web footer file " + txtFooterWeb.Text + " does not exist");
-                        txtFooterWeb.Focus();
-                        return;
-                    }
-
-                    if (!txtHeadInclude.Text.Trim().Equals("") && !File.Exists(txtHeadInclude.Text.Trim()))
-                    {
-                        MessageBox.Show(this, "The web <head> include file " + txtHeadInclude.Text + " does not exist");
-                        txtHeadInclude.Focus();
-                        return;
-                    }
-
-                    if (!Directory.Exists(WebHelpTemplateDir))
-                    {
-                        MessageBox.Show("The web template directory " + WebHelpTemplateDir + " does not exists");
-                        CmbWebTemplate.Focus();
-                        return;
-                    }
-                }
-
-                string compilerPath = AppSettings.CompilerPath;
-                if (!File.Exists(compilerPath) && radCompilar.Checked)
-                {
-                    MessageBox.Show("The path to the compiler of Microsoft Help Workshop is not set or does not exist. Please, go to the menu File > Settings... and put the path to the compiler. If you dont have it, the link to download it is there.");
-                    return;
-                }
-                if (chkJavaHelp.Checked && !File.Exists(AppSettings.JarPath))
-                {
-                    MessageBox.Show("The path to the Sun JDK (" + AppSettings.JarPath + ") is not set or does not exist. Please, go to the menu File > Settings... and put the path. If you dont have it, the link to download it is there.");
-                    return;
-                }
-                if (chkJavaHelp.Checked && !File.Exists(AppSettings.JavaHelpIndexerPath))
-                {
-                    MessageBox.Show("The path to the JavaHelp (" + AppSettings.JavaHelpIndexerPath + ") is not set or does not exist. Please, go to the menu File > Settings... and put the path. If you dont have it, the link to download it is there.");
-                    return;
-                }
-
-                if (numNivelCorte.Value > 10)
-                    numNivelCorte.Value = 10;
-                else if (numNivelCorte.Value < 0)
-                    numNivelCorte.Value = 0;
-
-                // Confirmar que se quiere procesar:
-                if (radGenerarProyecto.Checked && Directory.Exists(txtDirDst.Text) && askConfirmations)
-                {
-                    string msg = "Are you sure you want to create a help project at " +
-                                 txtDirDst.Text +
-                                 " ?  All files at this directory will be deleted.";
-
-                    if (MessageBox.Show(this, msg, "Generate", MessageBoxButtons.YesNo)
-                        == DialogResult.No)
-                        return;
-                }
-                if (radCompilar.Checked && File.Exists(txtArchivoAyuda.Text) && askConfirmations )
-                {
-                    string msg = "Are you sure you want to replace the help file " +
-                        txtArchivoAyuda.Text + " ?";
-                    if (MessageBox.Show(this, msg, "Generate", MessageBoxButtons.YesNo)
-                        == DialogResult.No)
-                        return;
-                }
-                if (chkGenWeb.Checked && Directory.Exists(txtDirWeb.Text) && askConfirmations )
-                {
-                    string msg = "Are you sure you want to create a web site at " +
-                        txtDirWeb.Text +
-                        " ? All files at this directory will be deleted.";
-                    if (MessageBox.Show(this, msg, "Generate", MessageBoxButtons.YesNo)
-                        == DialogResult.No)
-                        return;
-                }
-                if (chkGenPdf.Checked && File.Exists(txtPdf.Text) && askConfirmations)
-                {
-                    string msg = "Are you sure you want to replace the PDF file " +
-                        txtPdf.Text + " ?";
-                    if (MessageBox.Show(this, msg, "Generate", MessageBoxButtons.YesNo)
-                        == DialogResult.No)
-                        return;
-                }
-                if (chkGenerateXps.Checked && File.Exists(txtXps.Text) && askConfirmations)
-                {
-                    string msg = "Are you sure you want to replace the XPS file " +
-                        txtXps.Text + " ?";
-                    if (MessageBox.Show(this, msg, "Generate", MessageBoxButtons.YesNo)
-                        == DialogResult.No)
-                        return;
-                }
-
-                if (chkJavaHelp.Checked && File.Exists(txtJavaHelp.Text) && askConfirmations)
-                {
-                    string msg = "Are you sure you want to replace the Java Help file " +
-                        txtJavaHelp.Text + " ?";
-                    if (MessageBox.Show(this, msg, "Generate", MessageBoxButtons.YesNo)
-                        == DialogResult.No)
-                        return;
-                }
-
-                // Check additional files
-                foreach (string file in lstArcAdicionales.Items)
-                {
-                    if (!File.Exists(file) && !Directory.Exists(file) && askConfirmations )
-                    {
-                        if (MessageBox.Show(this, "The file / directory " + file + " does not exist. Continue with the generation?", "Generate", MessageBoxButtons.YesNo)
-                        == DialogResult.No)
-                            return;
-                    }
-                }
-
-                this.Cursor = Cursors.WaitCursor;
+                // Get the current project
                 ChmProject project = GetCurrentProject();
 
-                GenerationDialog dlg = new GenerationDialog(project, exitAfterEnd, askConfirmations, LogLevel);
+                // Check errors
+                ChmProjectVerifier verifier = new ChmProjectVerifier(project, askConfirmations, true);
+                if (!verifier.Verifiy())
+                    return ChmLogLevel.ERROR;
+
+                // Run the generation
+                GenerationDialog dlg = new GenerationDialog(project, exitAfterEnd, askConfirmations, logLevel);
                 dlg.ShowDialog();
                 dlg.Dispose();
+                return dlg.MiminumLogLevel;
 
             }
             catch (Exception ex)
             {
                 new ExceptionMessageBox(ex).ShowDialog();
+                return ChmLogLevel.ERROR;
             }
-            this.Cursor = Cursors.Default;
-            // Para evitar que quede mucha memoria colgada:
-            GC.Collect();
+
         }
 
         private void btnProcesar_Click(object sender, System.EventArgs e)
@@ -2217,40 +2077,39 @@ namespace ChmProcessor
         private ChmProject GetCurrentProject()
         {
             ChmProject cfg = new ChmProject();
-            //cfg.ArchivoOrigen = txtArchivo.Text;
-            cfg.DestinationProjectDirectory = txtDirDst.Text;
-            cfg.ChmHeaderFile = txtArcCab.Text;
-            cfg.ChmFooterFile = txtArcPie.Text;
-            cfg.HelpTitle = txtTitAyu.Text;
+            cfg.DestinationProjectDirectory = txtDirDst.Text.Trim();
+            cfg.ChmHeaderFile = txtArcCab.Text.Trim();
+            cfg.ChmFooterFile = txtArcPie.Text.Trim();
+            cfg.HelpTitle = txtTitAyu.Text.Trim();
             cfg.GenerateWeb = chkGenWeb.Checked;
-            cfg.WebDirectory = txtDirWeb.Text;
+            cfg.WebDirectory = txtDirWeb.Text.Trim();
             cfg.MaxHeaderContentTree = (int)numArbolContenidos.Value;
             cfg.MaxHeaderIndex = (int)numTemasIndice.Value;
             cfg.CutLevel = (int)numNivelCorte.Value;
             cfg.Compile = radCompilar.Checked;
-            cfg.HelpFile = txtArchivoAyuda.Text;
-            cfg.CommandLine = txtCmdLine.Text;
+            cfg.HelpFile = txtArchivoAyuda.Text.Trim();
+            cfg.CommandLine = txtCmdLine.Text.Trim();
             cfg.GeneratePdf = chkGenPdf.Checked;
-            cfg.PdfPath = txtPdf.Text;
-            cfg.WebKeywords = txtKeywords.Text;
-            cfg.WebDescription = txtDescription.Text;
-            cfg.WebFooterFile = txtFooterWeb.Text;
-            cfg.WebHeaderFile = txtHeaderWeb.Text;
+            cfg.PdfPath = txtPdf.Text.Trim();
+            cfg.WebKeywords = txtKeywords.Text.Trim();
+            cfg.WebDescription = txtDescription.Text.Trim();
+            cfg.WebFooterFile = txtFooterWeb.Text.Trim();
+            cfg.WebHeaderFile = txtHeaderWeb.Text.Trim();
             cfg.GenerateSitemap = chkGenSitemap.Checked;
-            cfg.WebBase = txtWebBase.Text;
+            cfg.WebBase = txtWebBase.Text.Trim();
             cfg.ChangeFrequency = (ChmProject.FrequencyOfChange)cmbChangeFrequency.SelectedItem;
             cfg.WebLanguage = (string)cmbWebLanguage.SelectedItem;
             cfg.FullTextSearch = chkFullSearch.Checked;
             cfg.WebTemplateName = CmbWebTemplate.SelectedItem as string;
-            cfg.CustomTemplateDirectory = TxtTemplateDir.Text;
+            cfg.CustomTemplateDirectory = TxtTemplateDir.Text.Trim();
             if (radPdfCreator.Checked)
                 cfg.PdfGeneration = ChmProject.PdfGenerationWay.PdfCreator;
             else
                 cfg.PdfGeneration = ChmProject.PdfGenerationWay.OfficeAddin;
-            cfg.XpsPath = txtXps.Text;
+            cfg.XpsPath = txtXps.Text.Trim();
             cfg.GenerateXps = chkGenerateXps.Checked;
             cfg.GenerateJavaHelp = chkJavaHelp.Checked;
-            cfg.JavaHelpPath = txtJavaHelp.Text;
+            cfg.JavaHelpPath = txtJavaHelp.Text.Trim();
             cfg.HeadTagFile = txtHeadInclude.Text.Trim();
 
             // Source files:

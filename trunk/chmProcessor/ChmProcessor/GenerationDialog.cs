@@ -25,6 +25,7 @@ using ChmProcessorLib;
 using System.Threading;
 using System.IO;
 using System.Diagnostics;
+using ChmProcessorLib.Log;
 
 namespace ChmProcessor
 {
@@ -91,7 +92,15 @@ namespace ChmProcessor
         private System.Windows.Forms.PictureBox pic;
         #endregion
 
-        public GenerationDialog(ChmProject project, bool exitAfterEnd, bool askConfirmations, int LogLevel)
+        /// <summary>
+        /// Minimum log level message registered.
+        /// </summary>
+        public ChmLogLevel MiminumLogLevel
+        {
+            get { return UI.MinimumChmLogLevel; } 
+        }
+
+        public GenerationDialog(ChmProject project, bool exitAfterEnd, bool askConfirmations, ChmLogLevel logLevel)
 		{
 			InitializeComponent();
 
@@ -99,7 +108,7 @@ namespace ChmProcessor
             this.AskConfirmations = askConfirmations;
 
             this.UI = new GenerationDialogUserInterface(this);
-            this.UI.LogLevel = LogLevel;
+            this.UI.LogLevel = logLevel;
 
             this.Processor = new DocumentProcessor(project, UI);
 
@@ -296,19 +305,20 @@ namespace ChmProcessor
                 Processor.GenerateHelp();
                 if (UI.CancellRequested())
                 {
-                    UI.Log("PROCESS CANCELLED", 1);
+                    UI.Log("PROCESS CANCELLED", ChmLogLevel.ERROR);
                     return;
                 }
 
-                UI.Log("DONE!", 1);
+                UI.Log("DONE!", ChmLogLevel.INFO);
 
                 DateTime stopTime = DateTime.Now;
                 TimeSpan duration = stopTime - startTime;
-                UI.Log("Total time: " + duration.ToString(), 2);
+                UI.Log("Total time: " + duration.ToString(), ChmLogLevel.DEBUG);
             }
             catch (Exception ex)
             {
                 MainException = ex;
+                UI.Log(ex);
             }
         }
 
@@ -346,7 +356,7 @@ namespace ChmProcessor
             if (BgWorker.IsBusy)
                 BgWorker.ReportProgress(0, exception);
             else
-                Log(exception);
+                InternalLog(exception);
         }
 
         /// <summary>
@@ -397,12 +407,12 @@ namespace ChmProcessor
 
                 if (MainException != null)
                 {
-                    UI.Log("ERROR: " + MainException.Message, 1);
+                    UI.Log("ERROR: " + MainException.Message, ChmLogLevel.ERROR);
                     if (AskConfirmations)
                         new ExceptionMessageBox(MainException).ShowDialog(this);
                 }
                 else
-                    UI.Log("Failed", 1);
+                    UI.Log("Failed", ChmLogLevel.ERROR);
             }
             else
             {

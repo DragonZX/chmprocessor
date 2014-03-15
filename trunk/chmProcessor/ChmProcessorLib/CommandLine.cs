@@ -23,6 +23,7 @@ using System.Runtime.InteropServices;
 using System.IO;
 using System.Windows.Forms;
 using ChmProcessorLib;
+using ChmProcessorLib.Log;
 
 namespace ChmProcessorLib
 {
@@ -58,9 +59,15 @@ namespace ChmProcessorLib
         /// </summary>
         protected bool ExitAfterGenerate = false;
 
+        /// <summary>
+        /// Should we show the user interface when generating? 
+        /// </summary>
         protected bool OutputQuiet = false;
 
-        protected int LogLevel = 3;
+        /// <summary>
+        /// Log level selected
+        /// </summary>
+        protected ChmLogLevel LogLevel = ChmLogLevel.DEBUG;
 
         /// <summary>
         /// Shows a message to the user.
@@ -78,6 +85,7 @@ namespace ChmProcessorLib
         {
             Console.WriteLine(text);
             Console.WriteLine(exception.ToString());
+            SetAplicationExitCode(ChmLogLevel.ERROR);
         }
 
         /// <summary>
@@ -86,15 +94,17 @@ namespace ChmProcessorLib
         protected void PrintUsage() {
             
             String txt =
-                "Use " + Path.GetFileName(Application.ExecutablePath) + 
-                " [<projectfile.WHC>] [/g] [/e] [/y] [/?] [/q] [/l1] [/l2] [/l3]\n" +
+                "Use " + Path.GetFileName(Application.ExecutablePath) +
+                " [<projectfile.WHC>] [/g] [/e] [/y] [/?] [/q] [/l1] [/l2] [/l3] [/l4]\n" +
                 "Options:\n" +
                 "/g\tGenerate help sets (chm, javahelp, pdfs,…) specified by the project\n" +
                 "/e\tExit after generate\n" +
                 "/y\tDont ask for confirmations\n" +
                 "/?\tPrint this help and exit\n" +
-                "/q\tPrevents a window being shown when run with the /g command line and logs messages to stdout/stderr\n" +
-                "/l1 /l2 /l3\tLets you choose how much information is output, where /l1 is minimal and /l3 is all the information";
+                "/q\tPrevents a window being shown when run with the /g command line and logs " + 
+                "messages to stdout/stderr\n" +
+                "/l1 /l2 /l3\tLets you choose how much information is output, where /l1 are errors, " +
+                "/l2 warnings, /l3 application status information and /l4 are debug messages";
             Message(txt);
         }
 
@@ -122,25 +132,20 @@ namespace ChmProcessorLib
                     else if (argv[i].Equals("/?"))
                         Op = ConsoleOperation.ShowHelp;
                     else if (argv[i].Equals("/q"))
-                    {
                         OutputQuiet = true;
-                    }
                     else if (argv[i].Equals("/l1"))
-                    {
-                        LogLevel = 1;
-                    }
-                    else if (argv[1].Equals("/l2"))
-                    {
-                        LogLevel = 2;
-                    }
-                    else if (argv[1].Equals("/l3"))
-                    {
-                        LogLevel = 3;
-                    }
+                        LogLevel = ChmLogLevel.ERROR;
+                    else if (argv[i].Equals("/l2"))
+                        LogLevel = ChmLogLevel.WARNING;
+                    else if (argv[i].Equals("/l3"))
+                        LogLevel = ChmLogLevel.INFO;
+                    else if (argv[i].Equals("/l4"))
+                        LogLevel = ChmLogLevel.DEBUG;
                     else
                     {
                         Message("Unknown option " + argv[i]);
                         Op = ConsoleOperation.ShowHelp;
+                        SetAplicationExitCode(ChmLogLevel.ERROR);
                     }
                 }
                 else
@@ -160,16 +165,31 @@ namespace ChmProcessorLib
 
             try
             {
+                // Read or create the default project
                 ChmProject project = ChmProject.OpenChmProjectOrWord(ProjectFile);
+
+                // Check the project
+                ChmProjectVerifier verifier = new ChmProjectVerifier(project, false, false);
+                if (!verifier.Verifiy())
+                {
+                    SetAplicationExitCode(ChmLogLevel.ERROR);
+                    return;
+                }
+
+                // Generate the products
                 DocumentProcessor processor = new DocumentProcessor(project, ui);
                 processor.GenerateHelp();
-                ui.Log("DONE!", 1);
+                ui.Log("DONE!", ChmLogLevel.INFO);
             }
             catch (Exception ex)
             {
                 ui.Log(ex);
-                ui.Log("Failed", 1);
+                ui.Log("Failed", ChmLogLevel.ERROR);
             }
+
+            // Set the application exit code
+            SetAplicationExitCode(ui.MinimumChmLogLevel);
+
         }
 
         /// <summary>
@@ -198,6 +218,7 @@ namespace ChmProcessorLib
                     if (ProjectFile == null)
                     {
                         Message("No file specified");
+                        SetAplicationExitCode(ChmLogLevel.ERROR);
                         return;
                     }
 
@@ -211,5 +232,30 @@ namespace ChmProcessorLib
             }
         }
 
+        /// <summary>
+        /// Set the application exit code from a level log message value.
+        /// </summary>
+        /// <remarks>
+        /// Will set 0 all was ok, 1 if there was errors and 2 if there was warnings.
+        /// </remarks>
+        /// <param name="logLevel">The log level. ChmLogLevel.ERROR, .WARNING, etc.</param>
+        static public void SetAplicationExitCode(ChmLogLevel logLevel)
+        {
+            switch (logLevel)
+            {
+                case ChmLogLevel.DEBUG:
+                case ChmLogLevel.INFO:
+                    Environment.ExitCode = 0;
+                    break;
+
+                case ChmLogLevel.WARNING:
+                    Environment.ExitCode = 1;
+                    break;
+
+                case ChmLogLevel.ERROR:
+                    Environment.ExitCode = 2;
+                    break;
+            }
+        }
     }
 }

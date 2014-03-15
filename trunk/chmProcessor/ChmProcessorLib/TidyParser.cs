@@ -22,6 +22,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using System.Diagnostics;
+using ChmProcessorLib.Log;
 
 namespace ChmProcessorLib
 {
@@ -204,12 +205,12 @@ namespace ChmProcessorLib
                 case 1:
                     // There were warnings:
                     // Dont write: They are html warnings and usually is too much text
-                    //log("There were tidy warnings: " + StandardError, ConsoleUserInterface.ERRORWARNING);
+                    //log("There were tidy warnings: " + StandardError, ChmLogLevel.DEBUG);
                     break;
 
                 case 2:
                     // There were errors:
-                    log("There were tidy errors:\n" + StandardError, ConsoleUserInterface.ERRORWARNING);
+                    Log("There were tidy errors:\n" + StandardError, ChmLogLevel.ERROR);
                     break;
             }
 
@@ -220,7 +221,7 @@ namespace ChmProcessorLib
 
             try
             {
-                log("Parsing file " + file + "...", 2);
+                Log("Parsing file " + file + "...", ChmLogLevel.DEBUG);
                 string parameters = ConfigureParse();
                 // Set the file path to repair:
                 parameters += " -modify \"" + file + "\"";
@@ -228,25 +229,17 @@ namespace ChmProcessorLib
             }
             catch (Exception ex)
             {
-                log(ex);
+                Log(ex);
             }
         }
 
-        /*public string ParseString(string htmlText)
-        {
-            log("Parsing html...", 2);
-            string parameters = ConfigureParse();
-            MemoryStream ms = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(htmlText));
-            return ExecuteTidy(parameters,new StreamReader(ms));
-        }*/
-
-        private void log(string text, int level)
+        private void Log(string text, ChmLogLevel level)
         {
             if (ui != null)
                 ui.Log("Tidy: " + text, level);
         }
 
-        private void log(Exception ex)
+        private void Log(Exception ex)
         {
             if (ui != null)
                 ui.Log(ex);

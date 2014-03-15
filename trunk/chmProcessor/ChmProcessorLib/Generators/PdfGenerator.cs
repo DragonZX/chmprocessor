@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using ChmProcessorLib.DocumentStructure;
+using ChmProcessorLib.Log;
 
 namespace ChmProcessorLib.Generators
 {
@@ -49,12 +50,12 @@ namespace ChmProcessorLib.Generators
         {
             try
             {
-                UI.Log("Generating PDF file", ConsoleUserInterface.INFO);
+                UI.Log("Generating PDF file", ChmLogLevel.INFO);
                 if (Project.PdfGeneration == ChmProject.PdfGenerationWay.OfficeAddin)
                 {
                     MSWord word = new MSWord();
                     if( !word.SaveWordToPdf(MainSourceFilePath, Project.PdfPath) )
-                        UI.Log("Warning: There was a time out waiting to close the word document", 1);
+                        UI.Log("Warning: There was a time out waiting to close the word document", ChmLogLevel.WARNING);
                 }
                 else
                 {
@@ -66,11 +67,11 @@ namespace ChmProcessorLib.Generators
             {
                 if (Project.PdfGeneration == ChmProject.PdfGenerationWay.OfficeAddin)
                     UI.Log("Something wrong happened with the PDF generation. Remember you must to have Microsoft Office 2007 and the" +
-                        "pdf/xps generation add-in (http://www.microsoft.com/downloads/details.aspx?FamilyID=4D951911-3E7E-4AE6-B059-A2E79ED87041&displaylang=en)", ConsoleUserInterface.ERRORWARNING);
+                        "pdf/xps generation add-in (http://www.microsoft.com/downloads/details.aspx?FamilyID=4D951911-3E7E-4AE6-B059-A2E79ED87041&displaylang=en)", ChmLogLevel.ERROR);
                 else
                     UI.Log("Something wrong happened with the PDF generation. Remember you must to have PdfCreator (VERSION " + PdfPrinter.SUPPORTEDVERSION +
                         " AND ONLY THIS VERSION) installed into your computer to " +
-                        "generate a PDF file. You can download it from http://www.pdfforge.org/products/pdfcreator/download", ConsoleUserInterface.ERRORWARNING);
+                        "generate a PDF file. You can download it from http://www.pdfforge.org/products/pdfcreator/download", ChmLogLevel.ERROR);
                 UI.Log(ex);
             }
         }
