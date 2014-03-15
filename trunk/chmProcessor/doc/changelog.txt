@@ -4,6 +4,8 @@
 - Added a new exe for command line generation
 - Added new settings option to disable waiting for MS Word close: To avoid application hangs.
 - Application now tests if the html document has a body tag.
+- Log generation rewritten
+- Now application returns exit code (0= ok, 1= warnings, 2= errors)
 
 * 1.7
 
