@@ -103,7 +103,7 @@ namespace ChmProcessorLib
                 "/?\tPrint this help and exit\n" +
                 "/q\tPrevents a window being shown when run with the /g command line and logs " + 
                 "messages to stdout/stderr\n" +
-                "/l1 /l2 /l3\tLets you choose how much information is output, where /l1 are errors, " +
+                "/l1 /l2 /l3 /4\tLets you choose how much information is output, where /l1 are errors, " +
                 "/l2 warnings, /l3 application status information and /l4 are debug messages";
             Message(txt);
         }

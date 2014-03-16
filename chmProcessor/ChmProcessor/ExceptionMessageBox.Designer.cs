@@ -47,7 +47,7 @@
             // 
             this.btnAccept.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnAccept.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnAccept.Location = new System.Drawing.Point(612, 378);
+            this.btnAccept.Location = new System.Drawing.Point(612, 407);
             this.btnAccept.Name = "btnAccept";
             this.btnAccept.Size = new System.Drawing.Size(75, 23);
             this.btnAccept.TabIndex = 4;
@@ -59,7 +59,7 @@
             // 
             this.lnkReportBug.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lnkReportBug.AutoSize = true;
-            this.lnkReportBug.Location = new System.Drawing.Point(13, 367);
+            this.lnkReportBug.Location = new System.Drawing.Point(10, 375);
             this.lnkReportBug.Name = "lnkReportBug";
             this.lnkReportBug.Size = new System.Drawing.Size(176, 13);
             this.lnkReportBug.TabIndex = 5;
@@ -71,7 +71,7 @@
             // 
             this.txtInner.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtInner.Location = new System.Drawing.Point(91, 344);
+            this.txtInner.Location = new System.Drawing.Point(88, 352);
             this.txtInner.Name = "txtInner";
             this.txtInner.ReadOnly = true;
             this.txtInner.Size = new System.Drawing.Size(596, 20);
@@ -81,7 +81,7 @@
             // 
             this.lnkInner.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lnkInner.AutoSize = true;
-            this.lnkInner.Location = new System.Drawing.Point(13, 347);
+            this.lnkInner.Location = new System.Drawing.Point(10, 355);
             this.lnkInner.Name = "lnkInner";
             this.lnkInner.Size = new System.Drawing.Size(44, 13);
             this.lnkInner.TabIndex = 8;
@@ -99,7 +99,7 @@
             this.tabControl1.Location = new System.Drawing.Point(13, 12);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(679, 326);
+            this.tabControl1.Size = new System.Drawing.Size(679, 334);
             this.tabControl1.TabIndex = 9;
             // 
             // tabPage1
@@ -108,7 +108,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(671, 300);
+            this.tabPage1.Size = new System.Drawing.Size(671, 308);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Message";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -122,7 +122,7 @@
             this.txtMessage.Multiline = true;
             this.txtMessage.Name = "txtMessage";
             this.txtMessage.ReadOnly = true;
-            this.txtMessage.Size = new System.Drawing.Size(659, 288);
+            this.txtMessage.Size = new System.Drawing.Size(659, 296);
             this.txtMessage.TabIndex = 2;
             // 
             // tabPage2
@@ -131,7 +131,7 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(647, 272);
+            this.tabPage2.Size = new System.Drawing.Size(671, 308);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Details";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -148,27 +148,26 @@
             this.txtDetails.Name = "txtDetails";
             this.txtDetails.ReadOnly = true;
             this.txtDetails.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.txtDetails.Size = new System.Drawing.Size(641, 269);
+            this.txtDetails.Size = new System.Drawing.Size(665, 305);
             this.txtDetails.TabIndex = 4;
             this.txtDetails.WordWrap = false;
             // 
             // label1
             // 
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(13, 388);
+            this.label1.Location = new System.Drawing.Point(10, 396);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(517, 13);
+            this.label1.Size = new System.Drawing.Size(553, 34);
             this.label1.TabIndex = 10;
-            this.label1.Text = "PLEASE, post a test case with the bug report (the WHC file, the Word/HTML documen" +
-                "t, additional files, etc)";
+            this.label1.Text = "PLEASE, attach a test case with the bug report (the WHC file, the Word/HTML docum" +
+                "ent, additional files, etc), and the chmProcessor version number";
             // 
             // ExceptionMessageBox
             // 
             this.AcceptButton = this.btnAccept;
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Inherit;
             this.CancelButton = this.btnAccept;
-            this.ClientSize = new System.Drawing.Size(703, 413);
+            this.ClientSize = new System.Drawing.Size(703, 439);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.lnkInner);
