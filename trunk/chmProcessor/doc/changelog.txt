@@ -1,4 +1,8 @@
 
+* 1.7.2
+
+- Fixed bug when the source file had no title tag: Search was not working properly
+
 * 1.7.1
 - Fixed bug generating a Word file directly from command line
 - Added a new exe for command line generation
