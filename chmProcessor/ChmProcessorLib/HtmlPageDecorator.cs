@@ -350,6 +350,7 @@ namespace ChmProcessorLib
             // Copy the original <head> node:
             string newHeadText = "<head>\n";
             bool contentTypeFound = false;
+            bool titleFound = false;
             foreach (HtmlNode e in head.ChildNodes)
             {
                 if (OutputEncoding != null && IsContentTypeTag(e))
@@ -359,19 +360,29 @@ namespace ChmProcessorLib
                     contentTypeFound = true;
                 }
                 else if (e.Name.ToLower() == "title")
+                {
                     // Is the title. We will replace it after.
                     newHeadText += TITLETAG + "\n";
+                    titleFound = true;
+                }
                 else
-                    newHeadText += e.OuterHtml + "\n";
+                {
+                    newHeadText += e.OuterHtml;
+                    if (!newHeadText.EndsWith("\n"))
+                        newHeadText += "\n";
+                }
             }
 
             if (!contentTypeFound && OutputEncoding != null)
                 // We are going to replace the original encondig. So, make sure to declare it:
                 newHeadText += ContentTypeMetaTag;
-            
+
+            if (!titleFound)
+                // There was no title on the original source. Add it now
+                newHeadText += TITLETAG + "\n";
 
             // Add head includes
-            if (HeadIncludeHtmlCode != "")
+            if (! string.IsNullOrEmpty( HeadIncludeHtmlCode ) )
                 newHeadText += HeadIncludeHtmlCode + "\n";
 
             // Add some spam:

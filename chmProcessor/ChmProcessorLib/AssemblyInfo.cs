@@ -27,7 +27,7 @@ using System.Resources;
 // Puede especificar todos los valores o usar los valores predeterminados (número de versión de compilación y de revisión) 
 // usando el símbolo '*' como se muestra a continuación:
 
-[assembly: AssemblyVersion("1.7.1")]
+[assembly: AssemblyVersion("1.7.2")]
 
 //
 // Si desea firmar el ensamblado, debe especificar una clave para su uso. Consulte la documentación de 
@@ -58,4 +58,4 @@ using System.Resources;
 [assembly: AssemblyKeyFile("")]
 [assembly: AssemblyKeyName("")]
 [assembly: NeutralResourcesLanguageAttribute("en")]
-[assembly: AssemblyFileVersionAttribute("1.7.1")]
+[assembly: AssemblyFileVersionAttribute("1.7.2")]
