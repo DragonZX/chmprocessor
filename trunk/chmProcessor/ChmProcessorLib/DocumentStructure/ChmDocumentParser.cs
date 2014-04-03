@@ -134,6 +134,13 @@ namespace ChmProcessorLib.DocumentStructure
                 // More than one page will be created. If the initial node has no content, remove it.
                 if (InitialNode.EmptyTextContent)
                     Document.RootNode.Children.Remove(InitialNode);
+                else
+                {
+                    // If the initial content had no title, change it to the project help title
+                    if (InitialNode.Title == ChmDocument.DEFAULTTILE &&
+                        !string.IsNullOrEmpty(Project.HelpTitle))
+                        InitialNode.CustomNodeTitle = Project.HelpTitle;
+                }
             }
 
             if (UI.CancellRequested())

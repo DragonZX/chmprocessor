@@ -140,17 +140,21 @@ namespace ChmProcessorLib
 
             UI.Log("Convert file " + MainSourceFile + " to HTML", ChmLogLevel.INFO);
             string nombreArchivo = Path.GetFileNameWithoutExtension(MainSourceFile);
-            MSWordHtmlDirectory = Path.GetTempPath() + Path.DirectorySeparatorChar + nombreArchivo;
+            MSWordHtmlDirectory = Path.Combine( Path.GetTempPath() , nombreArchivo );
             if (Directory.Exists(MSWordHtmlDirectory))
                 Directory.Delete(MSWordHtmlDirectory, true);
             else if (File.Exists(MSWordHtmlDirectory))
                 File.Delete(MSWordHtmlDirectory);
             Directory.CreateDirectory(MSWordHtmlDirectory);
 
-            // Rename the file to a save name. If there is spaces, for example, 
+            // Rename the file to a save name. If there is spaces, as example, 
             // links to embedded images into the document are not found.
             //string finalFile = dirHtml + Path.DirectorySeparatorChar + nombreArchivo + ".htm";
-            string finalFile = MSWordHtmlDirectory + Path.DirectorySeparatorChar + ChmDocumentNode.ToSafeFilename(nombreArchivo) + ".htm";
+
+            // hmm. Probably a MSHTML bug? Reverted. A bug about this was reported (http://sourceforge.net/p/chmprocessor/bugs/24/)
+            //string finalFile = MSWordHtmlDirectory + Path.DirectorySeparatorChar + ChmDocumentNode.ToSafeFilename(nombreArchivo) + ".htm";
+
+            string finalFile = Path.Combine( MSWordHtmlDirectory , nombreArchivo + ".htm");
 
             if( !msWord.SaveWordToHtml(MainSourceFile, finalFile) )
                 UI.Log("Warning: There was a time out waiting to close the word document", ChmLogLevel.WARNING);

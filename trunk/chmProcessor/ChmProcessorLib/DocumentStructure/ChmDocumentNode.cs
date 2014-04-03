@@ -40,6 +40,12 @@ namespace ChmProcessorLib.DocumentStructure
         static private Regex MultispaceRemover = new Regex(@"[ ]{2,}", RegexOptions.Multiline);
 
         /// <summary>
+        /// If it's not null, this node title will be override by this value. It's a plain text
+        /// value.
+        /// </summary>
+        public string CustomNodeTitle;
+
+        /// <summary>
         /// Header tag (h1,h2...) for this node.
         /// It will be null for the root node AND the initial part of the document without any title.
         /// TODO: This member should be private
@@ -156,7 +162,6 @@ namespace ChmProcessorLib.DocumentStructure
             int i;
             for (i = 0; i < filename.Length; i++)
             {
-                // TODO: Use Char.IsLetterOrDigit here
                 char c = filename[i];
                 if (c == '-' || c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || 
                     c == '.' || ( c >= '0' && c <= '9' ) )
@@ -269,6 +274,11 @@ namespace ChmProcessorLib.DocumentStructure
         {
             get 
             {
+
+                if (CustomNodeTitle != null)
+                    // Use the custom title
+                    return HttpUtility.HtmlEncode(CustomNodeTitle);
+
                 // HTML agility pack has InnerText as HTML encoded...
                 string name = "";
                 if (HeaderTag != null)
