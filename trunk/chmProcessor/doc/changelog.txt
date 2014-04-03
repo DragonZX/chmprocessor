@@ -1,4 +1,9 @@
 
+* 1.7.3
+
+- Fixed bug when source MS Word had no english characters on its name
+- Fixed bug with the initial content of the document had no title. Changed its title from "Help content" to the help title.
+
 * 1.7.2
 
 - Fixed bug when the source file had no title tag: Search was not working properly
