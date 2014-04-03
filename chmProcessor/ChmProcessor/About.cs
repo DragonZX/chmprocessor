@@ -129,7 +129,7 @@ namespace ChmProcessor
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(441, 16);
             this.label1.TabIndex = 1;
-            this.label1.Text = "chmProcessor - A Html / Word converter to Compiled HTML Help v1.7.2";
+            this.label1.Text = "chmProcessor - A Html / Word converter to Compiled HTML Help v1.7.3";
             // 
             // label2
             // 
@@ -165,6 +165,7 @@ namespace ChmProcessor
             this.txtLicencia.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtLicencia.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtLicencia.Location = new System.Drawing.Point(11, 103);
             this.txtLicencia.Multiline = true;
             this.txtLicencia.Name = "txtLicencia";
@@ -172,6 +173,7 @@ namespace ChmProcessor
             this.txtLicencia.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.txtLicencia.Size = new System.Drawing.Size(516, 246);
             this.txtLicencia.TabIndex = 5;
+            this.txtLicencia.WordWrap = false;
             // 
             // label3
             // 
